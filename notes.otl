@@ -1,0 +1,65 @@
+Pipeline
+	BAM file could come from different centers
+		Ready to go
+			illumina
+				pipeline to use
+					bam2fastq -> GotCloud
+			UW
+				pipeline to use
+					cleanUpBam2Fastq -> GotCloud
+		Requires Testing
+			NYGC
+				pipeline to use
+					try bam2fastq, if it fails use cleanUpBam2Fastq
+			Broad
+				pipline to use
+					Unknown
+	Software
+		use the alignPrep branch of gotcloud
+			https://github.com/statgen/gotcloud/tree/alignPrep
+	bam2fastq
+		: this converts the BAMs from sequencing centers to fastq files.
+		:
+		: this could take up to 13 hours
+	gotcloud
+		: this converts the fastq files back to BAM files in a consistent format.
+Procedure
+	Create a list file for each bam file
+		: use /exports/working/hmkang/scripts/check-bamlist.pl
+		: copied to $PWD/bin/check-bamlist.pl
+	create a gotcloud configuration file for each bam file
+		: with bam list file specified
+	Run align jobs in cluster
+		: be that CSG slurm or Flux PBS/Torque.
+		Powered by scripts not yet written but have examples for
+			: to speed up these jobs use the following settings in the gotcloud
+			: configuration file:
+			:
+			: TMP_DIR = /tmp
+			: or
+			: TMP_DIR = /fasttmp
+			:
+			: when testing for NYGC and Broad use the following settings in gotcloud
+			: configuration file to debug any problems:
+			:
+			: KEEP_TMP = 1
+			: KEEP_LOG = 1
+Samples
+	/exports/working/hmkang/data/nhlbi.463.initial.lookup.table.tab
+		: contains ~25,000 sample IDs.
+		: Any samples that does not have ERRORS in the output of my summary script
+	/exports/working/hmkang/scripts/check-bamlist.pl
+		: if the sample ID also appears in the file above, then the sample is
+		: good to go.
+Notes
+	OUT_DIR
+		: create unique output dir for each job based on jobid
+	GotCloud Configuration
+		: should be able to use a shared conf for each job but need to play with
+		: the BAM_LIST and FASTQ_LIST paths a bit. 
+		:
+		: the TMP_DIR may be an issue as well
+	BAM list file
+		: need to genereate a bam list file for each bam file
+		: and name it bam.list and store it in OUT_DIR.
+	
