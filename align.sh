@@ -3,7 +3,7 @@
 #SBATCH --nodes=1-1
 #SBATCH --cpus-per-task=2
 #SBATCH --mem=25000
-# SBATCH --tmp=150000
+#SBATCH --tmp=150000
 #SBATCH --time=10-0
 #SBATCH --workdir=./run
 #SBATCH --ignore-pbs
@@ -20,13 +20,13 @@
 #PBS -V
 #PBS -j oe
 
-export PATH=$PWD/gotcloud:$PATH
-
 CONF="$HOME/projects/topmed/gotcloud.conf"
 OUT_DIR="topmed/working/schelcj/out.uw"
 REF_DIR="topmed/working/mktrost/gotcloud.ref"
 TMP_DIR="/tmp/topmed"
 GOTCLOUD_ROOT="$HOME/projects/topmed/gotcloud"
+
+export PATH=$GOTCLOUD_ROOT:$PATH
 
 if [ ! -z $SLURM_JOB_ID ]; then
   OUT_DIR="/net/${OUT_DIR}"
@@ -41,7 +41,15 @@ fi
 mkdir -p $OUTDIR $TMP_DIR
 
 sample="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\w*' | sort -u | cut -d \: -f 2)"
-echo -e "$sample\t$BAM_FILE" > $TMP_DIR/bam.list
+echo "$sample\t$BAM_FILE" > $TMP_DIR/bam.list
+
+echo "OUT_DIR: $OUT_DIR"
+echo "TMP_DIR: $TMP_DIR"
+echo "REF_DIR: $REF_DIR"
+echo "GC CONF: $CONF"
+echo "GOTCLOUD: $(which gotcloud)"
+echo "BAM: $BAM_FILE"
+echo "NODE: $SLURM_JOB_NODELIST"
 
 gotcloud pipe                \
   --gcroot  $GOTCLOUD_ROOT   \
@@ -65,11 +73,7 @@ gotcloud align                    \
   --override "TMP_DIR=$TMP_DIR"   \
   --ref_dir   $REF_DIR
 
+#rm -rf $TMP_DIR
+
 # TODO
-#  * create a bam.list for each individaul bam sample file
-#  * set TMP_DIR on the comand line
-#  * clean up TMP_DIR afterwards
-#  * need someway of automagically knowning which BAM sample to work on or
-#    being told externally, likely via ENV vars.
-#    Likely env vars: SAMPLE_CENTER BAM_FILE
 #  * TMP_DIR might be /tmp or /fasttmp if running on csg cluster
