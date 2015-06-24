@@ -22,7 +22,7 @@
 #PBS -V
 #PBS -j oe
 
-CONF="confs/gotcloud-uw.conf"
+CONF="gotcloud.conf"
 OUT_DIR="topmed/working/schelcj/out.uw"
 REF_DIR="topmed/working/mktrost/gotcloud.ref"
 TMP_DIR="/tmp/topmed"
