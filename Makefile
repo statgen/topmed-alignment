@@ -1,7 +1,7 @@
-all: clean align
-
-clean:
-	@rm logs/*.err logs/*.out
+all: align
 
 align:
 	@sbatch ./align.sh
+
+status:
+	@squeue -u $(USER)
