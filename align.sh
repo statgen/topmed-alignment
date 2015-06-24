@@ -1,17 +1,13 @@
 #!/bin/sh
-#
-#SBATCH --mail-type=ALL
-#SBATCH --mail-user=schelcj@umich.edu
+
 #SBATCH --nodes=1-1
 #SBATCH --cpus-per-task=2
 #SBATCH --mem=25000
 # SBATCH --tmp=150000
 #SBATCH --time=10-0
-#SBATCH --workdir=/net/dumbo/home/schelcj/projects/topmed
+#SBATCH --workdir=./run
 #SBATCH --ignore-pbs
 #SBATCH --partition=topmed
-#SBATCH --error=logs/slurm-%j.err
-#SBATCH --output=logs/slurm-%j.out
 
 #PBS -l nodes=1:ppn=2,walltime=240:00:00,pmem=25gb
 #PBS -l ddisk=150gb
@@ -26,11 +22,11 @@
 
 export PATH=$PWD/gotcloud:$PATH
 
-echo $(which gotcloud)
-
+CONF="$HOME/projects/topmed/gotcloud.conf"
 OUT_DIR="topmed/working/schelcj/out.uw"
 REF_DIR="topmed/working/mktrost/gotcloud.ref"
 TMP_DIR="/tmp/topmed"
+GOTCLOUD_ROOT="$HOME/projects/topmed/gotcloud"
 
 if [ ! -z $SLURM_JOB_ID ]; then
   OUT_DIR="/net/${OUT_DIR}"
@@ -47,11 +43,12 @@ mkdir -p $OUTDIR $TMP_DIR
 sample="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\w*' | sort -u | cut -d \: -f 2)"
 echo -e "$sample\t$BAM_FILE" > $TMP_DIR/bam.list
 
-gotcloud pipe                   \
-  --name    cleanUpBam2fastq    \
-  --conf    gotcloud.conf       \
-  --numjobs 1                   \
-  --ref_dir   $REF_DIR          \
+gotcloud pipe                \
+  --gcroot  $GOTCLOUD_ROOT   \
+  --name    cleanUpBam2fastq \
+  --conf    $CONF            \
+  --numjobs 1                \
+  --ref_dir $REF_DIR         \
   --outdir  $TMP_DIR
 
 if [ "$?" -ne 0 ]; then
@@ -60,7 +57,8 @@ if [ "$?" -ne 0 ]; then
 fi
 
 gotcloud align                    \
-  --conf      gotcloud.conf       \
+  --gcroot  $GOTCLOUD_ROOT        \
+  --conf    $CONF                 \
   --threads   2                   \
   --outdir    $OUT_DIR            \
   --fastqlist $TMP_DIR/fastq.list \
