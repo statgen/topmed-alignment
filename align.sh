@@ -1,9 +1,10 @@
 #!/bin/sh
 
 #SBATCH --nodes=1-1
-#SBATCH --cpus-per-task=2
-#SBATCH --mem=25000
-#SBATCH --tmp=150000
+#SBATCH --cpus-per-task=6
+#SBATCH --mem=15000
+# SBATCH --tmp=150000
+#SBATCH --gres=SSD:fasttmp:150
 #SBATCH --time=10-0
 #SBATCH --workdir=./run
 #SBATCH --ignore-pbs
@@ -23,7 +24,7 @@
 CONF="$HOME/projects/topmed/gotcloud.conf"
 OUT_DIR="topmed/working/schelcj/out.uw"
 REF_DIR="topmed/working/mktrost/gotcloud.ref"
-TMP_DIR="/tmp/topmed"
+TMP_DIR="/fasttmp/topmed"
 GOTCLOUD_ROOT="$HOME/projects/topmed/gotcloud"
 
 export PATH=$GOTCLOUD_ROOT:$PATH
@@ -67,13 +68,16 @@ fi
 gotcloud align                    \
   --gcroot  $GOTCLOUD_ROOT        \
   --conf    $CONF                 \
-  --threads   2                   \
+  --threads   6                   \
   --outdir    $OUT_DIR            \
   --fastqlist $TMP_DIR/fastq.list \
   --override "TMP_DIR=$TMP_DIR"   \
   --ref_dir   $REF_DIR
 
-#rm -rf $TMP_DIR
+rm -rf $TMP_DIR
 
 # TODO
 #  * TMP_DIR might be /tmp or /fasttmp if running on csg cluster
+#    need a way to control that from the outside of the batch script
+#  * /tmp will be controlled by slurm as --tmp=
+#  * /fasttmp will be a gres controlled by --gres=
