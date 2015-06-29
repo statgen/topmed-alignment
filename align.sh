@@ -3,8 +3,8 @@
 #SBATCH --nodes=1-1
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=15000
-# SBATCH --tmp=150000
-#SBATCH --gres=SSD:fasttmp:150
+#SBATCH --tmp=150000
+# SBATCH --gres=SSD:fasttmp:150
 #SBATCH --time=10-0
 #SBATCH --workdir=./run
 #SBATCH --ignore-pbs
@@ -24,8 +24,9 @@
 CONF="$HOME/projects/topmed/gotcloud.conf"
 OUT_DIR="topmed/working/schelcj/out.uw"
 REF_DIR="topmed/working/mktrost/gotcloud.ref"
-TMP_DIR="/fasttmp/topmed"
+TMP_DIR="/tmp/topmed"
 GOTCLOUD_ROOT="$HOME/projects/topmed/gotcloud"
+PIPELINE="bam2fastq"
 
 export PATH=$GOTCLOUD_ROOT:$PATH
 
@@ -38,6 +39,12 @@ else
   TMP_DIR="${TMP_DIR}/${PBS_JOBID}"
   REF_DIR="/dept/csg/${REF_DIR}"
 fi
+
+case "$BAM_CENTER" in
+  uw)
+    PIPELINE="cleanUpBam2Fastq"
+    ;;
+esac
 
 mkdir -p $OUTDIR $TMP_DIR
 
@@ -54,15 +61,17 @@ echo "NODE: $SLURM_JOB_NODELIST"
 
 gotcloud pipe                \
   --gcroot  $GOTCLOUD_ROOT   \
-  --name    cleanUpBam2fastq \
+  --name    $PIPELINE        \
   --conf    $CONF            \
   --numjobs 1                \
   --ref_dir $REF_DIR         \
   --outdir  $TMP_DIR
 
-if [ "$?" -ne 0 ]; then
+rc=$?
+
+if [ "$rc" -ne 0 ]; then
   echo "cleanUpBam2fastq failed" 1>&2
-  exit
+  exit $rc
 fi
 
 gotcloud align                    \
@@ -73,6 +82,13 @@ gotcloud align                    \
   --fastqlist $TMP_DIR/fastq.list \
   --override "TMP_DIR=$TMP_DIR"   \
   --ref_dir   $REF_DIR
+
+rc=$?
+
+if [ "$rc" -ne 0 ]; then
+  echo "Alignment failed, TMP_DIR is $TMP_DIR on host $SLURM_JOB_NODELIST"
+  exit $rc
+fi
 
 rm -rf $TMP_DIR
 
