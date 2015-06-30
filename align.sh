@@ -72,31 +72,26 @@ esac
 
 mkdir -p $OUT_DIR $TMP_DIR $SAMPLE_DIR
 
-function print_job_info() {
-  echo "OUT_DIR:  $OUT_DIR"
-  echo "TMP_DIR:  $TMP_DIR"
-  echo "REF_DIR:  $REF_DIR"
-  echo "BAM:      $BAM_FILE"
-  echo "BAM ID:   $1"
-  echo "NODE:     $NODE"
-  echo "JOBID:    $JOB_ID"
-  echo "GOTCLOUD: $(which gotcloud)"
-  echo "GC CONF:  $CONF"
-  echo "PIPELINE: $PIPELINE"
-}
-
 bam_id="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\w*' | sort -u | cut -d \: -f 2)"
 job_info=${SAMPLE_DIR}/$(basename $BAM_FILE)
 
-if [ -e $job_info]; then
+if [ -e $job_info ]; then
   echo "Already processed this sample"
   exit 1
 fi
 
 echo "$bam_id\t$BAM_FILE" > $TMP_DIR/bam.list
 
-print_job_info "$bam_id" > $job_info
-print_job_info "$bam_id"
+echo "OUT_DIR:    $OUT_DIR" > $job_info
+echo "TMP_DIR:    $TMP_DIR" >> $job_info
+echo "REF_DIR:    $REF_DIR" >> $job_info
+echo "BAM:        $BAM_FILE" >> $job_info
+echo "BAM ID:     $bam_id" >> $job_info
+echo "NODE:       $NODE" >> $job_info
+echo "JOBID:      $JOB_ID" >> $job_info
+echo "GOTCLOUD:   $(which gotcloud)" >> $job_info
+echo "PIPELINE:   $PIPELINE" >> $job_info
+echo "GC CONF:    $CONF" >> $job_info
 
 gotcloud pipe                \
   --gcroot  $GOTCLOUD_ROOT   \
@@ -107,6 +102,8 @@ gotcloud pipe                \
   --outdir  $TMP_DIR
 
 rc=$?
+
+echo "GC PIPE RC: $rc" >> $job_info
 
 if [ "$rc" -ne 0 ]; then
   echo "cleanUpBam2fastq failed" 1>&2
@@ -123,6 +120,8 @@ gotcloud align                    \
   --ref_dir   $REF_DIR
 
 rc=$?
+
+echo "GC ALIGN RC: $rc" >> $job_info
 
 if [ "$rc" -ne 0 ]; then
   echo "Alighment failed; job info is in $job_info"
