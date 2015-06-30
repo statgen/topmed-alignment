@@ -87,6 +87,7 @@ echo "TMP_DIR:    $TMP_DIR" >> $job_info
 echo "REF_DIR:    $REF_DIR" >> $job_info
 echo "BAM:        $BAM_FILE" >> $job_info
 echo "BAM ID:     $bam_id" >> $job_info
+echo "BAM CENTER: $BAM_CENTER" >> $job_info
 echo "NODE:       $NODE" >> $job_info
 echo "JOBID:      $JOB_ID" >> $job_info
 echo "GOTCLOUD:   $(which gotcloud)" >> $job_info
