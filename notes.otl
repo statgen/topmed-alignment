@@ -24,11 +24,8 @@ Pipeline
 	gotcloud
 		: this converts the fastq files back to BAM files in a consistent format.
 Procedure
-	Create a list file for each bam file
-		: use /exports/working/hmkang/scripts/check-bamlist.pl
-		: copied to $PWD/bin/check-bamlist.pl
-	create a gotcloud configuration file for each bam file
-		: with bam list file specified
+	topmed_arrive.sh should record a new bam file has arrived
+	long running job in flux/csg should check record for new bam file
 	Run align jobs in cluster
 		: be that CSG slurm or Flux PBS/Torque.
 		Powered by scripts not yet written but have examples for
@@ -44,6 +41,8 @@ Procedure
 			:
 			: KEEP_TMP = 1
 			: KEEP_LOG = 1
+	batch job need env var for center and file to feed to align.sh script
+	output directory for align writes back to topmed
 Samples
 	/exports/working/hmkang/data/nhlbi.463.initial.lookup.table.tab
 		: contains ~25,000 sample IDs.
