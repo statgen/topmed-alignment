@@ -61,4 +61,8 @@ Notes
 	BAM list file
 		: need to genereate a bam list file for each bam file
 		: and name it bam.list and store it in OUT_DIR.
-	
+	Flux
+		modules to load
+			: module load cmake
+			: module load med
+			: module load samtools
