@@ -7,6 +7,8 @@
 #  * /fasttmp will be a gres controlled by --gres=
 #  * change output directory to per job per center per pi
 #  * could make this determine what bam to run on its own
+#  * move my job setup directory to a shared filesystem so slurm and flux
+#    are referencing the same run directory
 
 #SBATCH --nodes=1-1
 #SBATCH --cpus-per-task=6
