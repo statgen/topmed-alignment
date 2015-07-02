@@ -66,3 +66,12 @@ Notes
 			: module load cmake
 			: module load med
 			: module load samtools
+TODO
+	Paths
+		Get all paths synced between flux and csg
+	Test Load
+		CSG
+			: 2 per node in the nomosix parition
+			: use memory  or QoS
+		Flux
+			: use sph_flux for testing
