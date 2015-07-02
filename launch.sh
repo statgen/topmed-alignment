@@ -1,6 +1,15 @@
 #!/bin/sh
 
-INCOMING="/net/topmed/incoming/topmed"
+case "$1" in
+  csg)
+    PREFIX=/net/topmed
+    ;;
+  flux)
+    PREFIX=/dept/csg/topmed
+  ;;
+esac
+
+INCOMING="${PREFIX}/incoming/topmed"
 CENTERS=($(find $INCOMING -maxdepth 1))
 
 for center in "${CENTERS[@]}"; do
@@ -17,7 +26,10 @@ for center in "${CENTERS[@]}"; do
     for bam in "${BAMS[@]}"; do
       export BAM_FILE=$bam
 
-      sbatch ./align.sh
+      echo $BAM_CENTER $BAM_FILE
+
+      # TODO - use sbatch or qsub based on $1
+      #sbatch ./align.sh
     done
   fi
 done
