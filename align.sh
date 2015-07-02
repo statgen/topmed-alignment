@@ -1,46 +1,24 @@
 #!/bin/sh
 
-# TODO
-#  * TMP_DIR might be /tmp or /fasttmp if running on csg cluster
-#    need a way to control that from the outside of the batch script
-#  * /tmp will be controlled by slurm as --tmp=
-#  * /fasttmp will be a gres controlled by --gres=
-#  * change output directory to per job per center per pi
-#  * could make this determine what bam to run on its own
-#  * move my job setup directory to a shared filesystem so slurm and flux
-#    are referencing the same run directory
-
 #SBATCH --nodes=1-1
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=15000
 #SBATCH --tmp=150000
 #SBATCH --time=10-0
-#SBATCH --workdir=./run
+#SBATCH --workdir=../run
 #SBATCH --partition=topmed
 #SBATCH --ignore-pbs
 
 #PBS -l nodes=1:ppn=2,walltime=240:00:00,pmem=8gb
 #PBS -l ddisk=150gb
 #PBS -m abe
-#PBS -d .
+#PBS -d ../run
 #PBS -M schelcj@umich.edu
-#PBS -q fluxm
+#PBS -q flux
 #PBS -l qos=flux
-#PBS -A boehnke_flux
+#PBS -A sph_flux
 #PBS -V
 #PBS -j oe
-
-PROJECT_DIR="$HOME/projects/topmed"
-RUN_DIR="$PROJECT_DIR/run"
-SAMPLE_DIR="$RUN_DIR/samples"
-CONF="$PROJECT_DIR/gotcloud.conf"
-OUT_DIR="topmed/working/schelcj/align.results"
-REF_DIR="topmed/working/mktrost/gotcloud.ref"
-TMP_DIR="/tmp/topmed"
-GOTCLOUD_ROOT="$HOME/projects/topmed/gotcloud"
-PIPELINE="bam2fastq"
-
-export PATH=$GOTCLOUD_ROOT:$PATH
 
 if [ -z $BAM_CENTER ]; then
   echo "BAM_CENTER is not defined!"
@@ -53,18 +31,45 @@ if [ -z $BAM_FILE ]; then
 fi
 
 if [ ! -z $SLURM_JOB_ID ]; then
-  OUT_DIR="/net/${OUT_DIR}/${BAM_CENTER}/${SLURM_JOB_ID}"
-  TMP_DIR="${TMP_DIR}/${SLURM_JOB_ID}"
-  REF_DIR="/net/${REF_DIR}"
-  NODE=$SLURM_JOB_NODELIST
   JOB_ID=$SLURM_JOB_ID
+  NODE=$SLURM_JOB_NODELIST
+  CLST_ENV="csg"
+  PREFIX="/net/topmed/working"
+
 elif [ ! -z $PBS_JOBID ]; then
-  OUT_DIR="/dept/csg/${OUT_DIR}/${BAM_CENTER}/${PBS_JOBID}"
-  TMP_DIR="${TMP_DIR}/${PBS_JOBID}"
-  REF_DIR="/dept/csg/${REF_DIR}"
-  NODE=$PBS_NODELIST # FIXME - not sure what this is yet
   JOB_ID=$PBS_JOBID
+  NODE="$(cat $PBS_NODEFILE)"
+  CLST_ENV="flux"
+  PREFIX="/dept/csg/topmed/working"
+
+else
+  echo "Unknown cluster environment"
+  exit 1
 fi
+
+TMP_DIR="/tmp/topmed"
+PIPELINE="bam2fastq"
+ALIGN_THREADS=6
+
+PROJECT_DIR="${PREFIX}/schelcj/align"
+REF_DIR="${PREFIX}/mktrost/gotcloud.ref"
+OUT_DIR="${PREFIX}/schelcj/results/${BAM_CENTER}/${JOB_ID}"
+RUN_DIR="${PROJECT_DIR}/../run"
+SAMPLE_DIR="${RUN_DIR}/samples"
+TMP_DIR="${TMP_DIR}/${JOB_ID}"
+CONF="${PROJECT_DIR}/gotcloud.conf"
+GOTCLOUD_ROOT="${PROJECT_DIR}/../gotcloud"
+GOTCLOUD_CMD="gotcloud"
+
+case "$CLST_ENV")
+  csg)
+    GOTCLOUD_CMD="srun gotcloud"
+    ;;
+  flux)
+    GOTCLOUD_ROOT="${PROJECT_DIR}/gotcloud.flux"
+    ALIGN_THREADS=2
+    ;;
+esac
 
 case "$BAM_CENTER" in
   uw)
@@ -72,6 +77,7 @@ case "$BAM_CENTER" in
     ;;
 esac
 
+export PATH=$GOTCLOUD_ROOT:$PATH
 mkdir -p $OUT_DIR $TMP_DIR $SAMPLE_DIR
 
 bam_id="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\w*' | sort -u | cut -d \: -f 2)"
@@ -96,7 +102,7 @@ echo "GOTCLOUD:   $(which gotcloud)" >> $job_info
 echo "PIPELINE:   $PIPELINE" >> $job_info
 echo "GC CONF:    $CONF" >> $job_info
 
-gotcloud pipe                \
+$GOTCLOUD_CMD pipe           \
   --gcroot  $GOTCLOUD_ROOT   \
   --name    $PIPELINE        \
   --conf    $CONF            \
@@ -113,10 +119,10 @@ if [ "$rc" -ne 0 ]; then
   exit $rc
 fi
 
-gotcloud align                    \
+$GOTCLOUD_CMD align               \
   --gcroot    $GOTCLOUD_ROOT      \
   --conf      $CONF               \
-  --threads   6                   \
+  --threads   $ALIGN_THREADS      \
   --outdir    $OUT_DIR            \
   --fastqlist $TMP_DIR/fastq.list \
   --override "TMP_DIR=$TMP_DIR"   \
