@@ -3,7 +3,7 @@
 #SBATCH --nodes=1-1
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=15000
-#SBATCH --tmp=150000
+#SBATCH --tmp=300000
 #SBATCH --time=10-0
 #SBATCH --workdir=../run
 #SBATCH --partition=topmed
@@ -61,7 +61,7 @@ CONF="${PROJECT_DIR}/gotcloud.conf"
 GOTCLOUD_ROOT="${PROJECT_DIR}/../gotcloud"
 GOTCLOUD_CMD="gotcloud"
 
-case "$CLST_ENV")
+case "$CLST_ENV" in
   csg)
     GOTCLOUD_CMD="srun gotcloud"
     ;;
@@ -74,6 +74,12 @@ esac
 case "$BAM_CENTER" in
   uw)
     PIPELINE="cleanUpBam2fastq"
+    ;;
+  broad)
+    PIPELINE="binBam2fastq"
+    ;;
+  nygc)
+    PIPELINE="binBam2fastq"
     ;;
 esac
 
