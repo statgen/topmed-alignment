@@ -55,7 +55,7 @@ PROJECT_DIR="${PREFIX}/schelcj/align"
 REF_DIR="${PREFIX}/mktrost/gotcloud.ref"
 OUT_DIR="${PREFIX}/schelcj/results/${BAM_CENTER}/${JOB_ID}"
 RUN_DIR="${PROJECT_DIR}/../run"
-SAMPLE_DIR="${RUN_DIR}/samples"
+LOG_DIR="${PROJECT_DIR}/../logs"
 TMP_DIR="${TMP_DIR}/${JOB_ID}"
 CONF="${PROJECT_DIR}/gotcloud.conf"
 GOTCLOUD_ROOT="${PROJECT_DIR}/../gotcloud"
@@ -78,29 +78,30 @@ case "$BAM_CENTER" in
 esac
 
 export PATH=$GOTCLOUD_ROOT:$PATH
-mkdir -p $OUT_DIR $TMP_DIR $SAMPLE_DIR
+mkdir -p $OUT_DIR $TMP_DIR $LOG_DIR
 
 bam_id="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\w*' | sort -u | cut -d \: -f 2)"
-job_info=${SAMPLE_DIR}/$(basename $BAM_FILE)
+job_log=${LOG_DIR}/$(basename $BAM_FILE)
 
-if [ -e $job_info ]; then
+if [ -e $job_log ]; then
   echo "Already processed this sample"
   exit 1
 fi
 
 echo "$bam_id\t$BAM_FILE" > $TMP_DIR/bam.list
 
-echo "OUT_DIR:    $OUT_DIR" > $job_info
-echo "TMP_DIR:    $TMP_DIR" >> $job_info
-echo "REF_DIR:    $REF_DIR" >> $job_info
-echo "BAM:        $BAM_FILE" >> $job_info
-echo "BAM ID:     $bam_id" >> $job_info
-echo "BAM CENTER: $BAM_CENTER" >> $job_info
-echo "NODE:       $NODE" >> $job_info
-echo "JOBID:      $JOB_ID" >> $job_info
-echo "GOTCLOUD:   $(which gotcloud)" >> $job_info
-echo "PIPELINE:   $PIPELINE" >> $job_info
-echo "GC CONF:    $CONF" >> $job_info
+echo "
+OUT_DIR:    $OUT_DIR
+TMP_DIR:    $TMP_DIR
+REF_DIR:    $REF_DIR
+BAM:        $BAM_FILE
+BAM ID:     $bam_id
+BAM CENTER: $BAM_CENTER
+NODE:       $NODE
+JOBID:      $JOB_ID
+GOTCLOUD:   $(which gotcloud)
+PIPELINE:   $PIPELINE
+GC CONF:    $CONF" > $job_log
 
 $GOTCLOUD_CMD pipe           \
   --gcroot  $GOTCLOUD_ROOT   \
@@ -112,7 +113,7 @@ $GOTCLOUD_CMD pipe           \
 
 rc=$?
 
-echo "GC PIPE RC: $rc" >> $job_info
+echo "GC PIPE RC: $rc" >> $job_log
 
 if [ "$rc" -ne 0 ]; then
   echo "cleanUpBam2fastq failed" 1>&2
@@ -130,10 +131,10 @@ $GOTCLOUD_CMD align               \
 
 rc=$?
 
-echo "GC ALIGN RC: $rc" >> $job_info
+echo "GC ALIGN RC: $rc" >> $job_log
 
 if [ "$rc" -ne 0 ]; then
-  echo "Alighment failed; job info is in $job_info"
+  echo "Alighment failed; job info is in $job_log"
   exit $rc
 fi
 
