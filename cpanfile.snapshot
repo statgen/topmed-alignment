@@ -1,0 +1,156 @@
+# carton snapshot format: version 1.0
+DISTRIBUTIONS
+  Cache-2.11
+    pathname: S/SH/SHLOMIF/Cache-2.11.tar.gz
+    provides:
+      Cache 2.11
+      Cache::Entry 2.11
+      Cache::File 2.11
+      Cache::File::Entry 2.11
+      Cache::File::Handle undef
+      Cache::File::Heap 2.11
+      Cache::IOString undef
+      Cache::Memory 2.11
+      Cache::Memory::Entry 2.11
+      Cache::Memory::HeapElem undef
+      Cache::Null 2.11
+      Cache::Null::Entry 2.11
+      Cache::RemovalStrategy 2.11
+      Cache::RemovalStrategy::FIFO undef
+      Cache::RemovalStrategy::LRU undef
+      Cache::Tester 2.11
+    requirements:
+      DB_File 1.72
+      Date::Parse 2.24
+      Digest::SHA 0
+      Fcntl 1.03
+      File::Find 0
+      File::NFSLock 1.20
+      File::Path 1.00
+      File::Spec 0.8
+      Heap::Fibonacci 0.01
+      IO::File 1.08
+      IO::Handle 1.21
+      IO::String 1.02
+      Module::Build 0
+      Storable 1.00
+      Symbol 1.02
+      Test::More 0.45
+      perl 5.006
+  ExtUtils-MakeMaker-7.04
+    pathname: B/BI/BINGOS/ExtUtils-MakeMaker-7.04.tar.gz
+    provides:
+      ExtUtils::Command::MM 7.04
+      ExtUtils::Liblist 7.04
+      ExtUtils::Liblist::Kid 7.04
+      ExtUtils::MM 7.04
+      ExtUtils::MM_AIX 7.04
+      ExtUtils::MM_Any 7.04
+      ExtUtils::MM_BeOS 7.04
+      ExtUtils::MM_Cygwin 7.04
+      ExtUtils::MM_DOS 7.04
+      ExtUtils::MM_Darwin 7.04
+      ExtUtils::MM_MacOS 7.04
+      ExtUtils::MM_NW5 7.04
+      ExtUtils::MM_OS2 7.04
+      ExtUtils::MM_QNX 7.04
+      ExtUtils::MM_UWIN 7.04
+      ExtUtils::MM_Unix 7.04
+      ExtUtils::MM_VMS 7.04
+      ExtUtils::MM_VOS 7.04
+      ExtUtils::MM_Win32 7.04
+      ExtUtils::MM_Win95 7.04
+      ExtUtils::MY 7.04
+      ExtUtils::MakeMaker 7.04
+      ExtUtils::MakeMaker::Config 7.04
+      ExtUtils::MakeMaker::Locale 7.04
+      ExtUtils::MakeMaker::_version 7.04
+      ExtUtils::MakeMaker::charstar 7.04
+      ExtUtils::MakeMaker::version 7.04
+      ExtUtils::MakeMaker::version::regex 7.04
+      ExtUtils::MakeMaker::version::vpp 7.04
+      ExtUtils::Mkbootstrap 7.04
+      ExtUtils::Mksymlists 7.04
+      ExtUtils::testlib 7.04
+      MM 7.04
+      MY 7.04
+    requirements:
+      Data::Dumper 0
+      DirHandle 0
+      Encode 0
+      File::Basename 0
+      File::Spec 0.8
+      Pod::Man 0
+      perl 5.006
+  File-NFSLock-1.27
+    pathname: B/BB/BBB/File-NFSLock-1.27.tar.gz
+    provides:
+      File::NFSLock 1.27
+    requirements:
+      ExtUtils::MakeMaker 0
+  Heap-0.80
+    pathname: J/JM/JMM/Heap-0.80.tar.gz
+    provides:
+      Heap 0.80
+      Heap::Binary 0.80
+      Heap::Binomial 0.80
+      Heap::Elem 0.80
+      Heap::Elem::Num 0.80
+      Heap::Elem::NumRev 0.80
+      Heap::Elem::Ref 0.80
+      Heap::Elem::RefRev 0.80
+      Heap::Elem::Str 0.80
+      Heap::Elem::StrRev 0.80
+      Heap::Fibonacci 0.80
+    requirements:
+      ExtUtils::MakeMaker 0
+      Test::Simple 0.45
+  IO-String-1.08
+    pathname: G/GA/GAAS/IO-String-1.08.tar.gz
+    provides:
+      IO::String 1.08
+    requirements:
+      ExtUtils::MakeMaker 0
+  TimeDate-2.30
+    pathname: G/GB/GBARR/TimeDate-2.30.tar.gz
+    provides:
+      Date::Format 2.24
+      Date::Format::Generic 2.24
+      Date::Language 1.10
+      Date::Language::Afar 0.99
+      Date::Language::Amharic 1.00
+      Date::Language::Austrian 1.01
+      Date::Language::Brazilian 1.01
+      Date::Language::Bulgarian 1.01
+      Date::Language::Chinese 1.00
+      Date::Language::Chinese_GB 1.01
+      Date::Language::Czech 1.01
+      Date::Language::Danish 1.01
+      Date::Language::Dutch 1.02
+      Date::Language::English 1.01
+      Date::Language::Finnish 1.01
+      Date::Language::French 1.04
+      Date::Language::Gedeo 0.99
+      Date::Language::German 1.02
+      Date::Language::Greek 1.00
+      Date::Language::Hungarian 1.01
+      Date::Language::Icelandic 1.01
+      Date::Language::Italian 1.01
+      Date::Language::Norwegian 1.01
+      Date::Language::Oromo 0.99
+      Date::Language::Romanian 1.01
+      Date::Language::Russian 1.01
+      Date::Language::Russian_cp1251 1.01
+      Date::Language::Russian_koi8r 1.01
+      Date::Language::Sidama 0.99
+      Date::Language::Somali 0.99
+      Date::Language::Spanish 1.00
+      Date::Language::Swedish 1.01
+      Date::Language::Tigrinya 1.00
+      Date::Language::TigrinyaEritrean 1.00
+      Date::Language::TigrinyaEthiopian 1.00
+      Date::Language::Turkish 1.0
+      Date::Parse 2.30
+      Time::Zone 2.24
+    requirements:
+      ExtUtils::MakeMaker 0
