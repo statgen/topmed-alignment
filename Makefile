@@ -5,3 +5,6 @@ align:
 
 status:
 	@squeue -u $(USER)
+
+clean:
+	@rm -f ../run/* ../logs/*
