@@ -13,7 +13,7 @@ INCOMING="${PREFIX}/incoming/topmed"
 CENTERS=($(find $INCOMING -maxdepth 1))
 
 for center in "${CENTERS[@]}"; do
-  BAMS=($(find $center -name '*.bam' | head -n 100))
+  BAMS=($(find $center -name '*.bam' | head -n 400))
   BAM_CENTER=$(basename $center)
 
   if [ "$BAM_CENTER" == 'topmed' ] || [ "$BAM_CENTER" == 'illumina-upload' ]; then

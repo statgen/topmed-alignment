@@ -84,3 +84,5 @@ TODO
 		: instead of relying on the ENV vars to be set just need to determine
 		: which sample is next in line and run with that. i think this will come
 		: from tpg's arrive script.
+	[_] Setup separate gotcloud.conf for flux
+		: set BWA threads to -t 2

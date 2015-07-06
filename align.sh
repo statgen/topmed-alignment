@@ -3,14 +3,14 @@
 #SBATCH --nodes=1-1
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=15000
-#SBATCH --tmp=300000
+#SBATCH --gres=tmp:sas:200
 #SBATCH --time=10-0
 #SBATCH --workdir=../run
-#SBATCH --partition=topmed
+#SBATCH --partition=nomosix
 #SBATCH --ignore-pbs
 
 #PBS -l nodes=1:ppn=2,walltime=240:00:00,pmem=8gb
-#PBS -l ddisk=150gb
+#PBS -l ddisk=200gb
 #PBS -m abe
 #PBS -d ../run
 #PBS -M schelcj@umich.edu
@@ -19,6 +19,13 @@
 #PBS -A sph_flux
 #PBS -V
 #PBS -j oe
+
+export PATH=/usr/cluster/bin:/usr/cluster/sbin:$PATH # XXX - temp hack till old binaries are purged
+
+TMP_DIR="/tmp/topmed"
+PIPELINE="bam2fastq"
+ALIGN_THREADS=6
+GOTCLOUD_CMD="gotcloud"
 
 if [ -z $BAM_CENTER ]; then
   echo "BAM_CENTER is not defined!"
@@ -35,41 +42,30 @@ if [ ! -z $SLURM_JOB_ID ]; then
   NODE=$SLURM_JOB_NODELIST
   CLST_ENV="csg"
   PREFIX="/net/topmed/working"
+  GOTCLOUD_CMD="srun gotcloud"
+
+  jobs=($(ls -1 $TMP_DIR))
+  for job in "${jobs[@]}"; do
+    squeue -h -o %i -j $job 1>/dev/null 2>/dev/null
+    if  [ "$?" -eq 1 ]; then
+      echo "Removing stale job tmp directory for job id: $job"
+      rm -rf $TMP_DIR/$job
+    fi
+  done
 
 elif [ ! -z $PBS_JOBID ]; then
   JOB_ID=$PBS_JOBID
   NODE="$(cat $PBS_NODEFILE)"
   CLST_ENV="flux"
   PREFIX="/dept/csg/topmed/working"
+  ALIGN_THREADS=2
+
+  # TODO - find/delete stale tmp job directories
 
 else
   echo "Unknown cluster environment"
   exit 1
 fi
-
-TMP_DIR="/tmp/topmed"
-PIPELINE="bam2fastq"
-ALIGN_THREADS=6
-
-PROJECT_DIR="${PREFIX}/schelcj/align"
-REF_DIR="${PREFIX}/mktrost/gotcloud.ref"
-OUT_DIR="${PREFIX}/schelcj/results/${BAM_CENTER}/${JOB_ID}"
-RUN_DIR="${PROJECT_DIR}/../run"
-LOG_DIR="${PROJECT_DIR}/../logs"
-TMP_DIR="${TMP_DIR}/${JOB_ID}"
-CONF="${PROJECT_DIR}/gotcloud.conf"
-GOTCLOUD_ROOT="${PROJECT_DIR}/../gotcloud"
-GOTCLOUD_CMD="gotcloud"
-
-case "$CLST_ENV" in
-  csg)
-    GOTCLOUD_CMD="srun gotcloud"
-    ;;
-  flux)
-    GOTCLOUD_ROOT="${PROJECT_DIR}/gotcloud.flux"
-    ALIGN_THREADS=2
-    ;;
-esac
 
 case "$BAM_CENTER" in
   uw)
@@ -83,6 +79,15 @@ case "$BAM_CENTER" in
     ;;
 esac
 
+TMP_DIR="${TMP_DIR}/${JOB_ID}"
+PROJECT_DIR="${PREFIX}/schelcj/align"
+REF_DIR="${PREFIX}/mktrost/gotcloud.ref"
+OUT_DIR="${PREFIX}/schelcj/results/${BAM_CENTER}/${JOB_ID}"
+RUN_DIR="${PROJECT_DIR}/../run"
+LOG_DIR="${PROJECT_DIR}/../logs"
+GOTCLOUD_CONF="${PROJECT_DIR}/gotcloud.conf.${CLST_ENV}"
+GOTCLOUD_ROOT="${PROJECT_DIR}/../gotcloud.${CLST_ENV}"
+
 export PATH=$GOTCLOUD_ROOT:$PATH
 mkdir -p $OUT_DIR $TMP_DIR $LOG_DIR
 
@@ -93,8 +98,6 @@ if [ -e $job_log ]; then
   echo "Already processed this sample"
   exit 1
 fi
-
-echo "$bam_id\t$BAM_FILE" > $TMP_DIR/bam.list
 
 echo "
 OUT_DIR:    $OUT_DIR
@@ -107,12 +110,14 @@ NODE:       $NODE
 JOBID:      $JOB_ID
 GOTCLOUD:   $(which gotcloud)
 PIPELINE:   $PIPELINE
-GC CONF:    $CONF" > $job_log
+GC CONF:    $GOTCLOUD_CONF" > $job_log
+
+echo "$bam_id\t$BAM_FILE" > $TMP_DIR/bam.list
 
 $GOTCLOUD_CMD pipe           \
   --gcroot  $GOTCLOUD_ROOT   \
   --name    $PIPELINE        \
-  --conf    $CONF            \
+  --conf    $GOTCLOUD_CONF   \
   --numjobs 1                \
   --ref_dir $REF_DIR         \
   --outdir  $TMP_DIR
@@ -128,7 +133,7 @@ fi
 
 $GOTCLOUD_CMD align               \
   --gcroot    $GOTCLOUD_ROOT      \
-  --conf      $CONF               \
+  --conf      $GOTCLOUD_CONF      \
   --threads   $ALIGN_THREADS      \
   --outdir    $OUT_DIR            \
   --fastqlist $TMP_DIR/fastq.list \
