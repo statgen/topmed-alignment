@@ -6,14 +6,17 @@ case "$1" in
     ;;
   flux)
     PREFIX=/dept/csg/topmed
-  ;;
+    ;;
+  *)
+    echo "Usage: $0 [csg|flux] [limit]"
+    exit 1
 esac
 
 INCOMING="${PREFIX}/incoming/topmed"
 CENTERS=($(find $INCOMING -maxdepth 1))
 
 for center in "${CENTERS[@]}"; do
-  BAMS=($(find $center -name '*.bam' | head -n 400))
+  BAMS=($(find $center -name '*.bam' | head -n $2))
   BAM_CENTER=$(basename $center)
 
   if [ "$BAM_CENTER" == 'topmed' ] || [ "$BAM_CENTER" == 'illumina-upload' ]; then
@@ -26,10 +29,10 @@ for center in "${CENTERS[@]}"; do
     for bam in "${BAMS[@]}"; do
       export BAM_FILE=$bam
 
-      echo $BAM_CENTER $BAM_FILE
+      # echo $BAM_CENTER $BAM_FILE
 
       # TODO - use sbatch or qsub based on $1
-      #sbatch ./align.sh
+      sbatch ./align.sh
     done
   fi
 done
