@@ -3,7 +3,7 @@
 #SBATCH --nodes=1-1
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=15000
-#SBATCH --gres=tmp:sas:200
+#SBATCH --gres=tmp:sata:200
 #SBATCH --time=10-0
 #SBATCH --workdir=../run
 #SBATCH --partition=nomosix
@@ -42,10 +42,8 @@ if [ ! -z $SLURM_JOB_ID ]; then
   NODE=$SLURM_JOB_NODELIST
   CLST_ENV="csg"
   PREFIX="/net/topmed/working"
-  GOTCLOUD_CMD="srun gotcloud"
 
-  jobs=($(ls -1 $TMP_DIR))
-  for job in "${jobs[@]}"; do
+  for job in $(ls -1 $TMP_DIR); do
     squeue -h -o %i -j $job 1>/dev/null 2>/dev/null
     if  [ "$?" -eq 1 ]; then
       echo "Removing stale job tmp directory for job id: $job"
