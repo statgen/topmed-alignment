@@ -12,6 +12,9 @@ our @IMPORT_MODULES = (
 );
 
 our %IMPORT_BUNDLES = (
+  db => [
+    'Topmed::DB'
+  ]
 );
 
 1;

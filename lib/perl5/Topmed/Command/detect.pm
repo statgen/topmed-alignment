@@ -1,7 +1,7 @@
 package Topmed::Command::detect;
 
 use Topmed -command;
-use Topmed::Base;
+use Topmed::Base qw(db);
 
 sub opt_spec {
   return (
@@ -11,6 +11,8 @@ sub opt_spec {
 
 sub execute {
   my ($self, $opts, $args) = @_;
+  my $db = Topmed::DB->new();
+
 }
 
 1;
