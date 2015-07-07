@@ -3,6 +3,7 @@
 # TODO
 #   * need to record the state of the job at each stage
 #   * store output by center/PI/study
+#   * record the job id in the TMP_DIR now that it is based on BAM ID
 
 #SBATCH --nodes=1-1
 #SBATCH --cpus-per-task=6
@@ -47,22 +48,12 @@ if [ ! -z $SLURM_JOB_ID ]; then
   CLST_ENV="csg"
   PREFIX="/net/topmed/working"
 
-  for job in $(ls -1 $TMP_DIR); do
-    squeue -h -o %i -j $job 1>/dev/null 2>/dev/null
-    if  [ "$?" -eq 1 ]; then
-      echo "Removing stale job tmp directory for job id: $job"
-      rm -rf $TMP_DIR/$job
-    fi
-  done
-
 elif [ ! -z $PBS_JOBID ]; then
   JOB_ID=$PBS_JOBID
   NODE="$(cat $PBS_NODEFILE)"
   CLST_ENV="flux"
   PREFIX="/dept/csg/topmed/working"
   ALIGN_THREADS=2
-
-  # TODO - find/delete stale tmp job directories
 
 else
   echo "Unknown cluster environment"
@@ -81,10 +72,11 @@ case "$BAM_CENTER" in
     ;;
 esac
 
-TMP_DIR="${TMP_DIR}/${JOB_ID}"
+BAM_ID="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\w*' | sort -u | cut -d \: -f 2)"
+TMP_DIR="${TMP_DIR}/${BAM_ID}"
 PROJECT_DIR="${PREFIX}/schelcj/align"
 REF_DIR="${PREFIX}/mktrost/gotcloud.ref"
-OUT_DIR="${PREFIX}/schelcj/results/${BAM_CENTER}/${JOB_ID}"
+OUT_DIR="${PREFIX}/schelcj/results/${BAM_CENTER}/${BAM_ID}"
 RUN_DIR="${PROJECT_DIR}/../run"
 GOTCLOUD_CONF="${PROJECT_DIR}/gotcloud.conf.${CLST_ENV}"
 GOTCLOUD_ROOT="${PROJECT_DIR}/../gotcloud.${CLST_ENV}"
@@ -93,16 +85,14 @@ BAM_LIST="$TMP_DIR/bam.list"
 
 export PATH=$GOTCLOUD_ROOT:$PATH
 mkdir -p $OUT_DIR $TMP_DIR
-
-bam_id="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\w*' | sort -u | cut -d \: -f 2)"
-echo "$bam_id\t$BAM_FILE" > $BAM_LIST
+echo "$BAM_ID\t$BAM_FILE" > $BAM_LIST
 
 echo "
 OUT_DIR:    $OUT_DIR
 TMP_DIR:    $TMP_DIR
 REF_DIR:    $REF_DIR
 BAM:        $BAM_FILE
-BAM ID:     $bam_id
+BAM ID:     $BAM_ID
 BAM CENTER: $BAM_CENTER
 BAM LIST:   $BAM_LIST
 FASTQ_LIST: $FASTQ_LIST
