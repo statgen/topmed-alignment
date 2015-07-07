@@ -21,13 +21,14 @@ sub _build__conn {
   for my $line (@lines) {
     chomp($line);
 
-    # TODO - make special case for the SERVER= line
-    #
-    my ($key, $value) = split(/=/, $line);
-    $conn->{lc($key)} = $value;
+    if ($line =~ /^SERVER=host=(.*)?$/) {
+      $conn->{server} = $1;
+    } else {
+      my ($key, $value) = split(/=/, $line);
+      $conn->{lc($key)} = $value;
+    }
   }
 
-  print Dumper \@lines, $conn;
   return $conn;
 }
 
