@@ -8,7 +8,7 @@ our @IMPORT_MODULES = (
   'Data::Dumper',
   'System::Command',
   'Readonly',
-  'File::Slurp::Tiny' => [qw(read_file)],
+  'File::Slurp::Tiny' => [qw(read_file read_lines)],
 );
 
 our %IMPORT_BUNDLES = (

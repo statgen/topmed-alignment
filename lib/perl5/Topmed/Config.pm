@@ -3,7 +3,7 @@ package Topmed::Config;
 use Topmed::Base;
 use Moose;
 
-Readonly::Scalar my $DB_CONNECTION_INFO => q{/usr/cluster/montior/etc/.db_connections/topmed};
+Readonly::Scalar my $DB_CONNECTION_INFO => q{/usr/cluster/monitor/etc/.db_connections/topmed};
 
 has '_conn'   => (is => 'ro', isa => 'HashRef', lazy => 1, builder => '_build__conn');
 has 'db'      => (is => 'ro', isa => 'Str',     lazy => 1, builder => '_build_db');
@@ -16,12 +16,18 @@ has 'dsn'     => (is => 'ro', isa => 'Str',     lazy => 1, builder => '_build_ds
 sub _build__conn {
   my ($self) = @_;
   my $conn   = {};
+  my @lines  = read_lines($DB_CONNECTION_INFO);
 
-  for my $line (read_file($DB_CONNECITON_INFO)) {
+  for my $line (@lines) {
+    chomp($line);
+
+    # TODO - make special case for the SERVER= line
+    #
     my ($key, $value) = split(/=/, $line);
-    $conn{lc($key)} = $value;
+    $conn->{lc($key)} = $value;
   }
 
+  print Dumper \@lines, $conn;
   return $conn;
 }
 
