@@ -72,7 +72,7 @@ case "$BAM_CENTER" in
     ;;
 esac
 
-BAM_ID="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\w*' | sort -u | cut -d \: -f 2)"
+BAM_ID="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\S*' | sort -u | cut -d \: -f 2)"
 TMP_DIR="${TMP_DIR}/${BAM_ID}"
 PROJECT_DIR="${PREFIX}/schelcj/align"
 REF_DIR="${PREFIX}/mktrost/gotcloud.ref"
