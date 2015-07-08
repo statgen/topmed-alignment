@@ -9,6 +9,7 @@ our @IMPORT_MODULES = (
   'System::Command',
   'Readonly',
   'File::Slurp::Tiny' => [qw(read_file read_lines)],
+  'Class::CSV'
 );
 
 our %IMPORT_BUNDLES = (

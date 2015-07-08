@@ -6,3 +6,4 @@ requires 'System::Command';
 requires 'Readonly';
 requires 'File::Slurp::Tiny';
 requires 'DBIx::Class::Schema::Loader';
+requires 'Class::CSV';

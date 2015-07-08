@@ -1,9 +1,39 @@
 package Topmed::Config;
 
+use base qw(Exporter);
 use Topmed::Base;
 use Moose;
 
-Readonly::Scalar my $DB_CONNECTION_INFO => q{/usr/cluster/monitor/etc/.db_connections/topmed};
+our @EXPORT_OK = (
+  qw(
+    $TOPMED_EXPORT_CMD
+    @TOPMED_EXPORT_FIELDS
+  )
+);
+
+our %EXPORT_TAGS = (
+  all => [
+    qw(
+    $TOPMED_EXPORT_CMD
+    @TOPMED_EXPORT_FIELDS
+    )
+  ]
+);
+
+Readonly::Scalar my $DB_CONNECTION_INFO   => q{/usr/cluster/monitor/etc/.db_connections/topmed};
+Readonly::Scalar our $TOPMED_EXPORT_CMD   => q{/usr/cluster/monitor/bin/topmedcmd.pl};
+
+Readonly::Array our @TOPMED_EXPORT_FIELDS => (
+  qw(
+    center
+    dir_name
+    full_path_bam_id
+    bam_name
+    study_name
+    pi_name
+    bam_size
+    )
+);
 
 has '_conn'   => (is => 'ro', isa => 'HashRef', lazy => 1, builder => '_build__conn');
 has 'db'      => (is => 'ro', isa => 'Str',     lazy => 1, builder => '_build_db');
