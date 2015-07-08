@@ -24,7 +24,7 @@ KEEP_LOG = 1
 
 FASTQ_LIST = $(OUT_DIR)/fastq.list
 
-SAMTOOLS_SORT_EXE = /net/wonderland/home/mktrost/otherTools/samtools-1.2/samtools-1.2/samtools
+SAMTOOLS_SORT_EXE = /home/software/rhel6/med/samtools/1.2/bin/samtools
 BWA_RM_FASTQ = 1
 
 [cleanUpBam2fastq]
