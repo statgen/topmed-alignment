@@ -3,7 +3,10 @@
 # TODO
 #   * need to record the state of the job at each stage
 #   * store output by center/PI/study
-#   * record the job id in the TMP_DIR now that it is based on BAM ID
+#   * make this configurable for another user to run jobs
+#     primarily means PROJECT_DIR and OUT_DIR need to be configurable
+#   * purge tmp dir on pbs cluster
+
 
 #SBATCH --nodes=1-1
 #SBATCH --cpus-per-task=6
@@ -48,6 +51,13 @@ if [ ! -z $SLURM_JOB_ID ]; then
   CLST_ENV="csg"
   PREFIX="/net/topmed/working"
 
+  for id in $(ls -1 $TMP_DIR); do
+    job_state="$(sacct -j $id -X -n -o state%7)"
+    if [ "$job_state" ne "RUNNING " ]; then # XXX - left trailing space on purpose
+      echo "Removing stale job tmp directory for job id: $id"
+      rm -rf $TMP_DIR/$id
+    fi
+  done
 elif [ ! -z $PBS_JOBID ]; then
   JOB_ID=$PBS_JOBID
   NODE="$(cat $PBS_NODEFILE)"
@@ -73,7 +83,7 @@ case "$BAM_CENTER" in
 esac
 
 BAM_ID="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\S*' | sort -u | cut -d \: -f 2)"
-TMP_DIR="${TMP_DIR}/${BAM_ID}"
+TMP_DIR="${TMP_DIR}/${JOB_ID}"
 PROJECT_DIR="${PREFIX}/schelcj/align"
 REF_DIR="${PREFIX}/mktrost/gotcloud.ref"
 OUT_DIR="${PREFIX}/schelcj/results/${BAM_CENTER}/${BAM_ID}"
@@ -85,7 +95,7 @@ BAM_LIST="$TMP_DIR/bam.list"
 
 export PATH=$GOTCLOUD_ROOT:$PATH
 mkdir -p $OUT_DIR $TMP_DIR
-echo "$BAM_ID\t$BAM_FILE" > $BAM_LIST
+printf "%s\t%s" $BAM_ID $BAM_FILE > $BAM_LIST
 
 echo "
 OUT_DIR:    $OUT_DIR
