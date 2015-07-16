@@ -6,32 +6,64 @@ use Moose;
 
 our @EXPORT = (
   qw(
+    $BATCH_SCRIPT
+    %JOB_CMDS
     $BAM_CACHE_INDEX
     %BAM_FILE_PREFIX
+    $BAM_STATUS_CANCELLED
+    $BAM_STATUS_REQUESTED
+    $BAM_STATUS_FAILED
+    $BAM_STATUS_SUBMITTED
+    $BAM_STATUS_UNKNOWN
     )
 );
 
 our @EXPORT_OK = (
   qw(
+    $BATCH_SCRIPT
+    %JOB_CMDS
     $BAM_CACHE_INDEX
     %BAM_FILE_PREFIX
+    $BAM_STATUS_CANCELLED
+    $BAM_STATUS_REQUESTED
+    $BAM_STATUS_FAILED
+    $BAM_STATUS_SUBMITTED
+    $BAM_STATUS_UNKNOWN
     )
 );
 
 our %EXPORT_TAGS = (
   all => [
     qw(
+      $BATCH_SCRIPT
+      %JOB_CMDS
       $BAM_CACHE_INDEX
       %BAM_FILE_PREFIX
+      $BAM_STATUS_CANCELLED
+      $BAM_STATUS_REQUESTED
+      $BAM_STATUS_FAILED
+      $BAM_STATUS_SUBMITTED
+      $BAM_STATUS_UNKNOWN
       )
   ]
 );
 
-Readonly::Scalar our $BAM_CACHE_INDEX => 'bam_idx';
+Readonly::Scalar our $BATCH_SCRIPT         => qq{$Bin/../align.sh};
+Readonly::Scalar our $BAM_CACHE_INDEX      => 'bam_idx';
+Readonly::Scalar our $BAM_STATUS_CANCELLED => 1;
+Readonly::Scalar our $BAM_STATUS_REQUESTED => 0;
+Readonly::Scalar our $BAM_STATUS_FAILED    => -1;
+Readonly::Scalar our $BAM_STATUS_SUBMITTED => 2;
+Readonly::Scalar our $BAM_STATUS_UNKNOWN   => q{};
 
 Readonly::Hash our %BAM_FILE_PREFIX => (
   csg  => '/net/topmed/incoming/topmed',
   flux => '/dept/csg/incoming/topmed',
+);
+
+Readonly::Hash our %JOB_CMDS => (
+  csg  => 'sbatch',
+  flux => 'qsub',
 );
 
 Readonly::Scalar my $CACHE_ROOT         => qq{$Bin/../../cache};

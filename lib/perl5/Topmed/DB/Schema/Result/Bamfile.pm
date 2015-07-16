@@ -237,6 +237,7 @@ __PACKAGE__->set_primary_key("bamid");
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 #
 use Topmed::Base;
+use Topmed::Config;
 
 __PACKAGE__->belongs_to(
   run => 'Topmed::DB::Schema::Result::Run',
@@ -253,14 +254,14 @@ sub status {
 
   my $status = 'unknown';
   given (shift->datemapping) {
-    when (not defined($_)) {$status = 'requested'}
-    when ('')              {$status = 'unknown'}
-    when (1)               {$status = 'cancelled'}
-    when (0)               {$status = 'requested'}
-    when (-1)              {$status = 'failed'}
-    when (2)               {$status = 'submitted'}
-    when ($_ > 10)         {$status = 'completed'}
-    when ($_ < 0)          {$status = 'started'}
+    when (not defined($_))       {$status = 'requested'}
+    when ($BAM_STATUS_UNKNOWN)   {$status = 'unknown'}
+    when ($BAM_STATUS_CANCELLED) {$status = 'cancelled'}
+    when ($BAM_STATUS_REQUESTED) {$status = 'requested'}
+    when ($BAM_STATUS_FAILED)    {$status = 'failed'}
+    when ($BAM_STATUS_SUBMITTED) {$status = 'submitted'}
+    when ($_ > 10)               {$status = 'completed'}
+    when ($_ < 0)                {$status = 'started'}
   }
 
   return $status;
