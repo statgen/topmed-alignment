@@ -4,7 +4,7 @@ use base qw(Import::Base);
 
 our @IMPORT_MODULES = (
   'Modern::Perl',
-  'Cache',
+  'Cache::File',
   'Data::Dumper',
   'System::Command',
   'Readonly',

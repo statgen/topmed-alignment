@@ -8,20 +8,21 @@ our @EXPORT_OK = (
   qw(
     $TOPMED_EXPORT_CMD
     @TOPMED_EXPORT_FIELDS
-  )
+    )
 );
 
 our %EXPORT_TAGS = (
   all => [
     qw(
-    $TOPMED_EXPORT_CMD
-    @TOPMED_EXPORT_FIELDS
-    )
+      $TOPMED_EXPORT_CMD
+      @TOPMED_EXPORT_FIELDS
+      )
   ]
 );
 
-Readonly::Scalar my $DB_CONNECTION_INFO   => q{/usr/cluster/monitor/etc/.db_connections/topmed};
-Readonly::Scalar our $TOPMED_EXPORT_CMD   => q{/usr/cluster/monitor/bin/topmedcmd.pl};
+
+Readonly::Scalar our $TOPMED_EXPORT_CMD => q{/usr/cluster/monitor/bin/topmedcmd.pl};
+Readonly::Scalar our $CACHE_ROOT        => qq{$Bin/../../cache};
 
 Readonly::Array our @TOPMED_EXPORT_FIELDS => (
   qw(
@@ -32,16 +33,20 @@ Readonly::Array our @TOPMED_EXPORT_FIELDS => (
     study_name
     pi_name
     bam_size
+    date_mapping
     )
 );
 
-has '_conn'   => (is => 'ro', isa => 'HashRef', lazy => 1, builder => '_build__conn');
-has 'db'      => (is => 'ro', isa => 'Str',     lazy => 1, builder => '_build_db');
-has 'db_user' => (is => 'ro', isa => 'Str',     lazy => 1, builder => '_build_db_user');
-has 'db_pass' => (is => 'ro', isa => 'Str',     lazy => 1, builder => '_build_db_pass');
-has 'db_host' => (is => 'ro', isa => 'Str',     lazy => 1, builder => '_build_db_host');
-has 'db_port' => (is => 'ro', isa => 'Str',     lazy => 1, builder => '_build_db_port');
-has 'dsn'     => (is => 'ro', isa => 'Str',     lazy => 1, builder => '_build_dsn');
+Readonly::Scalar my $DB_CONNECTION_INFO => q{/usr/cluster/monitor/etc/.db_connections/topmed};
+
+has '_conn'   => (is => 'ro', isa => 'HashRef',     lazy => 1, builder => '_build__conn');
+has 'db'      => (is => 'ro', isa => 'Str',         lazy => 1, builder => '_build_db');
+has 'db_user' => (is => 'ro', isa => 'Str',         lazy => 1, builder => '_build_db_user');
+has 'db_pass' => (is => 'ro', isa => 'Str',         lazy => 1, builder => '_build_db_pass');
+has 'db_host' => (is => 'ro', isa => 'Str',         lazy => 1, builder => '_build_db_host');
+has 'db_port' => (is => 'ro', isa => 'Str',         lazy => 1, builder => '_build_db_port');
+has 'dsn'     => (is => 'ro', isa => 'Str',         lazy => 1, builder => '_build_dsn');
+has 'cache'   => (is => 'ro', isa => 'Cache::File', lazy => 1, builder => '_build_cache');
 
 sub _build__conn {
   my ($self) = @_;
@@ -85,6 +90,10 @@ sub _build_db_port {
 sub _build_dsn {
   my ($self) = @_;
   return sprintf('dbi:mysql:database=%s;host=%s;port=%d', $self->db, $self->db_host, $self->db_port);
+}
+
+sub _build_cache {
+  return Cache::File->new(cache_root => $CACHE_ROOT, lock_level => LOCK_NFS);
 }
 
 no Moose;
