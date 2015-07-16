@@ -4,39 +4,37 @@ use base qw(Exporter);
 use Topmed::Base;
 use Moose;
 
+our @EXPORT = (
+  qw(
+    $BAM_CACHE_INDEX
+    %BAM_FILE_PREFIX
+    )
+);
+
 our @EXPORT_OK = (
   qw(
-    $TOPMED_EXPORT_CMD
-    @TOPMED_EXPORT_FIELDS
+    $BAM_CACHE_INDEX
+    %BAM_FILE_PREFIX
     )
 );
 
 our %EXPORT_TAGS = (
   all => [
     qw(
-      $TOPMED_EXPORT_CMD
-      @TOPMED_EXPORT_FIELDS
+      $BAM_CACHE_INDEX
+      %BAM_FILE_PREFIX
       )
   ]
 );
 
+Readonly::Scalar our $BAM_CACHE_INDEX => 'bam_idx';
 
-Readonly::Scalar our $TOPMED_EXPORT_CMD => q{/usr/cluster/monitor/bin/topmedcmd.pl};
-Readonly::Scalar our $CACHE_ROOT        => qq{$Bin/../../cache};
-
-Readonly::Array our @TOPMED_EXPORT_FIELDS => (
-  qw(
-    center
-    dir_name
-    full_path_bam_id
-    bam_name
-    study_name
-    pi_name
-    bam_size
-    date_mapping
-    )
+Readonly::Hash our %BAM_FILE_PREFIX => (
+  csg  => '/net/topmed/incoming/topmed',
+  flux => '/dept/csg/incoming/topmed',
 );
 
+Readonly::Scalar my $CACHE_ROOT         => qq{$Bin/../../cache};
 Readonly::Scalar my $DB_CONNECTION_INFO => q{/usr/cluster/monitor/etc/.db_connections/topmed};
 
 has '_conn'   => (is => 'ro', isa => 'HashRef',     lazy => 1, builder => '_build__conn');
@@ -93,7 +91,7 @@ sub _build_dsn {
 }
 
 sub _build_cache {
-  return Cache::File->new(cache_root => $CACHE_ROOT, lock_level => LOCK_NFS);
+  return Cache::File->new(cache_root => $CACHE_ROOT, lock_level => Cache::File::LOCK_NFS);
 }
 
 no Moose;

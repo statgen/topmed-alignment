@@ -1,4 +1,5 @@
 use utf8;
+
 package Topmed::DB::Schema::Result::Bamfile;
 
 # Created by DBIx::Class::Schema::Loader
@@ -187,60 +188,33 @@ __PACKAGE__->table("bamfiles");
 =cut
 
 __PACKAGE__->add_columns(
-  "bamid",
-  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "runid",
-  { data_type => "integer", is_nullable => 0 },
-  "studyid",
-  { data_type => "integer", is_nullable => 0 },
-  "bamname",
-  { data_type => "varchar", is_nullable => 0, size => 96 },
-  "studyname",
-  { data_type => "varchar", is_nullable => 0, size => 96 },
-  "piname",
-  { data_type => "varchar", is_nullable => 1, size => 96 },
-  "checksum",
-  { data_type => "varchar", is_nullable => 0, size => 96 },
-  "refname",
-  { data_type => "varchar", is_nullable => 0, size => 96 },
-  "expt_refname",
-  { data_type => "varchar", is_nullable => 0, size => 96 },
-  "expt_sampleid",
-  { data_type => "varchar", is_nullable => 0, size => 24 },
-  "datearrived",
-  { data_type => "varchar", is_nullable => 1, size => 12 },
-  "datemd5ver",
-  { data_type => "varchar", is_nullable => 1, size => 12 },
-  "dateqplot",
-  { data_type => "varchar", is_nullable => 1, size => 12 },
-  "datemapping",
-  { data_type => "varchar", is_nullable => 1, size => 12 },
-  "datereport",
-  { data_type => "varchar", is_nullable => 1, size => 12 },
-  "datebackup",
-  { data_type => "varchar", is_nullable => 1, size => 12 },
-  "datebai",
-  { data_type => "varchar", is_nullable => 1, size => 12 },
-  "datecp2ncbi",
-  { data_type => "varchar", is_nullable => 1, size => 12 },
-  "jobidarrived",
-  { data_type => "varchar", is_nullable => 1, size => 12 },
-  "jobidmd5ver",
-  { data_type => "varchar", is_nullable => 1, size => 12 },
-  "jobidbackup",
-  { data_type => "varchar", is_nullable => 1, size => 12 },
-  "jobidbai",
-  { data_type => "varchar", is_nullable => 1, size => 12 },
-  "jobidqplot",
-  { data_type => "varchar", is_nullable => 1, size => 12 },
-  "jobidmapping",
-  { data_type => "varchar", is_nullable => 1, size => 12 },
-  "jobidcp2ncbi",
-  { data_type => "varchar", is_nullable => 1, size => 12 },
-  "bamsize",
-  { data_type => "varchar", default_value => 0, is_nullable => 1, size => 16 },
-  "dateinit",
-  { data_type => "varchar", is_nullable => 1, size => 10 },
+  "bamid", {data_type => "integer", is_auto_increment => 1, is_nullable => 0},
+  "runid", {data_type => "integer", is_nullable => 0},
+  "studyid",       {data_type => "integer", is_nullable   => 0},
+  "bamname",       {data_type => "varchar", is_nullable   => 0, size => 96},
+  "studyname",     {data_type => "varchar", is_nullable   => 0, size => 96},
+  "piname",        {data_type => "varchar", is_nullable   => 1, size => 96},
+  "checksum",      {data_type => "varchar", is_nullable   => 0, size => 96},
+  "refname",       {data_type => "varchar", is_nullable   => 0, size => 96},
+  "expt_refname",  {data_type => "varchar", is_nullable   => 0, size => 96},
+  "expt_sampleid", {data_type => "varchar", is_nullable   => 0, size => 24},
+  "datearrived",   {data_type => "varchar", is_nullable   => 1, size => 12},
+  "datemd5ver",    {data_type => "varchar", is_nullable   => 1, size => 12},
+  "dateqplot",     {data_type => "varchar", is_nullable   => 1, size => 12},
+  "datemapping",   {data_type => "varchar", is_nullable   => 1, size => 12},
+  "datereport",    {data_type => "varchar", is_nullable   => 1, size => 12},
+  "datebackup",    {data_type => "varchar", is_nullable   => 1, size => 12},
+  "datebai",       {data_type => "varchar", is_nullable   => 1, size => 12},
+  "datecp2ncbi",   {data_type => "varchar", is_nullable   => 1, size => 12},
+  "jobidarrived",  {data_type => "varchar", is_nullable   => 1, size => 12},
+  "jobidmd5ver",   {data_type => "varchar", is_nullable   => 1, size => 12},
+  "jobidbackup",   {data_type => "varchar", is_nullable   => 1, size => 12},
+  "jobidbai",      {data_type => "varchar", is_nullable   => 1, size => 12},
+  "jobidqplot",    {data_type => "varchar", is_nullable   => 1, size => 12},
+  "jobidmapping",  {data_type => "varchar", is_nullable   => 1, size => 12},
+  "jobidcp2ncbi",  {data_type => "varchar", is_nullable   => 1, size => 12},
+  "bamsize",       {data_type => "varchar", default_value => 0, is_nullable => 1, size => 16},
+  "dateinit", {data_type => "varchar", is_nullable => 1, size => 10},
 );
 
 =head1 PRIMARY KEY
@@ -261,4 +235,35 @@ __PACKAGE__->set_primary_key("bamid");
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+#
+use Topmed::Base;
+
+__PACKAGE__->belongs_to(
+  run => 'Topmed::DB::Schema::Result::Run',
+  {'foreign.runid' => 'self.runid'}
+);
+
+__PACKAGE__->belongs_to(
+  study => 'Topmed::DB::Schema::Result::Study',
+  {'foreign.studyid' => 'self.studyid'}
+);
+
+sub status {
+  no if $PERL_VERSION >= 5.017011, warnings => 'experimental::smartmatch';
+
+  my $status = 'unknown';
+  given (shift->datemapping) {
+    when (not defined($_)) {$status = 'requested'}
+    when ('')              {$status = 'unknown'}
+    when (1)               {$status = 'cancelled'}
+    when (0)               {$status = 'requested'}
+    when (-1)              {$status = 'failed'}
+    when (2)               {$status = 'submitted'}
+    when ($_ > 10)         {$status = 'completed'}
+    when ($_ < 0)          {$status = 'started'}
+  }
+
+  return $status;
+}
+
 1;
