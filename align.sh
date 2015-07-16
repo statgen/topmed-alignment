@@ -45,6 +45,11 @@ if [ -z $BAM_FILE ]; then
   exit 1
 fi
 
+if [ -z $BAM_PI ]; then
+  echo "BAM_PI is not defined!"
+  exit 1
+fi
+
 if [ ! -z $SLURM_JOB_ID ]; then
   JOB_ID=$SLURM_JOB_ID
   NODE=$SLURM_JOB_NODELIST
@@ -53,9 +58,9 @@ if [ ! -z $SLURM_JOB_ID ]; then
 
   for id in $(ls -1 $TMP_DIR); do
     job_state="$(sacct -j $id -X -n -o state%7)"
-    if [ "$job_state" ne "RUNNING " ]; then # XXX - left trailing space on purpose
+    if [ "$job_state" == "RUNNING " ]; then # XXX - left trailing space on purpose
       echo "Removing stale job tmp directory for job id: $id"
-      rm -rf $TMP_DIR/$id
+#       rm -rf $TMP_DIR/$id
     fi
   done
 elif [ ! -z $PBS_JOBID ]; then
@@ -86,7 +91,7 @@ BAM_ID="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\S*' | sort -u 
 TMP_DIR="${TMP_DIR}/${JOB_ID}"
 PROJECT_DIR="${PREFIX}/schelcj/align"
 REF_DIR="${PREFIX}/mktrost/gotcloud.ref"
-OUT_DIR="${PREFIX}/schelcj/results/${BAM_CENTER}/${BAM_ID}"
+OUT_DIR="${PREFIX}/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}"
 RUN_DIR="${PROJECT_DIR}/../run"
 GOTCLOUD_CONF="${PROJECT_DIR}/gotcloud.conf.${CLST_ENV}"
 GOTCLOUD_ROOT="${PROJECT_DIR}/../gotcloud.${CLST_ENV}"
