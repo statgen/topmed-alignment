@@ -252,19 +252,17 @@ __PACKAGE__->belongs_to(
 sub status {
   no if $PERL_VERSION >= 5.017011, warnings => 'experimental::smartmatch';
 
-  my $status = 'unknown';
   given (shift->datemapping) {
-    when (not defined($_))       {$status = 'requested'}
-    when ($BAM_STATUS_UNKNOWN)   {$status = 'unknown'}
-    when ($BAM_STATUS_CANCELLED) {$status = 'cancelled'}
-    when ($BAM_STATUS_REQUESTED) {$status = 'requested'}
-    when ($BAM_STATUS_FAILED)    {$status = 'failed'}
-    when ($BAM_STATUS_SUBMITTED) {$status = 'submitted'}
-    when ($_ > 10)               {$status = 'completed'}
-    when ($_ < 0)                {$status = 'started'}
+    when (not defined($_))        {return $BAM_STATUS{requested}}
+    when ($BAM_STATUS{unknown})   {return $BAM_STATUS{unknown}}
+    when ($BAM_STATUS{cancelled}) {return $BAM_STATUS{cancelled}}
+    when ($BAM_STATUS{requested}) {return $BAM_STATUS{requested}}
+    when ($BAM_STATUS{failed})    {return $BAM_STATUS{failed}}
+    when ($BAM_STATUS{submitted}) {return $BAM_STATUS{submitted}}
+    when ($_ > 10)                {return $BAM_STATUS{completed}}
+    when ($_ < 0)                 {return $BAM_STATUS{started}}
+    default                       {return $BAM_STATUS{unknown}}
   }
-
-  return $status;
 }
 
 1;

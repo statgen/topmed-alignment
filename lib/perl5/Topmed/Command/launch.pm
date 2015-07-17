@@ -69,9 +69,9 @@ sub execute {
     my $bam   = $entry->thaw();
     my $path  = File::Spec->join($BAM_FILE_PREFIX{$clst}, $bam->{center}, $bam->{dir}, $bam->{name});
 
-    next if $opts->{center} and $bam->{center} ne $opts->{center};
-    next if $opts->{study}  and $bam->{study} ne $opts->{study};
-    next if $opts->{pi}     and $bam->{pi} ne $opts->{pi};
+    next if $opts->{center} and lc($bam->{center}) ne lc($opts->{center});
+    next if $opts->{study}  and lc($bam->{study}) ne lc($opts->{study});
+    next if $opts->{pi}     and lc($bam->{pi}) ne lc($opts->{pi});
 
     print Dumper $bam;
 
@@ -94,7 +94,7 @@ sub execute {
     }
 =cut
 
-    $bam->{status} = $BAM_STATUS_SUBMITTED;
+    $bam->{status} = $BAM_STATUS{submitted};
     $entry->freeze($bam);
   }
 }

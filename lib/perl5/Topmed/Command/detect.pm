@@ -26,13 +26,13 @@ sub execute {
   my @cached_bams = ();
 
   for my $bam ($db->resultset('Bamfile')->all()) {
+    my $entry = $cache->entry($bam->bamid);
+
+    next if $entry->exists();
     next if $bam->datearrived =~ /\D/;    # XXX - not sure, logic from TPG
     next if $bam->datearrived < 10;       # XXX - not sure, logic from TPG
 
-    # TODO - only cache bams that need to be processed
-    # TODO - check for existing cache entry and update
     say 'Caching BAM: ' . $bam->bamname if $self->app->global_options->{verbose};
-    my $entry = $cache->entry($bam->bamid);
     $entry->freeze(
       {
         id     => $bam->bamid,
@@ -48,24 +48,15 @@ sub execute {
     push @cached_bams, $bam->bamid;
   }
 
-  my $idx_ref   = {};
-  my $idx_entry = $cache->entry($BAM_CACHE_INDEX);
-
-  if ($idx_entry->exists) {
+  if (@cached_bams) {
     say "Updating $BAM_CACHE_INDEX" if $self->app->global_options->{verbose};
 
-    $idx_ref = $idx_entry->thaw();
+    my $entry = $cache->entry($BAM_CACHE_INDEX);
+    my $index = ($entry->exists) ? $entry->thaw() : {};
 
-    map {$idx_ref->{$_} = 1} @cached_bams;
-    $idx_entry->freeze($idx_ref);
-
-  } else {
-    say "Creating $BAM_CACHE_INDEX" if $self->app->global_options->{verbose};
-
-    map {$idx_ref->{$_} = 1} @cached_bams;
-    $idx_entry->freeze($idx_ref);
+    map {$index->{$_} = 1} @cached_bams;
+    $entry->freeze($index);
   }
-
 }
 
 1;
