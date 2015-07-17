@@ -17,14 +17,14 @@
 #SBATCH --partition=nomosix
 #SBATCH --ignore-pbs
 
-#PBS -l nodes=1:ppn=2,walltime=240:00:00,pmem=8gb
+#PBS -l nodes=1:ppn=3,walltime=240:00:00,pmem=4gb
 #PBS -l ddisk=200gb
-#PBS -m abe
+#PBS -m a
 #PBS -d ../run
 #PBS -M schelcj@umich.edu
 #PBS -q flux
 #PBS -l qos=flux
-#PBS -A sph_flux
+#PBS -A goncalo_flux
 #PBS -V
 #PBS -j oe
 
@@ -50,25 +50,30 @@ if [ -z $BAM_PI ]; then
   exit 1
 fi
 
+if [ -z $BAM_DB_ID ]; then
+  echo "BAM_DB_ID is not defined!"
+  exit 1
+fi
+
 if [ ! -z $SLURM_JOB_ID ]; then
   JOB_ID=$SLURM_JOB_ID
   NODE=$SLURM_JOB_NODELIST
   CLST_ENV="csg"
   PREFIX="/net/topmed/working"
 
-  for id in $(ls -1 $TMP_DIR); do
-    job_state="$(sacct -j $id -X -n -o state%7)"
-    if [ "$job_state" == "RUNNING " ]; then # XXX - left trailing space on purpose
-      echo "Removing stale job tmp directory for job id: $id"
+# for id in $(ls -1 $TMP_DIR); do
+#   job_state="$(sacct -j $id -X -n -o state%7)"
+#   if [ "$job_state" == "RUNNING " ]; then # XXX - left trailing space on purpose
+#     echo "Removing stale job tmp directory for job id: $id"
 #       rm -rf $TMP_DIR/$id
-    fi
-  done
+#   fi
+# done
 elif [ ! -z $PBS_JOBID ]; then
   JOB_ID=$PBS_JOBID
   NODE="$(cat $PBS_NODEFILE)"
   CLST_ENV="flux"
   PREFIX="/dept/csg/topmed/working"
-  ALIGN_THREADS=2
+  ALIGN_THREADS=3
 
 else
   echo "Unknown cluster environment"
@@ -98,6 +103,7 @@ GOTCLOUD_ROOT="${PROJECT_DIR}/../gotcloud.${CLST_ENV}"
 FASTQ_LIST="$TMP_DIR/fastq.list"
 BAM_LIST="$TMP_DIR/bam.list"
 
+export PERL5LIB=${PROJECT_DIR}/local:$PERL5LIB
 export PATH=$GOTCLOUD_ROOT:$PATH
 mkdir -p $OUT_DIR $TMP_DIR
 printf "%s\t%s" $BAM_ID $BAM_FILE > $BAM_LIST
@@ -129,9 +135,9 @@ $GOTCLOUD_CMD pipe         \
 
 rc=$?
 
-
 if [ "$rc" -ne 0 ]; then
   echo "$PIPELINE failed with exit code $rc" 1>&2
+  $PROJECT_DIR/bin/topmed update --bamid $BAM_DB_ID --failed
   exit $rc
 else
   echo "GC PIPE RC: $rc"
@@ -150,9 +156,12 @@ rc=$?
 
 if [ "$rc" -ne 0 ]; then
   echo "Alighment failed with exit code $rc" 1>&2
+  $PROJECT_DIR/bin/topmed update --bamid $BAM_DB_ID --failed
   exit $rc
 else
   echo "GC ALIGN RC: $rc"
   echo "Purging $TMP_DIR on $NODE"
+  $PROJECT_DIR/bin/topmed update --bamid $BAM_DB_ID --completed
   rm -rf $TMP_DIR
+  exit $rc
 fi
