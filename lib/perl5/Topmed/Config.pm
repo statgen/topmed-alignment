@@ -45,7 +45,7 @@ Readonly::Hash our %BAM_FILE_PREFIX => (
 );
 
 Readonly::Hash our %BAM_STATUS => (
-  unknown   => '',
+  unknown   => '', # FIXME - causing errors with numeric comparisons later on, need to change
   failed    => -1,
   requested => 0,
   cancelled => 1,
