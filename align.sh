@@ -107,7 +107,7 @@ export PERL5LIB=${PROJECT_DIR}/local.${CLST_ENV}/lib/perl5:$PERL5LIB
 export PERL_CARTON_PATH=${PROJECT_DIR}/local.${CLST_ENV}
 export PATH=$GOTCLOUD_ROOT:$PATH
 mkdir -p $OUT_DIR $TMP_DIR
-printf "%s\t%s" $BAM_ID $BAM_FILE > $BAM_LIST
+echo "%s %s" $BAM_ID $BAM_FILE > $BAM_LIST
 
 echo "
 OUT_DIR:    $OUT_DIR
