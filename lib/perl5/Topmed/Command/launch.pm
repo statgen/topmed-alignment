@@ -12,6 +12,7 @@ sub opt_spec {
     ['center=s',    'Only map BAMs from a specific center'],
     ['pi=s',        'Only map BAMs from a specific PI'],
     ['dry_run|n',   'Dry run; Do everything except submit the job'],
+    ['limit|l=i',   'Limit number of jobs submitted'],
   );
 }
 
@@ -55,9 +56,10 @@ sub validate_args {
 sub execute {
   my ($self, $opts, $args) = @_;
 
-  my $conf  = Topmed::Config->new();
-  my $cache = $conf->cache();
-  my $idx   = $cache->entry($BAM_CACHE_INDEX);
+  my $jobs_submitted = 0;
+  my $conf           = Topmed::Config->new();
+  my $cache          = $conf->cache();
+  my $idx            = $cache->entry($BAM_CACHE_INDEX);
 
   unless ($idx->exists) {
     confess 'No index of BAM IDs found!';
@@ -65,6 +67,9 @@ sub execute {
 
   my $indexes = $idx->thaw();
   for my $bamid (keys %{$indexes}) {
+
+    last if $jobs_submitted > $opts->{limit};
+
     my $clst  = $opts->{cluster};
     my $entry = $cache->entry($bamid);
     my $bam   = $entry->thaw();
@@ -80,23 +85,24 @@ sub execute {
 
         print Dumper $bam if $self->app->global_options->{debug};
 
-        my $cmd   = System::Command->new(
-          ($JOB_CMDS{$clst}, $BATCH_SCRIPT),
-          {
+        my $cmd = System::Command->new(
+          ($JOB_CMDS{$clst}, $BATCH_SCRIPT), {
             env => {
               BAM_CENTER => $bam->{center},
               BAM_FILE   => $path,
               BAM_PI     => $bam->{pi},
+              BAM_DB_ID  => $bamid,
             }
           }
         );
 
         my $stdout = $cmd->stdout();
-        while (<$stdout>) { print $_ }
+        while (<$stdout>) {print $_ }
         $cmd->close();
 
         $bam->{status} = $BAM_STATUS{submitted};
         $entry->freeze($bam);
+        $jobs_submitted++;
       }
     }
   }
