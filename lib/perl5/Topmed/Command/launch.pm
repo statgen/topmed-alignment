@@ -3,7 +3,6 @@ package Topmed::Command::launch;
 use Topmed -command;
 use Topmed::Base;
 use Topmed::Config;
-use Topmed::DB;
 
 sub opt_spec {
   return (
@@ -19,7 +18,8 @@ sub opt_spec {
 sub validate_args {
   my ($self, $opts, $args) = @_;
 
-  my $db = Topmed::DB->new();
+  my $conf = Topmed::Config->new();
+  my $cache = $conf->cache();
 
   unless ($opts->{cluster}) {
     $self->usage_error('Cluster environment is required');
@@ -30,19 +30,28 @@ sub validate_args {
   }
 
   if ($opts->{center}) {
-    unless ($db->resultset('Center')->search({centername => $opts->{center}})->count()) {
+    my $entry = $cache->entry('centers');
+    my $centers = $entry->thaw();
+
+    unless (exists $centers->{$opts->{center}}) {
       $self->usage_error('Invalid Center');
     }
   }
 
   if ($opts->{study}) {
-    unless ($db->resultset('Bamfile')->search({studyname => $opts->{study}})->count()) {
+    my $entry = $cache->entry('studies');
+    my $studies = $entry->thaw();
+
+    unless (exists $studies->{$opts->{study}}) {
       $self->usage_error('Invalid Study');
     }
   }
 
   if ($opts->{pi}) {
-    unless ($db->resultset('Bamfile')->search({piname => $opts->{pi}})->count()) {
+    my $entry = $cache->entry('pis');
+    my $pis = $entry->thaw();
+
+    unless (exists $pis->{$opts->{pi}}) {
       $self->usage_error('Invalid PI');
     }
   }
@@ -67,8 +76,9 @@ sub execute {
 
   my $indexes = $idx->thaw();
   for my $bamid (keys %{$indexes}) {
+    last if ++$jobs_submitted > $opts->{limit};
 
-    last if $jobs_submitted > $opts->{limit};
+    say "Processing BAM $bamid" if $self->app->global_options->{verbose};
 
     my $clst  = $opts->{cluster};
     my $entry = $cache->entry($bamid);
@@ -78,12 +88,13 @@ sub execute {
     next if $opts->{center} and lc($bam->{center}) ne lc($opts->{center});
     next if $opts->{study}  and lc($bam->{study}) ne lc($opts->{study});
     next if $opts->{pi}     and lc($bam->{pi}) ne lc($opts->{pi});
+    next if $bam->{status} eq $BAM_STATUS{unknown};
 
     if ($bam->{status} == $BAM_STATUS{requested}) {
-      unless ($opts->{'dry_run'}) {
-        say "Sumitting remapping job for $bam->{name}" if $self->app->global_options->{verbose};
+      say "Sumitting remapping job for $bam->{name}" if $self->app->global_options->{verbose};
+      print Dumper $bam if $self->app->global_options->{debug};
 
-        print Dumper $bam if $self->app->global_options->{debug};
+      unless ($opts->{'dry_run'}) {
 
         my $cmd = System::Command->new(
           ($JOB_CMDS{$clst}, $BATCH_SCRIPT), {
@@ -102,8 +113,8 @@ sub execute {
 
         $bam->{status} = $BAM_STATUS{submitted};
         $entry->freeze($bam);
-        $jobs_submitted++;
       }
+
     }
   }
 }

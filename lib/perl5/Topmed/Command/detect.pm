@@ -23,10 +23,17 @@ sub execute {
   my $db          = Topmed::DB->new();
   my $conf        = Topmed::Config->new();
   my $cache       = $conf->cache();
+  my $centers     = {};
+  my $studies     = {};
+  my $pis         = {};
   my @cached_bams = ();
 
   for my $bam ($db->resultset('Bamfile')->all()) {
     my $entry = $cache->entry($bam->bamid);
+
+    $centers->{$bam->run->center->centername} = 1;
+    $studies->{$bam->studyname}               = 1;
+    $pis->{$bam->piname}                      = 1;
 
     next if $entry->exists();
     next if $bam->datearrived =~ /\D/;    # XXX - not sure, logic from TPG
@@ -57,6 +64,15 @@ sub execute {
     map {$index->{$_} = 1} @cached_bams;
     $entry->freeze($index);
   }
+
+  my $center_entry = $cache->entry('centers');
+  $center_entry->thaw($centers);
+
+  my $study_entry = $cache->entry('studies');
+  $study_entry->thaw($studies);
+
+  my $pi_entry = $cache->entry('pis');
+  $pi_entry->thaw($pis);
 }
 
 1;
