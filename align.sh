@@ -103,7 +103,8 @@ GOTCLOUD_ROOT="${PROJECT_DIR}/../gotcloud.${CLST_ENV}"
 FASTQ_LIST="$TMP_DIR/fastq.list"
 BAM_LIST="$TMP_DIR/bam.list"
 
-export PERL5LIB=${PROJECT_DIR}/local:$PERL5LIB
+export PERL5LIB=${PROJECT_DIR}/local.${CLST_ENV}/lib/perl5:$PERL5LIB
+export PERL_CARTON_PATH=${PROJECT_DIR/local.${CLST_ENV}
 export PATH=$GOTCLOUD_ROOT:$PATH
 mkdir -p $OUT_DIR $TMP_DIR
 printf "%s\t%s" $BAM_ID $BAM_FILE > $BAM_LIST
