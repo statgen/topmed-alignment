@@ -11,6 +11,7 @@ sub opt_spec {
     ['study=s',     'Only map BAMs from a sepcific study'],
     ['center=s',    'Only map BAMs from a specific center'],
     ['pi=s',        'Only map BAMs from a specific PI'],
+    ['dry_run|n',   'Dry run; Do everything except submit the job'],
   );
 }
 
@@ -73,29 +74,31 @@ sub execute {
     next if $opts->{study}  and lc($bam->{study}) ne lc($opts->{study});
     next if $opts->{pi}     and lc($bam->{pi}) ne lc($opts->{pi});
 
-    print Dumper $bam;
+    if ($bam->{status} == $BAM_STATUS{requested}) {
+      unless ($opts->{'dry_run'}) {
+        say "Sumitting remapping job for $bam->{name}" if $self->app->global_options->{verbose};
 
-=cut
-    if ($bam->{status} eq 'requested') {
-      my $cmd   = System::Command->new(
-        ($JOB_CMDS{$clst}, $BATCH_SCRIPT),
-        {
-          env => {
-            BAM_CENTER => $bam->{center},
-            BAM_FILE   => $path,
-            BAM_PI     => $bam->{pi},
+        print Dumper $bam if $self->app->global_options->{debug};
+
+        my $cmd   = System::Command->new(
+          ($JOB_CMDS{$clst}, $BATCH_SCRIPT),
+          {
+            env => {
+              BAM_CENTER => $bam->{center},
+              BAM_FILE   => $path,
+              BAM_PI     => $bam->{pi},
+            }
           }
-        }
-      );
+        );
 
-      my $stdout = $cmd->stdout();
-      while (<$stdout>) { print $_ }
-      $cmd->close();
+        my $stdout = $cmd->stdout();
+        while (<$stdout>) { print $_ }
+        $cmd->close();
+
+        $bam->{status} = $BAM_STATUS{submitted};
+        $entry->freeze($bam);
+      }
     }
-=cut
-
-    $bam->{status} = $BAM_STATUS{submitted};
-    $entry->freeze($bam);
   }
 }
 
