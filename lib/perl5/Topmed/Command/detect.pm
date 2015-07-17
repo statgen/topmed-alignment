@@ -65,12 +65,15 @@ sub execute {
     $entry->freeze($index);
   }
 
+  say 'Caching Centers' if $self->app->global_options->{verbose};
   my $center_entry = $cache->entry('centers');
   $center_entry->thaw($centers);
 
+  say 'Caching Studies' if $self->app->global_options->{verbose};
   my $study_entry = $cache->entry('studies');
   $study_entry->thaw($studies);
 
+  say 'Caching PIs' if $self->app->global_options->{verbose};
   my $pi_entry = $cache->entry('pis');
   $pi_entry->thaw($pis);
 }

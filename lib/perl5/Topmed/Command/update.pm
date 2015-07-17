@@ -7,8 +7,7 @@ use Topmed::Config;
 sub opt_spec {
   return (
     ['bamid|b=i', 'ID From topmed db of bam to update'],
-    ['completed', 'mark the bam file finished'],
-    ['failed',    'mark the bam as failed'],
+    ['state|s=s', 'Mark the bam as [requested|failed|finished|cancelled|unknown]'],
   );
 }
 
@@ -20,6 +19,10 @@ sub validate_args {
 
   unless ($opts->{bamid}) {
     $self->usage_error('BAM DB ID is required');
+  }
+
+  unless (all {exists $BAM_STATUS{$_}} keys %BAM_STATUS) {
+    $self->usage_error('Invalid state specificed');
   }
 
   my $entry = $cache->entry($opts->{bamid});
@@ -42,14 +45,7 @@ sub execute {
   my $entry = $self->{stash}->{cache_entry};
   my $bam   = $entry->thaw();
 
-  if ($opts->{failed}) {
-    $bam->{status} = $BAM_STATUS{failed};
-
-  } elsif ($opts->{completed}) {
-    $bam->{status} = $BAM_STATUS{completed};
-
-  }
-
+  $bam->{status} = $opts->{state};
   $entry->freeze($bam);
 }
 
