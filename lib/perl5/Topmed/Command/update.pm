@@ -45,7 +45,7 @@ sub execute {
   my $entry = $self->{stash}->{cache_entry};
   my $bam   = $entry->thaw();
 
-  $bam->{status} = $opts->{state};
+  $bam->{status} = $BAM_STATUS{$opts->{state}};
   $entry->freeze($bam);
 }
 
