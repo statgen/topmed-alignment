@@ -140,7 +140,7 @@ rc=$?
 
 if [ "$rc" -ne 0 ]; then
   echo "$PIPELINE failed with exit code $rc" 1>&2
-  $PROJECT_DIR/bin/topmed update --bamid $BAM_DB_ID --failed
+  $PROJECT_DIR/bin/topmed update --bamid $BAM_DB_ID --state failed
   exit $rc
 else
   echo "GC PIPE RC: $rc"
@@ -159,12 +159,12 @@ rc=$?
 
 if [ "$rc" -ne 0 ]; then
   echo "Alighment failed with exit code $rc" 1>&2
-  $PROJECT_DIR/bin/topmed update --bamid $BAM_DB_ID --failed
+  $PROJECT_DIR/bin/topmed update --bamid $BAM_DB_ID --state failed
   exit $rc
 else
   echo "GC ALIGN RC: $rc"
   echo "Purging $TMP_DIR on $NODE"
-  $PROJECT_DIR/bin/topmed update --bamid $BAM_DB_ID --completed
+  $PROJECT_DIR/bin/topmed update --bamid $BAM_DB_ID --state completed
   rm -rf $TMP_DIR
   exit $rc
 fi
