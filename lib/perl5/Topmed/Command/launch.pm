@@ -62,7 +62,7 @@ sub execute {
   my $idx            = $cache->entry($BAM_CACHE_INDEX);
 
   unless ($idx->exists) {
-    confess 'No index of BAM IDs found!';
+    die 'No index of BAM IDs found!';
   }
 
   my $indexes = $idx->thaw();
