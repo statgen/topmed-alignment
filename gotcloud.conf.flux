@@ -1,6 +1,6 @@
 ONE_BWA = 1
 # Set number of bwa threads per bwa run.
-BWA_THREADS = -t 2
+BWA_THREADS = -t 3
 
 # Skip verifyBamID & run 2 step dedup/recab
 PER_MERGE_STEPS = qplot index recab
