@@ -41,7 +41,7 @@ Readonly::Scalar our $BAM_CACHE_INDEX => 'bam_idx';
 
 Readonly::Hash our %BAM_FILE_PREFIX => (
   csg  => '/net/topmed/incoming/topmed',
-  flux => '/dept/csg/incoming/topmed',
+  flux => '/dept/csg/topmed/incoming/topmed',
 );
 
 Readonly::Hash our %BAM_STATUS => (
