@@ -12,12 +12,12 @@
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=15000
 #SBATCH --gres=tmp:sata:200
-#SBATCH --time=10-0
+#SBATCH --time=10-02:00:00
 #SBATCH --workdir=../run
 #SBATCH --partition=nomosix
 #SBATCH --ignore-pbs
 
-#PBS -l nodes=1:ppn=3,walltime=240:00:00,pmem=4gb
+#PBS -l nodes=1:ppn=3,walltime=242:00:00,pmem=4gb
 #PBS -l ddisk=200gb
 #PBS -m a
 #PBS -d ../run
@@ -127,6 +127,8 @@ PIPELINE:   $PIPELINE
 GC_CONF:    $GOTCLOUD_CONF
 GC_ROOT:    $GOTCLOUD_ROOT
 "
+
+sleep "$(($RANDOM % 120))m"
 
 $GOTCLOUD_CMD pipe         \
   --gcroot  $GOTCLOUD_ROOT \
