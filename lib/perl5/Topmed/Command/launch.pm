@@ -76,10 +76,6 @@ sub execute {
 
   my $indexes = $idx->thaw();
   for my $bamid (keys %{$indexes}) {
-    last if ++$jobs_submitted > $opts->{limit};
-
-    say "Processing BAM $bamid" if $self->app->global_options->{verbose};
-
     my $clst  = $opts->{cluster};
     my $entry = $cache->entry($bamid);
     my $bam   = $entry->thaw();
@@ -91,6 +87,8 @@ sub execute {
     next if $bam->{status} eq $BAM_STATUS{unknown};
 
     if ($bam->{status} == $BAM_STATUS{requested}) {
+      last if ++$jobs_submitted > $opts->{limit};
+
       say "Sumitting remapping job for $bam->{name}" if $self->app->global_options->{verbose};
       print Dumper $bam if $self->app->global_options->{debug};
 
