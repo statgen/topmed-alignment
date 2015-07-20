@@ -12,7 +12,7 @@ our @IMPORT_MODULES = (
   'Readonly',
   'File::Slurp::Tiny' => [qw(read_file read_lines)],
   'File::Spec',
-  'List::MoreUtils' => [qw(all)],
+  'List::MoreUtils' => [qw(all any)],
 );
 
 our %IMPORT_BUNDLES = (
