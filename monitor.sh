@@ -41,8 +41,6 @@ export PERL_CARTON_PATH=${PROJECT_DIR}/local.${CLST_ENV}
 while true; do
   sleep 5
 
-  time_left="$($QUEUE_CMD $JOB_ID)"
-
   # XXX - what could possibly go wrong with this?!
   case "$CLST_ENV")
     'csg')
