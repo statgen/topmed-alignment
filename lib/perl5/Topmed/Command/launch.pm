@@ -18,7 +18,7 @@ sub opt_spec {
 sub validate_args {
   my ($self, $opts, $args) = @_;
 
-  my $conf = Topmed::Config->new();
+  my $conf  = Topmed::Config->new();
   my $cache = $conf->cache();
 
   unless ($opts->{cluster}) {
@@ -30,7 +30,7 @@ sub validate_args {
   }
 
   if ($opts->{center}) {
-    my $entry = $cache->entry('centers');
+    my $entry   = $cache->entry('centers');
     my $centers = $entry->thaw();
 
     unless (exists $centers->{$opts->{center}}) {
@@ -39,7 +39,7 @@ sub validate_args {
   }
 
   if ($opts->{study}) {
-    my $entry = $cache->entry('studies');
+    my $entry   = $cache->entry('studies');
     my $studies = $entry->thaw();
 
     unless (exists $studies->{$opts->{study}}) {
@@ -49,7 +49,7 @@ sub validate_args {
 
   if ($opts->{pi}) {
     my $entry = $cache->entry('pis');
-    my $pis = $entry->thaw();
+    my $pis   = $entry->thaw();
 
     unless (exists $pis->{$opts->{pi}}) {
       $self->usage_error('Invalid PI');
@@ -94,13 +94,15 @@ sub execute {
 
       unless ($opts->{'dry_run'}) {
 
-        my $cmd = System::Command->new(
+        my $delay = int(rand(120));
+        my $cmd   = System::Command->new(
           ($JOB_CMDS{$clst}, $BATCH_SCRIPT), {
             env => {
               BAM_CENTER => $bam->{center},
               BAM_FILE   => $path,
               BAM_PI     => $bam->{pi},
               BAM_DB_ID  => $bamid,
+              DELAY      => $delay,
             }
           }
         );
@@ -110,6 +112,9 @@ sub execute {
         $cmd->close();
 
         $bam->{status} = $BAM_STATUS{submitted};
+        $bam->{clst}   = $clst;
+        $bam->{delay}  = $delay;
+
         $entry->freeze($bam);
       }
 
