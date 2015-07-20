@@ -84,6 +84,8 @@ sub execute {
     next if $opts->{center} and lc($bam->{center}) ne lc($opts->{center});
     next if $opts->{study}  and lc($bam->{study}) ne lc($opts->{study});
     next if $opts->{pi}     and lc($bam->{pi}) ne lc($opts->{pi});
+
+    next unless defined $bam->{status}; # XXX - should probably update these to something?
     next if $bam->{status} eq $BAM_STATUS{unknown};
 
     if ($bam->{status} == $BAM_STATUS{requested}) {
