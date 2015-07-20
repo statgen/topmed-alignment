@@ -45,11 +45,11 @@ while true; do
   case "$CLST_ENV")
     'csg')
       # XXX - format: dd-hh:mm:ss
-      time_remaining=$(squeue -h -o %L -j $JOB_ID | perl -nle 'print $1 if /(?:\d{1,2}\-)?(\d{1,2}):\d{2}(?::\d{2})?/')
+      time_remaining=$(squeue -h -o %L -j $JOB_ID | perl -nle 'print (($1 * 24) + $2) if /(\d{1,2})?\-?(\d{1,2}):\d{2}(?::\d{2})?/')
       ;;
     'flux')
       # XXX - format:  dd:hh:mm:ss
-      time_remaining=$(showq | grep $JOB_ID | awk {'print $5'} | perl -nle 'print $1 if /(\d{1,2}):\d{2}:\d{2}?(?::\d{2})?/')
+      time_remaining=$(showq | grep $JOB_ID | awk {'print $5'} | perl -nle 'print $1 if /(\d{1,2}):\d{2}:\d{2}?(?::\d{2})?/') # FIXME - need to test days, maybe?
       ;;
   esac
 
