@@ -50,6 +50,7 @@ Readonly::Hash our %BAM_STATUS => (
   requested => 0,
   cancelled => 1,
   submitted => 2,
+  completed => 3,
 );
 
 Readonly::Hash our %JOB_CMDS => (
