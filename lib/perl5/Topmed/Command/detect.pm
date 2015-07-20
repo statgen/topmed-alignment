@@ -47,7 +47,7 @@ sub execute {
         dir    => $bam->run->dirname,
         center => $bam->run->center->centername,
         pi     => $bam->piname,
-        study  => $bam->studyname,                 # XXX - should come from $bam->study->studyname but nothing in that table atm
+        study  => $bam->studyname,
         status => $bam->status,
       }
     );
