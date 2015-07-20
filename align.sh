@@ -128,7 +128,12 @@ GC_CONF:    $GOTCLOUD_CONF
 GC_ROOT:    $GOTCLOUD_ROOT
 "
 
-sleep "$(($RANDOM % 120))m"
+if [ ! -z $DELAY ]; then
+  echo "DELAY:      $DELAY"
+  sleep "${DELAY}m"
+fi
+
+$PROJECT_DIR/bin/topmed update --bamid $BAM_DB_ID --jobid $JOB_ID
 
 $GOTCLOUD_CMD pipe         \
   --gcroot  $GOTCLOUD_ROOT \
