@@ -70,43 +70,6 @@ DISTRIBUTIONS
       perl 5.008001
       strict 0
       warnings 0
-  CPAN-Meta-2.150005
-    pathname: D/DA/DAGOLDEN/CPAN-Meta-2.150005.tar.gz
-    provides:
-      CPAN::Meta 2.150005
-      CPAN::Meta::Converter 2.150005
-      CPAN::Meta::Feature 2.150005
-      CPAN::Meta::History 2.150005
-      CPAN::Meta::Merge 2.150005
-      CPAN::Meta::Prereqs 2.150005
-      CPAN::Meta::Spec 2.150005
-      CPAN::Meta::Validator 2.150005
-    requirements:
-      CPAN::Meta::Requirements 2.121
-      CPAN::Meta::YAML 0.008
-      Carp 0
-      ExtUtils::MakeMaker 6.17
-      JSON::PP 2.27200
-      Parse::CPAN::Meta 1.4414
-      Scalar::Util 0
-      perl 5.008
-      strict 0
-      version 0.88
-      warnings 0
-  CPAN-Meta-YAML-0.016
-    pathname: D/DA/DAGOLDEN/CPAN-Meta-YAML-0.016.tar.gz
-    provides:
-      CPAN::Meta::YAML 0.016
-    requirements:
-      B 0
-      Carp 0
-      Exporter 0
-      ExtUtils::MakeMaker 6.17
-      Fcntl 0
-      Scalar::Util 0
-      perl 5.008001
-      strict 0
-      warnings 0
   Cache-2.11
     pathname: S/SH/SHLOMIF/Cache-2.11.tar.gz
     provides:
@@ -688,13 +651,6 @@ DISTRIBUTIONS
       Symbol 0
       Test 0
       perl 5.006
-  Data-Dumper-2.154
-    pathname: S/SM/SMUELLER/Data-Dumper-2.154.tar.gz
-    provides:
-      Data::Dumper 2.154
-    requirements:
-      ExtUtils::MakeMaker 0
-      Test::More 0.98
   Data-Dumper-Concise-2.022
     pathname: F/FR/FREW/Data-Dumper-Concise-2.022.tar.gz
     provides:
@@ -728,18 +684,9 @@ DISTRIBUTIONS
     provides:
       Devel::GlobalDestruction 0.13
     requirements:
-      Devel::GlobalDestruction::XS 0
       ExtUtils::CBuilder 0.27
       ExtUtils::MakeMaker 0
       Sub::Exporter::Progressive 0.001011
-      perl 5.006
-  Devel-GlobalDestruction-XS-0.01
-    pathname: R/RI/RIBASUSHI/Devel-GlobalDestruction-XS-0.01.tar.gz
-    provides:
-      Devel::GlobalDestruction::XS 0.01
-    requirements:
-      ExtUtils::CBuilder 0.27
-      ExtUtils::MakeMaker 0
       perl 5.006
   Devel-OverloadInfo-0.002
     pathname: I/IL/ILMARI/Devel-OverloadInfo-0.002.tar.gz
@@ -802,33 +749,6 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 6.17
       perl 5.006001
-  ExtUtils-CBuilder-0.280223
-    pathname: A/AM/AMBS/ExtUtils-CBuilder-0.280223.tar.gz
-    provides:
-      ExtUtils::CBuilder 0.280223
-      ExtUtils::CBuilder::Base 0.280223
-      ExtUtils::CBuilder::Platform::Unix 0.280223
-      ExtUtils::CBuilder::Platform::VMS 0.280223
-      ExtUtils::CBuilder::Platform::Windows 0.280223
-      ExtUtils::CBuilder::Platform::Windows::BCC 0.280223
-      ExtUtils::CBuilder::Platform::Windows::GCC 0.280223
-      ExtUtils::CBuilder::Platform::Windows::MSVC 0.280223
-      ExtUtils::CBuilder::Platform::aix 0.280223
-      ExtUtils::CBuilder::Platform::android 0.280223
-      ExtUtils::CBuilder::Platform::cygwin 0.280223
-      ExtUtils::CBuilder::Platform::darwin 0.280223
-      ExtUtils::CBuilder::Platform::dec_osf 0.280223
-      ExtUtils::CBuilder::Platform::os2 0.280223
-    requirements:
-      Cwd 0
-      ExtUtils::MakeMaker 6.30
-      File::Basename 0
-      File::Spec 3.13
-      File::Temp 0
-      IO::File 0
-      IPC::Cmd 0
-      Perl::OSType 1
-      Text::ParseWords 0
   ExtUtils-Config-0.008
     pathname: L/LE/LEONT/ExtUtils-Config-0.008.tar.gz
     provides:
@@ -913,30 +833,6 @@ DISTRIBUTIONS
       File::Spec 0.8
       Pod::Man 0
       perl 5.006
-  ExtUtils-ParseXS-3.24
-    pathname: S/SM/SMUELLER/ExtUtils-ParseXS-3.24.tar.gz
-    provides:
-      ExtUtils::ParseXS 3.24
-      ExtUtils::ParseXS::Constants 3.24
-      ExtUtils::ParseXS::CountLines 3.24
-      ExtUtils::ParseXS::Eval 3.24
-      ExtUtils::ParseXS::Utilities 3.24
-      ExtUtils::Typemaps 3.24
-      ExtUtils::Typemaps::Cmd 3.24
-      ExtUtils::Typemaps::InputMap 3.24
-      ExtUtils::Typemaps::OutputMap 3.24
-      ExtUtils::Typemaps::Type 3.24
-    requirements:
-      Carp 0
-      Cwd 0
-      DynaLoader 0
-      Exporter 5.57
-      ExtUtils::CBuilder 0
-      ExtUtils::MakeMaker 6.46
-      File::Basename 0
-      File::Spec 0
-      Symbol 0
-      Test::More 0.47
   File-NFSLock-1.27
     pathname: B/BB/BBB/File-NFSLock-1.27.tar.gz
     provides:
@@ -1048,27 +944,6 @@ DISTRIBUTIONS
       Symbol 0
       strict 0
       warnings 0
-  IO-Tty-1.12
-    pathname: T/TO/TODDR/IO-Tty-1.12.tar.gz
-    provides:
-      IO::Pty 1.12
-      IO::Tty 1.12
-      IO::Tty::Constant undef
-    requirements:
-      ExtUtils::MakeMaker 0
-      Test::More 0
-  IPC-Cmd-0.92
-    pathname: B/BI/BINGOS/IPC-Cmd-0.92.tar.gz
-    provides:
-      IPC::Cmd 0.92
-    requirements:
-      ExtUtils::MakeMaker 0
-      File::Spec 0
-      File::Temp 0
-      Locale::Maketext::Simple 0
-      Module::Load::Conditional 0
-      Params::Check 0.20
-      Test::More 0
   IPC-Run-0.94
     pathname: T/TO/TODDR/IPC-Run-0.94.tar.gz
     provides:
@@ -1286,56 +1161,6 @@ DISTRIBUTIONS
       perl 5.010
       strict 0
       warnings 0
-  Module-Build-0.4214
-    pathname: L/LE/LEONT/Module-Build-0.4214.tar.gz
-    provides:
-      Module::Build 0.4214
-      Module::Build::Base 0.4214
-      Module::Build::Compat 0.4214
-      Module::Build::Config 0.4214
-      Module::Build::Cookbook 0.4214
-      Module::Build::Dumper 0.4214
-      Module::Build::Notes 0.4214
-      Module::Build::PPMMaker 0.4214
-      Module::Build::Platform::Default 0.4214
-      Module::Build::Platform::MacOS 0.4214
-      Module::Build::Platform::Unix 0.4214
-      Module::Build::Platform::VMS 0.4214
-      Module::Build::Platform::VOS 0.4214
-      Module::Build::Platform::Windows 0.4214
-      Module::Build::Platform::aix 0.4214
-      Module::Build::Platform::cygwin 0.4214
-      Module::Build::Platform::darwin 0.4214
-      Module::Build::Platform::os2 0.4214
-      Module::Build::PodParser 0.4214
-    requirements:
-      CPAN::Meta 2.142060
-      CPAN::Meta::YAML 0.003
-      Cwd 0
-      Data::Dumper 0
-      ExtUtils::CBuilder 0.27
-      ExtUtils::Install 0
-      ExtUtils::Manifest 0
-      ExtUtils::Mkbootstrap 0
-      ExtUtils::ParseXS 2.21
-      File::Basename 0
-      File::Compare 0
-      File::Copy 0
-      File::Find 0
-      File::Path 0
-      File::Spec 0.82
-      File::Temp 0.15
-      Getopt::Long 0
-      Module::Metadata 1.000002
-      Parse::CPAN::Meta 1.4401
-      Perl::OSType 1
-      Pod::Man 2.17
-      Test::Harness 3.16
-      Test::More 0.49
-      Text::Abbrev 0
-      Text::ParseWords 0
-      perl 5.008000
-      version 0.87
   Module-Build-Tiny-0.039
     pathname: L/LE/LEONT/Module-Build-Tiny-0.039.tar.gz
     provides:
@@ -1361,17 +1186,6 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  Module-CoreList-5.20150620
-    pathname: B/BI/BINGOS/Module-CoreList-5.20150620.tar.gz
-    provides:
-      Module::CoreList 5.20150620
-      Module::CoreList::TieHashDelta 5.20150620
-      Module::CoreList::Utils 5.20150620
-    requirements:
-      ExtUtils::MakeMaker 0
-      List::Util 0
-      Test::More 0
-      version 0.88
   Module-Find-0.13
     pathname: C/CR/CRENZ/Module-Find-0.13.tar.gz
     provides:
@@ -1395,40 +1209,6 @@ DISTRIBUTIONS
       Module::Runtime 0.012
       Try::Tiny 0
       strict 0
-      warnings 0
-  Module-Load-0.32
-    pathname: B/BI/BINGOS/Module-Load-0.32.tar.gz
-    provides:
-      Module::Load 0.32
-    requirements:
-      ExtUtils::MakeMaker 0
-      Test::More 0.94
-  Module-Load-Conditional-0.64
-    pathname: B/BI/BINGOS/Module-Load-Conditional-0.64.tar.gz
-    provides:
-      Module::Load::Conditional 0.64
-    requirements:
-      ExtUtils::MakeMaker 0
-      Locale::Maketext::Simple 0
-      Module::CoreList 2.22
-      Module::Load 0.28
-      Module::Metadata 1.000005
-      Params::Check 0
-      Test::More 0
-      version 0.69
-  Module-Metadata-1.000027
-    pathname: E/ET/ETHER/Module-Metadata-1.000027.tar.gz
-    provides:
-      Module::Metadata 1.000027
-    requirements:
-      Carp 0
-      ExtUtils::MakeMaker 0
-      Fcntl 0
-      File::Find 0
-      File::Spec 0
-      perl 5.006
-      strict 0
-      version 0.87
       warnings 0
   Module-Runtime-0.014
     pathname: Z/ZE/ZEFRAM/Module-Runtime-0.014.tar.gz
@@ -1940,20 +1720,6 @@ DISTRIBUTIONS
       strict 0
       vars 0
       warnings 0
-  Parse-CPAN-Meta-1.4417
-    pathname: D/DA/DAGOLDEN/Parse-CPAN-Meta-1.4417.tar.gz
-    provides:
-      Parse::CPAN::Meta 1.4417
-    requirements:
-      CPAN::Meta::YAML 0.011
-      Carp 0
-      Encode 0
-      Exporter 0
-      ExtUtils::MakeMaker 0
-      File::Spec 0.80
-      JSON::PP 2.27200
-      perl 5.008001
-      strict 0
   Path-Class-0.35
     pathname: K/KW/KWILLIAMS/Path-Class-0.35.tar.gz
     provides:
@@ -1979,16 +1745,6 @@ DISTRIBUTIONS
       overload 0
       parent 0
       strict 0
-  Perl-OSType-1.008
-    pathname: D/DA/DAGOLDEN/Perl-OSType-1.008.tar.gz
-    provides:
-      Perl::OSType 1.008
-    requirements:
-      Exporter 0
-      ExtUtils::MakeMaker 6.17
-      perl 5.006
-      strict 0
-      warnings 0
   Readonly-2.00
     pathname: S/SA/SANKO/Readonly-2.00.tar.gz
     provides:
@@ -2507,27 +2263,4 @@ DISTRIBUTIONS
       B::Hooks::EndOfScope 0.12
       ExtUtils::CBuilder 0.27
       Package::Stash 0.23
-      Sub::Identify 0.04
-      Sub::Name 0.04
       Test::More 0.88
-  parent-0.234
-    pathname: C/CO/CORION/parent-0.234.tar.gz
-    provides:
-      parent 0.234
-    requirements:
-      ExtUtils::MakeMaker 0
-      Test::More 0.4
-  version-0.9912
-    pathname: J/JP/JPEACOCK/version-0.9912.tar.gz
-    provides:
-      charstar 0.9912
-      version 0.9912
-      version::regex 0.9912
-      version::vpp 0.9912
-      version::vxs 0.9912
-    requirements:
-      ExtUtils::MakeMaker 6.17
-      File::Temp 0.13
-      Test::More 0.45
-      parent 0.221
-      perl 5.006002
