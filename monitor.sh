@@ -39,7 +39,7 @@ export PERL5LIB=${PROJECT_DIR}/local.${CLST_ENV}/lib/perl5:$PERL5LIB
 export PERL_CARTON_PATH=${PROJECT_DIR}/local.${CLST_ENV}
 
 while true; do
-  sleep 5
+  sleep 5m
 
   # XXX - what could possibly go wrong with this?!
   case "$CLST_ENV")
@@ -53,12 +53,11 @@ while true; do
       ;;
   esac
 
-  # TODO - figure out how to do time left
   if [ $time_remaining -gt 1 ]; then
-    echo "Time Remaining: $time_remaining launching more jobs"
+    echo "Launching more jobs [Remaining: $time_remaining]"
     $TOPMED_CMD launch -v -c $CLST_ENV
   else
-    echo "Time Remaining: $time_remaining restarting and exiting"
+    echo "Resubmitting and exiting [Remaining: $time_remaining]"
     $SUBMIT_CMD $0
     exit 0
   fi
