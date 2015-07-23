@@ -5,6 +5,7 @@
 #SBATCH --partition=nomosix
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=schelcj@umich.edu
+#SBATCH --workdir=../run
 
 #PBS -l qos=flux,proces=1,walltime=672:00:00,mem=1gb
 #PBS -m abe
@@ -12,18 +13,17 @@
 #PBS -A goncalo_flux
 #PBS -V
 #PBS -j oe
+#PBS -d ../run
 
 if [ ! -z $SLURM_JOB_ID ]; then
   CLST_ENV="csg"
   PREFIX="/net/topmed/working"
-  QUEUE_CMD="squeue -h -o %L -j"
   SUBMIT_CMD="sbatch"
   TIME_REMAINING=$(squeue -h -o %L -j $SLURM_JOB_ID)
 
 elif [ ! -z $PBS_JOBID ]; then
   CLST_ENV="flux"
   PREFIX="/dept/csg/topmed/working"
-  QUEUE_CMD="showq"
   SUBMIT_CMD="qsub"
   TIME_REMAINING=$(showq | grep $PBS_JOBID| awk {'print $5'})
 
@@ -39,17 +39,16 @@ export PERL_CARTON_PATH=${PROJECT_DIR}/local.${CLST_ENV}
 export PERL5LIB=${PERL_CARTON_PATH}/lib/perl5:$PERL5LIB
 
 while true; do
-  sleep 15m
-
-  # TODO - determine how many hours are left with perl code
   remaining=$(topmed stat --time_left $TIME_REMAINING)
 
   if [ $remaining -gt 1 ]; then
     echo "Launching more job(s) [Remaining: ${remaining}h]"
-    topmed launch -v -c $CLST_ENV -l 1
+    topmed launch -v -c $CLST_ENV -l 10
   else
     echo "Resubmitting and exiting [Remaining: ${remaining}h]"
     $SUBMIT_CMD $0
     exit 0
   fi
+
+  sleep 15m
 done
