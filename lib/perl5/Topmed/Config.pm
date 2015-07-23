@@ -11,6 +11,7 @@ our @EXPORT = (
     $BAM_CACHE_INDEX
     %BAM_FILE_PREFIX
     %BAM_STATUS
+    @TIME_REMAINING_FORMAT_REGEXPS
     )
 );
 
@@ -21,6 +22,7 @@ our @EXPORT_OK = (
     $BAM_CACHE_INDEX
     %BAM_FILE_PREFIX
     %BAM_STATUS
+    @TIME_REMAINING_FORMAT_REGEXPS
     )
 );
 
@@ -32,6 +34,7 @@ our %EXPORT_TAGS = (
       $BAM_CACHE_INDEX
       %BAM_FILE_PREFIX
       %BAM_STATUS
+      @TIME_REMAINING_FORMAT_REGEXPS
       )
   ]
 );
@@ -56,6 +59,20 @@ Readonly::Hash our %BAM_STATUS => (
 Readonly::Hash our %JOB_CMDS => (
   csg  => 'sbatch',
   flux => 'qsub',
+);
+
+Readonly::Array our @TIME_REMAINING_FORMAT_REGEXPS => (
+  # dd-hh:mm:ss
+  qr/(?<days>\d{1,2})\-(?<hours>\d{1,2}):\d{2}:\d{2}/,
+
+  # dd:hh:mm:ss
+  qr/(?<days>\d{1,2}):(?<hours>\d{2}):\d{2}:\d{2}/,
+
+  # hh:mm:ss
+  qr/(?<hours>\d{1,2}):\d{2}:\d{2}/,
+
+  # hh:mm
+  qr/(?<hours>\d{1,2}):\d{2}/,
 );
 
 Readonly::Scalar my $CACHE_ROOT         => qq{$Bin/../../cache};

@@ -14,18 +14,18 @@
 #PBS -j oe
 
 if [ ! -z $SLURM_JOB_ID ]; then
-  JOB_ID=$SLURM_JOB_ID
   CLST_ENV="csg"
   PREFIX="/net/topmed/working"
   QUEUE_CMD="squeue -h -o %L -j"
   SUBMIT_CMD="sbatch"
+  TIME_REMAINING=$(squeue -h -o %L -j $SLURM_JOB_ID)
 
 elif [ ! -z $PBS_JOBID ]; then
-  JOB_ID=$PBS_JOBID
   CLST_ENV="flux"
   PREFIX="/dept/csg/topmed/working"
   QUEUE_CMD="showq"
   SUBMIT_CMD="qsub"
+  TIME_REMAINING=$(showq | grep $PBS_JOBID| awk {'print $5'})
 
 else
   echo "Unknown cluster environment"
@@ -33,31 +33,22 @@ else
 fi
 
 PROJECT_DIR="${PREFIX}/schelcj/align"
-TOPMED_CMD="${PROJECT_DIR}/bin/topmed"
 
-export PERL5LIB=${PROJECT_DIR}/local.${CLST_ENV}/lib/perl5:$PERL5LIB
+export PATH=${PROJECT_DIR}/bin:$PATH
 export PERL_CARTON_PATH=${PROJECT_DIR}/local.${CLST_ENV}
+export PERL5LIB=${PERL_CARTON_PATH}/lib/perl5:$PERL5LIB
 
 while true; do
-  sleep 5m
+  sleep 15m
 
-  # XXX - what could possibly go wrong with this?!
-  case "$CLST_ENV")
-    'csg')
-      # XXX - format: dd-hh:mm:ss
-      time_remaining=$(squeue -h -o %L -j $JOB_ID | perl -nle 'print (($1 * 24) + $2) if /(\d{1,2})?\-?(\d{1,2}):\d{2}(?::\d{2})?/')
-      ;;
-    'flux')
-      # XXX - format:  dd:hh:mm:ss
-      time_remaining=$(showq | grep $JOB_ID | awk {'print $5'} | perl -nle 'print $1 if /(\d{1,2}):\d{2}:\d{2}?(?::\d{2})?/') # FIXME - need to test days, maybe?
-      ;;
-  esac
+  # TODO - determine how many hours are left with perl code
+  remaining=$(topmed stat --time_left $TIME_REMAINING)
 
-  if [ $time_remaining -gt 1 ]; then
-    echo "Launching more jobs [Remaining: $time_remaining]"
-    $TOPMED_CMD launch -v -c $CLST_ENV
+  if [ $remaining -gt 1 ]; then
+    echo "Launching more job(s) [Remaining: ${remaining}h]"
+    topmed launch -v -c $CLST_ENV -l 1
   else
-    echo "Resubmitting and exiting [Remaining: $time_remaining]"
+    echo "Resubmitting and exiting [Remaining: ${remaining}h]"
     $SUBMIT_CMD $0
     exit 0
   fi
