@@ -17,7 +17,7 @@
 #SBATCH --partition=nomosix
 #SBATCH --ignore-pbs
 
-#PBS -l nodes=1:ppn=3,walltime=192:00:00,pmem=4gb
+#PBS -l nodes=1:ppn=3,walltime=168:00:00,pmem=4gb
 #PBS -l ddisk=200gb
 #PBS -m a
 #PBS -d ../run
