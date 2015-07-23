@@ -43,7 +43,7 @@ while true; do
 
   if [ $remaining -gt 1 ]; then
     echo "Launching more job(s) [Remaining: ${remaining}h]"
-    topmed launch -v -c $CLST_ENV -l 10
+    topmed launch -v -c $CLST_ENV -l 100
   else
     echo "Resubmitting and exiting [Remaining: ${remaining}h]"
     $SUBMIT_CMD $0
