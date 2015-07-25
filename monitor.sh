@@ -19,13 +19,11 @@ if [ ! -z $SLURM_JOB_ID ]; then
   CLST_ENV="csg"
   PREFIX="/net/topmed/working"
   SUBMIT_CMD="sbatch"
-  TIME_REMAINING=$(squeue -h -o %L -j $SLURM_JOB_ID)
 
 elif [ ! -z $PBS_JOBID ]; then
   CLST_ENV="flux"
   PREFIX="/dept/csg/topmed/working"
   SUBMIT_CMD="qsub"
-  TIME_REMAINING=$(showq | grep $PBS_JOBID| awk {'print $5'})
 
 else
   echo "Unknown cluster environment"
@@ -39,6 +37,15 @@ export PERL_CARTON_PATH=${PROJECT_DIR}/local.${CLST_ENV}
 export PERL5LIB=${PERL_CARTON_PATH}/lib/perl5:$PERL5LIB
 
 while true; do
+  case "$CLST_ENV" in
+    csg)
+      TIME_REMAINING=$(squeue -h -o %L -j $SLURM_JOB_ID)
+      ;;
+    flux)
+      TIME_REMAINING=$(showq | grep $PBS_JOBID| awk {'print $5'})
+      ;;
+  esac
+
   remaining=$(topmed stat --time_left $TIME_REMAINING)
 
   if [ $remaining -gt 1 ]; then
