@@ -1,13 +1,6 @@
 #!/bin/sh
 
-# TODO
-#   * need to record the state of the job at each stage
-#   * store output by center/PI/study
-#   * make this configurable for another user to run jobs
-#     primarily means PROJECT_DIR and OUT_DIR need to be configurable
-#   * purge tmp dir on pbs cluster
-
-
+#SBATCH --ignore-pbs
 #SBATCH --nodes=1-1
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=15000
@@ -15,9 +8,10 @@
 #SBATCH --time=10-02:00:00
 #SBATCH --workdir=../run
 #SBATCH --partition=nomosix
-#SBATCH --ignore-pbs
+#SBATCH --mail-type=FAIL
+#SBATCH --mail-user=schelcj@umich.edu
 
-#PBS -l nodes=1:ppn=3,walltime=155:00:00,pmem=4gb
+#PBS -l nodes=1:ppn=3,walltime=242:00:00,pmem=4gb
 #PBS -l ddisk=200gb
 #PBS -m a
 #PBS -d ../run
