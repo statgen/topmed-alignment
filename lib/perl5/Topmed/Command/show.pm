@@ -62,14 +62,22 @@ sub show_state {
       next;
     }
 
+    if ($state eq 'unknown') {
+      if ($bam->{status} eq $BAM_STATUS{$state}) {
+        printf "ID: %-8s %-30s center: %-10s study: %-10s PI: %-10s\n", $bam->{id}, $bam->{name}, $bam->{center}, $bam->{study}, $bam->{pi};
+        print Dumper $bam if $self->app->global_options->{'debug'};
+      }
+      next;
+    }
+
     if ($bam->{status} eq $BAM_STATUS{unknown}) {
       if ($bam->{status} eq $BAM_STATUS{$state}) {
-        printf "%-8s: %-30s center: %-10s study: %-10s PI: %-10s\n", $bam->{id}, $bam->{name}, $bam->{center}, $bam->{study}, $bam->{pi};
+        printf "ID: %-8s %-30s center: %-10s study: %-10s PI: %-10s\n", $bam->{id}, $bam->{name}, $bam->{center}, $bam->{study}, $bam->{pi};
         print Dumper $bam if $self->app->global_options->{'debug'};
       }
     } else {
       if ($bam->{status} == $BAM_STATUS{$state}) {
-        printf "%-8s: %-30s center: %-10s study: %-10s PI: %-10s\n", $bam->{id}, $bam->{name}, $bam->{center}, $bam->{study}, $bam->{pi};
+        printf "ID: %-8s %-30s center: %-10s study: %-10s PI: %-10s\n", $bam->{id}, $bam->{name}, $bam->{center}, $bam->{study}, $bam->{pi};
         print Dumper $bam if $self->app->global_options->{'debug'};
       }
     }
