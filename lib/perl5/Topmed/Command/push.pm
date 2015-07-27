@@ -27,35 +27,28 @@ sub execute {
   my $cache     = $conf->cache();
   my $idx_entry = $cache->entry($BAM_CACHE_INDEX);
   my $index     = $idx_entry->thaw();
+  my $now       = time();
 
   for my $bamid (keys %{$index}) {
     my $bam_entry = $cache->entry($bamid);
     my $bam_ref   = $bam_entry->thaw();
+    my $bam       = $db->resultset('Bamfile')->find($bamid);
 
-    next unless defined $bam_ref->{status};
-    next if exists $bam_ref->{pushed};
-    next if $bam_ref->{status} eq $BAM_STATUS{unknown};
-
-    if ($bam_ref->{status} == $BAM_STATUS{completed}) {
-      my $now = time();
-      my $bam = $db->resultset('Bamfile')->find($bamid);
-
-      unless ($bam) {
-        say "Unable to locate BAM id $bamid in the database!";
-        next;
-      }
-
-      say 'Setting BAM: ' . $bam->bamname . " datemapping to $now" if $self->app->global_options->{verbose};
-
-      $bam->update(
-        {
-          datemapping => $now
-        }
-      );
-
-      $bam_ref->{pushed} = 1;
-      $bam_entry->freeze($bam_ref);
+    unless ($bam) {
+      say "Unable to locate BAM id $bamid in the database!";
+      next;
     }
+
+    next if $bam->status >= $BAM_STATUS{completed};
+    my $status = ($bam_ref->{status} >= $BAM_STATUS{completed}) ? $now : $bam_ref->{status};
+    say 'Setting BAM: ' . $bam->bamname . " datemapping to $status" if $self->app->global_options->{verbose};
+
+    $bam->update(
+      {
+        datemapping  => $status,
+        jobidmapping => $bam_ref->{jobid},
+      }
+    );
   }
 }
 

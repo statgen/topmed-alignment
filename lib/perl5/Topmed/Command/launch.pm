@@ -85,10 +85,7 @@ sub execute {
     next if $opts->{study}  and lc($bam->{study}) ne lc($opts->{study});
     next if $opts->{pi}     and lc($bam->{pi}) ne lc($opts->{pi});
 
-    next unless defined $bam->{status}; # XXX - should probably update these to something?
-    next if $bam->{status} eq $BAM_STATUS{unknown};
-
-    if ($bam->{status} == $BAM_STATUS{requested} or $bam->{status} eq $BAM_STATUS{unknown}) {
+    if ($bam->{status} == $BAM_STATUS{requested}) {
       last if ++$jobs_submitted > $opts->{limit};
 
       say "Sumitting remapping job for $bam->{name}" if $self->app->global_options->{verbose};

@@ -35,6 +35,7 @@ sub execute {
     $studies->{$bam->studyname}               = 1;
     $pis->{$bam->piname}                      = 1;
 
+    next if $bam->status >= $BAM_STATUS{completed};
     next if $entry->exists();
     next if $bam->datearrived =~ /\D/;    # XXX - not sure, logic from TPG
     next if $bam->datearrived < 10;       # XXX - not sure, logic from TPG

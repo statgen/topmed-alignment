@@ -8,7 +8,7 @@ sub opt_spec {
   return (
     ['bamid|b=i', 'ID From topmed db of BAM to update'],
     ['jobid|j=s', 'Record the job id that processed the BAM'],
-    ['state|s=s', 'Mark the bam as [requested|failed|completed|cancelled|unknown]'],
+    ['state|s=s', 'Mark the bam as [requested|failed|completed|cancelled]'],
   );
 }
 

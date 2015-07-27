@@ -6,7 +6,7 @@ use Topmed::Config;
 
 sub opt_spec {
   return (
-    ['state|s=s', 'Mark the bam as [requested|failed|completed|cancelled|unknown]'],
+    ['state|s=s', 'Mark the bam as [requested|failed|completed|cancelled]'],
     ['dump',      'Dump the cache to STDOUT'],
   );
 }
@@ -62,24 +62,9 @@ sub show_state {
       next;
     }
 
-    if ($state eq 'unknown') {
-      if ($bam->{status} eq $BAM_STATUS{$state}) {
-        printf "ID: %-8s %-30s center: %-10s study: %-10s PI: %-10s\n", $bam->{id}, $bam->{name}, $bam->{center}, $bam->{study}, $bam->{pi};
-        print Dumper $bam if $self->app->global_options->{'debug'};
-      }
-      next;
-    }
-
-    if ($bam->{status} eq $BAM_STATUS{unknown}) {
-      if ($bam->{status} eq $BAM_STATUS{$state}) {
-        printf "ID: %-8s %-30s center: %-10s study: %-10s PI: %-10s\n", $bam->{id}, $bam->{name}, $bam->{center}, $bam->{study}, $bam->{pi};
-        print Dumper $bam if $self->app->global_options->{'debug'};
-      }
-    } else {
-      if ($bam->{status} == $BAM_STATUS{$state}) {
-        printf "ID: %-8s %-30s center: %-10s study: %-10s PI: %-10s\n", $bam->{id}, $bam->{name}, $bam->{center}, $bam->{study}, $bam->{pi};
-        print Dumper $bam if $self->app->global_options->{'debug'};
-      }
+    if ($bam->{status} == $BAM_STATUS{$state}) {
+      printf "ID: %-8s %-30s center: %-10s study: %-10s PI: %-10s\n", $bam->{id}, $bam->{name}, $bam->{center}, $bam->{study}, $bam->{pi};
+      print Dumper $bam if $self->app->global_options->{'debug'};
     }
   }
 
