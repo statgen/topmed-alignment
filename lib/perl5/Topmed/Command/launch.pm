@@ -88,7 +88,7 @@ sub execute {
     next unless defined $bam->{status}; # XXX - should probably update these to something?
     next if $bam->{status} eq $BAM_STATUS{unknown};
 
-    if ($bam->{status} == $BAM_STATUS{requested}) {
+    if ($bam->{status} == $BAM_STATUS{requested} or $bam->{status} eq $BAM_STATUS{unknown}) {
       last if ++$jobs_submitted > $opts->{limit};
 
       say "Sumitting remapping job for $bam->{name}" if $self->app->global_options->{verbose};
