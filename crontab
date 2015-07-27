@@ -1,0 +1,3 @@
+0 * * * *     /working/schelcj/align/bin/topmed detect
+39 */6 * * *  /working/schelcj/align/bin/topmed update
+15 4 * * *    /working/schelcj/align/bin/topmed purge
