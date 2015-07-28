@@ -57,7 +57,8 @@ sub validate_args {
   }
 
   if ($self->app->global_options->{help}) {
-    print $self->app->usage->text;
+    say $self->app->usage->text;
+    print $self->usage->text;
     exit;
   }
 }
