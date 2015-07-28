@@ -8,6 +8,8 @@ sub opt_spec {
   return (
     ['state|s=s', 'Mark the bam as [requested|failed|completed|cancelled]'],
     ['dump',      'Dump the cache to STDOUT'],
+    ['undef|u',   'Show BAMs with undefined state'],
+    ['bamid|b=i',   'Dump BAM cache entry'],
   );
 }
 
@@ -38,6 +40,14 @@ sub execute {
   if ($opts->{dump}) {
     $self->dump_cache();
   }
+
+  if ($opts->{undef}) {
+    $self->show_state('undef');
+  }
+
+  if ($opts->{bamid}) {
+    $self->show_bam($opts->{bamid});
+  }
 }
 
 sub show_state {
@@ -57,8 +67,18 @@ sub show_state {
 
     my $bam = $bam_entry->thaw();
 
+    if ($state eq 'undef') {
+      unless (defined($bam->{status})) {
+        say "BAM ($bamid) has an undefined state" if $self->app->global_options->{'verbose'};
+        print Dumper $bam if $self->app->global_options->{'debug'};
+      }
+
+      next;
+    }
+
     unless (defined $bam->{status}) {
-      say "BAM ($bamid) has an undefined state" if $self->app->global_options->{'debug'};
+      say "BAM ($bamid) has an undefined state" if $self->app->global_options->{'verbose'};
+      print Dumper $bam if $self->app->global_options->{'debug'};
       next;
     }
 
@@ -90,6 +110,18 @@ sub dump_cache {
     print Dumper $entry->thaw();
   }
 
+  return;
+}
+
+sub show_bam {
+  my ($self, $bamid) = @_;
+
+  my $cache = $self->{stash}->{cache};
+  my $entry = $cache->entry($bamid);
+
+  die "BAM $bamid does not exist in the cache" unless $entry->exists();
+
+  print Dumper $entry->thaw();
   return;
 }
 
