@@ -26,11 +26,11 @@ for my $result (@results) {
   for my $result (@{$result->{results}}) {
     if ($result->{state} eq 'ALIGN_QPLOT_PENDING') {
       my $makefile = sprintf '%s/Makefiles/align_%s.Makefile', $result->{result}, basename($result->{result});
-      my $batch_script = create_batch_script($bamid, $makefile);
+      my $batch_script = create_batch_script($bamid, $result->{sampleid}, $result->{result}, $makefile);
 
       print Dumper $batch_script;
 
-      # run('sbatch', $batch_script);
+      # run('/usr/cluster/bin/sbatch', $batch_script);
     }
   }
 }
@@ -68,7 +68,7 @@ sub parse_align_status {
 }
 
 sub create_batch_script {
-  my ($bamid, $makefile) = @_;
+  my ($bamid, $sampleid, $result_dir, $makefile) = @_;
 
   my $temp = File::Temp->new(
     DIR    => q{/tmp/topmed/qplots},
@@ -81,8 +81,9 @@ sub create_batch_script {
 
   for my $target ($parser->targets) {
     if ($target->name =~ /qplot\.done/) {
-      my @commands = grep {!/^mkdir/} apply {$_ =~ s/^@//g} $target->commands;
-      my $batch = _batch_script($bamid, join("\n", @commands));
+      my $prereq   = basename($target->depends);
+      my @commands = apply {$_ =~ s/\$</$prereq/g} grep {!/^mkdir/} apply {$_ =~ s/^@//g} $target->commands;
+      my $batch    = _batch_script($bamid, $sampleid, $result_dir, $makefile, join("\n", @commands));
 
       write_file($temp->filename, $batch);
     }
@@ -92,7 +93,7 @@ sub create_batch_script {
 }
 
 sub _batch_script {
-  my ($bamid, $commands) = @_;
+  my ($bamid, $sampleid, $result_dir, $makefile, $commands) = @_;
 
   return <<"EOF"
 #!/bin/sh
@@ -100,17 +101,23 @@ sub _batch_script {
 #SBATCH --partition=topmed-incoming
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=schelcj\@umich.edu
-#SBATCH --mem=4000
-#SBATCH --time=06:00:00
+#SBATCH --mem=8000
+#SBATCH --time=12:00:00
 #SBATCH --job-name=rerun_qplot
 
-export PERL_CARTON_PATH=/net/topmed/working/schelcj/align/local.csg
-export PERL5LIB=\$PERL_CARTON_PATH/lib/perl5:\$PERL_CARTON_PATH/../lib/perl5:\$PERL5LIB
+export PREFIX=/net/topmed/working/schelcj/align
+export PATH=\$PREFIX/bin:\$PATH
+export PERL_CARTON_PATH=\$PREFIX/local.csg
+export PERL5LIB=\$PERL_CARTON_PATH/lib/perl5:\$PREFIX/lib/perl5:\$PERL5LIB
 
+# Makefile: $makefile
+#
+### Begin: makefile parsed target
 $commands
+### End: makefile parsed target
 
 if [ \$? -eq 0 ]; then
-  /net/topmed/working/schelcj/align/bin/topmed update --bamid $bamid --state completed
+  topmed update --bamid $bamid --state completed
 fi
 EOF
 }
