@@ -9,3 +9,4 @@ requires 'DBIx::Class';
 requires 'DBD::mysql';
 requires 'DBIx::Class::Schema::Loader';
 requires 'Moose';
+requires 'Makefile::Parser';
