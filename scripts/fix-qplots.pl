@@ -81,7 +81,9 @@ sub create_batch_script {
 
   for my $target ($parser->targets) {
     if ($target->name =~ /qplot\.done/) {
-      my $prereq   = basename($target->depends);
+      my ($prereq) = $target->prereqs;
+      $prereq =~ s/\.done$//g;
+
       my @commands = apply {$_ =~ s/\$</$prereq/g} grep {!/^mkdir/} apply {$_ =~ s/^@//g} $target->commands;
       my $batch    = _batch_script($bamid, $sampleid, $result_dir, $makefile, join("\n", @commands));
 
