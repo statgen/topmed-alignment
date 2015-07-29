@@ -40,6 +40,11 @@ sub execute {
       next;
     }
 
+    unless ($bam_ref->{status}) {
+      say "Found undefined status for $bamid in the cache" if $self->app->global_options->{verbose};
+      next;
+    }
+
     next if $bam->status >= $BAM_STATUS{completed};
     my $status = ($bam_ref->{status} >= $BAM_STATUS{completed}) ? $now : $bam_ref->{status};
     say 'Setting BAM: ' . $bam->bamname . " datemapping to $status" if $self->app->global_options->{verbose};
