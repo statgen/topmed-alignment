@@ -86,6 +86,11 @@ sub execute {
     next if $opts->{study}  and lc($bam->{study}) ne lc($opts->{study});
     next if $opts->{pi}     and lc($bam->{pi}) ne lc($opts->{pi});
 
+    unless (defined $bam->{status}) {
+      say "$bamid has an undefined status!" if $self->app->global_options->{verbose};
+      next;
+    }
+
     if ($bam->{status} == $BAM_STATUS{requested}) {
       last if ++$jobs_submitted > $opts->{limit};
 
