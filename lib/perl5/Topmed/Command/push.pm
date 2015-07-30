@@ -52,7 +52,7 @@ sub execute {
     $bam->update(
       {
         datemapping  => $status,
-        jobidmapping => $bam_ref->{jobid},
+        jobidmapping => $bam_ref->{job_id},
       }
     );
   }
