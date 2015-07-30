@@ -1,5 +1,6 @@
 #!/usr/bin/env perl
 
+use FindBin qw($Bin);
 use Modern::Perl;
 use Data::Dumper;
 use File::Temp;
@@ -7,13 +8,13 @@ use File::Slurp::Tiny qw(read_lines write_file);
 use File::Basename;
 use List::MoreUtils qw(apply);
 use Makefile::Parser;
-use IPC::System::Simple qw(run);
 use Path::Class;
 use Topmed::DB;
 
 my $db      = Topmed::DB->new();
 my $status  = q{/net/1000g/hmkang/etc/nowseq/topmed/topmed.latest.alignstatus};
 my @results = parse_align_status($status);
+my $workdir = qq{$Bin/../../tmp/qplots};
 
 for my $result (@results) {
   my $bam = $db->resultset('Bamfile')->search({bamname => basename($result->{orig_bam})});
@@ -24,14 +25,11 @@ for my $result (@results) {
 
   my $bamid = $bam->first->bamid;
 
-  for my $result (@{$result->{results}}) {
-    if ($result->{state} eq 'ALIGN_QPLOT_PENDING') {
-      my $makefile = sprintf '%s/Makefiles/align_%s.Makefile', $result->{result}, basename($result->{result});
-      my $batch_script = create_batch_script($bamid, $result->{sampleid}, $result->{result}, $makefile);
+  for my $align_result (@{$result->{results}}) {
+    if ($align_result->{state} eq 'ALIGN_QPLOT_PENDING') {
+      my $makefile = sprintf '%s/Makefiles/align_%s.Makefile', $align_result->{result}, basename($align_result->{result});
 
-      print Dumper $batch_script;
-
-      run('/usr/cluster/bin/sbatch', $batch_script);
+      create_batch_script($bamid, $result->{sampleid}, $align_result->{result}, $makefile);
     }
   }
 }
@@ -71,45 +69,57 @@ sub parse_align_status {
 sub create_batch_script {
   my ($bamid, $sampleid, $result_dir, $makefile) = @_;
 
-  my $temp = File::Temp->new(
-    DIR    => q{/tmp/topmed/qplots},
-    SUFFIX => '.sh',
-    UNLINK => 0,
-  );
-
   my $parser = Makefile::Parser->new();
   $parser->parse($makefile);
+
+  my $clst = ($parser->var('OUT_DIR') =~ /\/dept\/csg/) ? 'flux' : 'csg';
+  my $file = qq{$workdir/$clst-$sampleid.sh};
 
   for my $target ($parser->targets) {
     if ($target->name =~ /qplot\.done/) {
       my ($prereq) = $target->prereqs;
       $prereq =~ s/\.done$//g;
 
-      my $parent   = Path::Class::File->new($target->name)->parent();
+      unless (-e $prereq) {
+        say "PREREQ does not exist! [$prereq]";
+      }
+
+      my $parent = Path::Class::File->new($target->name)->parent();
       my @commands = apply {$_ =~ s/\$\(\@D\)/$parent/g} apply {$_ =~ s/\$</$prereq/g} apply {$_ =~ s/^@//g} $target->commands;
       splice @commands, 3, 0, 'rc=$?';
-      my $batch    = _batch_script($bamid, $sampleid, $result_dir, $makefile, $target->name, join("\n", @commands));
+      my $batch = _batch_script($bamid, $workdir, $result_dir, $makefile, $target->name, join("\n", @commands));
 
-      write_file($temp->filename, $batch);
+      write_file($file, $batch);
     }
   }
 
-  return $temp->filename;
+  return $file;
 }
 
 sub _batch_script {
-  my ($bamid, $sampleid, $result_dir, $makefile, $target, $commands) = @_;
+  my ($bamid, $workdir, $result_dir, $makefile, $target, $commands) = @_;
 
   return <<"EOF"
 #!/bin/sh
 
+#SBATCH --ignore-pbs
 #SBATCH --partition=topmed-incoming
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=schelcj\@umich.edu
 #SBATCH --mem=8000
 #SBATCH --time=12:00:00
 #SBATCH --job-name=rerun_qplot
-#SBATCH --workdir=/tmp/topmed/qplots
+#SBATCH --workdir=/net/topmed$workdir
+#
+#PBS -l procs=1,walltime=12:00:00,pmem=8gb
+#PBS -m a
+#PBS -d /dept/csg/topmed$workdir
+#PBS -M schelcj\@umich.edu
+#PBS -q flux
+#PBS -l qos=flux
+#PBS -A goncalo_flux
+#PBS -V
+#PBS -j oe
 
 export PREFIX=/net/topmed/working/schelcj/align
 export PATH=\$PREFIX/bin:\$PATH
