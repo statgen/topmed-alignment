@@ -32,11 +32,13 @@ sub execute {
     my $entry = $cache->entry($bam->bamid);
 
     $centers->{$bam->run->center->centername} = 1;
-    $studies->{$bam->studyname}               = 1;
-    $pis->{$bam->piname}                      = 1;
+    $studies->{$bam->studyname}               = 1 if defined $bam->studyname;
+    $pis->{$bam->piname}                      = 1 if defined $bam->piname;
 
     next if $bam->status >= $BAM_STATUS{completed};
     next if $entry->exists();
+
+    next unless defined $bam->datearrived;
     next if $bam->datearrived =~ /\D/;    # XXX - not sure, logic from TPG
     next if $bam->datearrived < 10;       # XXX - not sure, logic from TPG
 
