@@ -48,7 +48,9 @@ sub execute {
   my $entry = $self->{stash}->{cache_entry};
   my $bam   = $entry->thaw();
 
-  $bam->{status} = $BAM_STATUS{$opts->{state}};
+  if ($opts->{state}) {
+    $bam->{status} = $BAM_STATUS{$opts->{state}};
+  }
 
   if ($opts->{jobid}) {
     $bam->{job_id} = $opts->{jobid};
