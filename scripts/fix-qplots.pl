@@ -87,6 +87,7 @@ sub create_batch_script {
 
       my $parent   = Path::Class::File->new($prereq)->parent();
       my @commands = apply {$_ =~ s/\$\(\@D\)/$parent/g} apply {$_ =~ s/\$</$prereq/g} apply {$_ =~ s/^@//g} $target->commands;
+      splice @commands, 3, 0, 'rc=$?';
       my $batch    = _batch_script($bamid, $sampleid, $result_dir, $makefile, $target->name, join("\n", @commands));
 
       write_file($temp->filename, $batch);
@@ -108,6 +109,7 @@ sub _batch_script {
 #SBATCH --mem=8000
 #SBATCH --time=12:00:00
 #SBATCH --job-name=rerun_qplot
+#SBATCH --workdir=/tmp/topmed/qplots
 
 export PREFIX=/net/topmed/working/schelcj/align
 export PATH=\$PREFIX/bin:\$PATH
@@ -121,8 +123,15 @@ export PERL5LIB=\$PERL_CARTON_PATH/lib/perl5:\$PREFIX/lib/perl5:\$PERL5LIB
 $commands
 ### End: makefile parsed target
 
-if [ \$? -eq 0 ]; then
-  topmed update --bamid $bamid --state completed
-fi
+case \$rc in
+  0)
+    topmed update --verbose --bamid $bamid --state completed
+    ;;
+  1)
+    topmed update --verbose --bamid $bamid --state failed
+    ;;
+esac
+
+exit \$rc
 EOF
 }
