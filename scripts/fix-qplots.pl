@@ -8,6 +8,7 @@ use File::Basename;
 use List::MoreUtils qw(apply);
 use Makefile::Parser;
 use IPC::System::Simple qw(run);
+use Path::Class;
 use Topmed::DB;
 
 my $db      = Topmed::DB->new();
@@ -84,8 +85,9 @@ sub create_batch_script {
       my ($prereq) = $target->prereqs;
       $prereq =~ s/\.done$//g;
 
-      my @commands = apply {$_ =~ s/\$</$prereq/g} grep {!/^mkdir/} apply {$_ =~ s/^@//g} $target->commands;
-      my $batch    = _batch_script($bamid, $sampleid, $result_dir, $makefile, join("\n", @commands));
+      my $parent   = Path::Class::File->new($prereq)->parent();
+      my @commands = apply {$_ =~ s/\$\(\@D\)/$parent/g} apply {$_ =~ s/\$</$prereq/g} apply {$_ =~ s/^@//g} $target->commands;
+      my $batch    = _batch_script($bamid, $sampleid, $result_dir, $makefile, $target->name, join("\n", @commands));
 
       write_file($temp->filename, $batch);
     }
@@ -95,7 +97,7 @@ sub create_batch_script {
 }
 
 sub _batch_script {
-  my ($bamid, $sampleid, $result_dir, $makefile, $commands) = @_;
+  my ($bamid, $sampleid, $result_dir, $makefile, $target, $commands) = @_;
 
   return <<"EOF"
 #!/bin/sh
@@ -113,6 +115,7 @@ export PERL_CARTON_PATH=\$PREFIX/local.csg
 export PERL5LIB=\$PERL_CARTON_PATH/lib/perl5:\$PREFIX/lib/perl5:\$PERL5LIB
 
 # Makefile: $makefile
+# Target:   $target
 #
 ### Begin: makefile parsed target
 $commands
