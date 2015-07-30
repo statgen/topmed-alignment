@@ -31,7 +31,7 @@ for my $result (@results) {
 
       print Dumper $batch_script;
 
-      # run('/usr/cluster/bin/sbatch', $batch_script);
+      run('/usr/cluster/bin/sbatch', $batch_script);
     }
   }
 }
