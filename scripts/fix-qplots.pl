@@ -85,7 +85,7 @@ sub create_batch_script {
       my ($prereq) = $target->prereqs;
       $prereq =~ s/\.done$//g;
 
-      my $parent   = Path::Class::File->new($prereq)->parent();
+      my $parent   = Path::Class::File->new($target->name)->parent();
       my @commands = apply {$_ =~ s/\$\(\@D\)/$parent/g} apply {$_ =~ s/\$</$prereq/g} apply {$_ =~ s/^@//g} $target->commands;
       splice @commands, 3, 0, 'rc=$?';
       my $batch    = _batch_script($bamid, $sampleid, $result_dir, $makefile, $target->name, join("\n", @commands));
