@@ -3,13 +3,15 @@ package Topmed::Command::show;
 use Topmed -command;
 use Topmed::Base;
 use Topmed::Config;
+use Topmed::DB;
 
 sub opt_spec {
   return (
     ['state|s=s', 'Mark the bam as [requested|failed|completed|cancelled]'],
     ['dump',      'Dump the cache to STDOUT'],
     ['undef|u',   'Show BAMs with undefined state'],
-    ['bamid|b=i',   'Dump BAM cache entry'],
+    ['bamid|b=i', 'Dump BAM cache entry'],
+    ['jobid|j=i', 'Dump BAM cache for job id'],
   );
 }
 
@@ -48,6 +50,32 @@ sub execute {
   if ($opts->{bamid}) {
     $self->show_bam($opts->{bamid});
   }
+
+  if ($opts->{jobid}) {
+    $self->show_jobid($opts->{jobid});
+  }
+}
+
+sub dump_cache {
+  my ($self) = @_;
+
+  my $cache = $self->{stash}->{cache};
+  my $entry = $cache->entry($BAM_CACHE_INDEX);
+  my $index = $entry->thaw();
+
+  die 'Unable to locate BAM cache index entry' unless $entry->exists();
+
+  $Data::Dumper::Varname = 'BAM_INDEX';
+  print Dumper $index;
+
+  for my $id (keys %{$index}) {
+    my $entry = $cache->entry($id);
+
+    $Data::Dumper::Varname = 'BAM_' . $id;
+    print Dumper $entry->thaw();
+  }
+
+  return;
 }
 
 sub show_state {
@@ -91,28 +119,6 @@ sub show_state {
   return;
 }
 
-sub dump_cache {
-  my ($self) = @_;
-
-  my $cache = $self->{stash}->{cache};
-  my $entry = $cache->entry($BAM_CACHE_INDEX);
-  my $index = $entry->thaw();
-
-  die 'Unable to locate BAM cache index entry' unless $entry->exists();
-
-  $Data::Dumper::Varname = 'BAM_INDEX';
-  print Dumper $index;
-
-  for my $id (keys %{$index}) {
-    my $entry = $cache->entry($id);
-
-    $Data::Dumper::Varname = 'BAM_' . $id;
-    print Dumper $entry->thaw();
-  }
-
-  return;
-}
-
 sub show_bam {
   my ($self, $bamid) = @_;
 
@@ -123,6 +129,21 @@ sub show_bam {
 
   print Dumper $entry->thaw();
   return;
+}
+
+sub show_jobid {
+  my ($self, $jobid) = @_;
+
+  my $cache = $self->{stash}->{cache};
+  my $db    = Topmed::DB->new();
+  my $bam   = $db->resultset('Bamfile')->search({jobidmapping => {like => $jobid . '%'}})->first();
+
+  unless ($bam) {
+    say "No matching BAM for job id $jobid";
+    return;
+  }
+
+  print Dumper $cache->entry($bam->id)->thaw();
 }
 
 1;
