@@ -23,6 +23,7 @@ sub validate_args {
 sub execute {
   my ($self, $opts, $args) = @_;
 
+  my @purged_ids   = ();
   my $db    = Topmed::DB->new();
   my $conf  = Topmed::Config->new();
   my $cache = $conf->cache();
@@ -44,11 +45,22 @@ sub execute {
 
       unless ($opts->{dry_run}) {
         $entry->remove();
+        push @purged_ids, $bam->bamid;
       }
     } else {
       say 'Status of BAM ' . $bam->bamid . ' do not match in database and cache!';
       next;
     }
+  }
+
+  say 'Updating BAM cache index' if $self->app->global_options->{verbose};
+  unless ($opts->{dry_run}) {
+    my $entry = $cache->entry($BAM_CACHE_INDEX);
+    my $index = $entry->thaw();
+
+    delete $index->{$_} for @purged_ids;
+
+    $entry->freeze($index);
   }
 }
 
