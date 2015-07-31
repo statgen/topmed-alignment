@@ -11,10 +11,14 @@ use Makefile::Parser;
 use Path::Class;
 use Topmed::DB;
 
-my $db      = Topmed::DB->new();
-my $status  = q{/net/1000g/hmkang/etc/nowseq/topmed/topmed.latest.alignstatus};
-my @results = parse_align_status($status);
-my $workdir = qq{$Bin/../../tmp/qplots};
+my $db         = Topmed::DB->new();
+my $status     = q{/net/1000g/hmkang/etc/nowseq/topmed/topmed.latest.alignstatus};
+my @results    = parse_align_status($status);
+my $workdir    = qq{$Bin/../../tmp/qplots};
+my $prefix_map = {
+  csg  => '/net/topmed',
+  flux => '/dept/csg/topmed',
+};
 
 for my $result (@results) {
   my $bam = $db->resultset('Bamfile')->search({bamname => basename($result->{orig_bam})});
@@ -87,7 +91,7 @@ sub create_batch_script {
       my $parent = Path::Class::File->new($target->name)->parent();
       my @commands = apply {$_ =~ s/\$\(\@D\)/$parent/g} apply {$_ =~ s/\$</$prereq/g} apply {$_ =~ s/^@//g} $target->commands;
       splice @commands, 3, 0, 'rc=$?';
-      my $batch = _batch_script($bamid, $workdir, $result_dir, $makefile, $target->name, join("\n", @commands));
+      my $batch = _batch_script($bamid, $prefix_map->{$clst}, $workdir, $result_dir, $makefile, $target->name, join("\n", @commands));
 
       write_file($file, $batch);
     }
@@ -97,7 +101,7 @@ sub create_batch_script {
 }
 
 sub _batch_script {
-  my ($bamid, $workdir, $result_dir, $makefile, $target, $commands) = @_;
+  my ($bamid, $prefix, $workdir, $result_dir, $makefile, $target, $commands) = @_;
 
   return <<"EOF"
 #!/bin/sh
@@ -109,11 +113,11 @@ sub _batch_script {
 #SBATCH --mem=8000
 #SBATCH --time=12:00:00
 #SBATCH --job-name=rerun_qplot
-#SBATCH --workdir=/net/topmed$workdir
+#SBATCH --workdir=${prefix}${workdir}
 #
 #PBS -l procs=1,walltime=12:00:00,pmem=8gb
 #PBS -m a
-#PBS -d /dept/csg/topmed$workdir
+#PBS -d ${prefix}${workdir}
 #PBS -M schelcj\@umich.edu
 #PBS -q flux
 #PBS -l qos=flux
@@ -121,7 +125,7 @@ sub _batch_script {
 #PBS -V
 #PBS -j oe
 
-export PREFIX=/net/topmed/working/schelcj/align
+export PREFIX=$prefix/working/schelcj/align
 export PATH=\$PREFIX/bin:\$PATH
 export PERL_CARTON_PATH=\$PREFIX/local.csg
 export PERL5LIB=\$PERL_CARTON_PATH/lib/perl5:\$PREFIX/lib/perl5:\$PERL5LIB
