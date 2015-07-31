@@ -10,6 +10,7 @@
 #SBATCH --partition=nomosix
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=schelcj@umich.edu
+#SBATCH --job-name=align-topmed
 
 #PBS -l nodes=1:ppn=3,walltime=242:00:00,pmem=4gb
 #PBS -l ddisk=200gb
@@ -21,6 +22,7 @@
 #PBS -A goncalo_flux
 #PBS -V
 #PBS -j oe
+#PBS -N align-topmed
 
 export PATH=/usr/cluster/bin:/usr/cluster/sbin:$PATH # XXX - temp hack till old binaries are purged
 

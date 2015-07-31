@@ -6,6 +6,7 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=schelcj@umich.edu
 #SBATCH --workdir=../run
+#SBATCH --job-name=monitor-topmed
 
 #PBS -l qos=flux,proces=1,walltime=672:00:00,mem=1gb
 #PBS -m abe
@@ -14,6 +15,7 @@
 #PBS -V
 #PBS -j oe
 #PBS -d ../run
+#PBS -N monitor-topmed
 
 if [ ! -z $SLURM_JOB_ID ]; then
   CLST_ENV="csg"
@@ -53,7 +55,7 @@ while true; do
     topmed launch -v -c $CLST_ENV -l 10
   else
     echo "Resubmitting and exiting [Remaining: ${remaining}h]"
-    $SUBMIT_CMD $0
+    $SUBMIT_CMD $PROJECT_DIR/monitor.sh
     exit 0
   fi
 
