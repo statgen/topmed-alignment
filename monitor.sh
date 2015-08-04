@@ -50,15 +50,19 @@ while true; do
   esac
 
   remaining=$(topmed stat --time_left $TIME_REMAINING)
+  job_limit=$(cat ${CONTROL_DIR}/monitor_max_jobs_launch)
+  min_time_left=$(cat ${CONTROL_DIR}/monitor_min_time_left)
+  sleep_delay=$(cat ${CONTROL_DIR}/monitor_sleep)
 
-  if [ $remaining -gt 1 ]; then
-    echo "Launching more job(s) [Remaining: ${remaining}h]"
-    topmed launch -v -c $CLST_ENV -l $(cat ${CONTROL_DIR}/monitor_max_jobs_launch)
+  if [ $remaining -gt $min_time_left ]; then
+    echo "Launching $job_limit more job(s) [Remaining: ${remaining}h]"
+    topmed launch -v -c $CLST_ENV -l $job_limit
   else
     echo "Resubmitting and exiting [Remaining: ${remaining}h]"
     $SUBMIT_CMD $PROJECT_DIR/monitor.sh
     exit 0
   fi
 
-  sleep $(cat ${CONTROL_DIR}/monitor_sleep)
+  echo "Sleeping for $sleep_delay before launching more jobs"
+  sleep $sleep_delay
 done
