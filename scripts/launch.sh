@@ -30,7 +30,8 @@ for center in "${CENTERS[@]}"; do
 
     for bam in "${BAMS[@]}"; do
       export BAM_FILE=$bam
-      $CMD ./align.sh
+      echo $BAM_FILE
+      #$CMD ./align.sh
     done
   fi
 done
