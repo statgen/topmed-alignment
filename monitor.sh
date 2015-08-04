@@ -33,6 +33,7 @@ else
 fi
 
 PROJECT_DIR="${PREFIX}/schelcj/align"
+CONTROL_DIR="${PROJECT_DIR}/control"
 
 export PATH=${PROJECT_DIR}/bin:$PATH
 export PERL_CARTON_PATH=${PROJECT_DIR}/local.${CLST_ENV}
@@ -52,12 +53,12 @@ while true; do
 
   if [ $remaining -gt 1 ]; then
     echo "Launching more job(s) [Remaining: ${remaining}h]"
-    topmed launch -v -c $CLST_ENV -l 10
+    topmed launch -v -c $CLST_ENV -l $(cat ${CONTROL_DIR}/monitor_max_jobs_launch)
   else
     echo "Resubmitting and exiting [Remaining: ${remaining}h]"
     $SUBMIT_CMD $PROJECT_DIR/monitor.sh
     exit 0
   fi
 
-  sleep 15m
+  sleep $(cat ${CONTROL_DIR}/monitor_sleep)
 done
