@@ -6,7 +6,7 @@
 #SBATCH --mem=15000
 #SBATCH --gres=tmp:sata:200
 #SBATCH --time=10-02:00:00
-#SBATCH --workdir=../run
+#SBATCH --workdir=../run/csg
 #SBATCH --partition=nomosix
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=schelcj@umich.edu
@@ -15,7 +15,7 @@
 #PBS -l nodes=1:ppn=3,walltime=242:00:00,pmem=4gb
 #PBS -l ddisk=200gb
 #PBS -m a
-#PBS -d ../run
+#PBS -d ../run/flux
 #PBS -M schelcj@umich.edu
 #PBS -q flux
 #PBS -l qos=flux
@@ -56,20 +56,22 @@ if [ ! -z $SLURM_JOB_ID ]; then
   NODE=$SLURM_JOB_NODELIST
   CLST_ENV="csg"
   PREFIX="/net/topmed/working"
+  JOB_LOG="../run/csg/slurm-${JOB_ID}.out"
 
-# for id in $(ls -1 $TMP_DIR); do
-#   job_state="$(sacct -j $id -X -n -o state%7)"
-#   if [ "$job_state" == "RUNNING " ]; then # XXX - left trailing space on purpose
-#     echo "Removing stale job tmp directory for job id: $id"
-#       rm -rf $TMP_DIR/$id
-#   fi
-# done
+  for id in $(ls -1 $TMP_DIR); do
+    job_state="$(sacct -j $id -X -n -o state%7)"
+    if [ "$job_state" != "RUNNING " ]; then # XXX - left trailing space on purpose
+      echo "Removing stale job tmp directory for job id: $id"
+      rm -rf $TMP_DIR/$id
+    fi
+  done
 elif [ ! -z $PBS_JOBID ]; then
   JOB_ID=$PBS_JOBID
   NODE="$(cat $PBS_NODEFILE)"
   CLST_ENV="flux"
   PREFIX="/dept/csg/topmed/working"
   ALIGN_THREADS=3
+  JOB_LOG="../run/flux/align.sh.o${JOB_ID}"
 
 else
   echo "Unknown cluster environment"
@@ -163,11 +165,13 @@ rc=$?
 if [ "$rc" -ne 0 ]; then
   echo "Alighment failed with exit code $rc" 1>&2
   $PROJECT_DIR/bin/topmed update --bamid $BAM_DB_ID --state failed
-  exit $rc
 else
   echo "GC ALIGN RC: $rc"
-  echo "Purging $TMP_DIR on $NODE"
   $PROJECT_DIR/bin/topmed update --bamid $BAM_DB_ID --state completed
-  rm -rf $TMP_DIR
-  exit $rc
 fi
+
+echo "Purging $TMP_DIR on $NODE"
+rm -rf $TMP_DIR
+
+mv $JOB_LOG $OUT_DIR
+exit $rc
