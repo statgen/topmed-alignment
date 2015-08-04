@@ -2,6 +2,6 @@ SHELL=/bin/bash
 MAILTO=csg-topmed-status@umich.edu
 PERL5LIB=/working/schelcj/align/lib/perl5:/working/schelcj/align/local.csg/lib/perl5
 PERL_CARTON_PATH=/working/schelcj/align/local.csg
-0 * * * *     /working/schelcj/align/bin/topmed detect
+0 * * * *     /working/schelcj/align/bin/topmed detect -v
 39 */6 * * *  /working/schelcj/align/bin/topmed push
 #15 4 * * *    /working/schelcj/align/bin/topmed purge
