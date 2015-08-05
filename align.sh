@@ -6,7 +6,7 @@
 #SBATCH --mem=15000
 #SBATCH --gres=tmp:sata:200
 #SBATCH --time=10-02:00:00
-#SBATCH --workdir=../run/csg
+#SBATCH --workdir=../logs/csg
 #SBATCH --partition=nomosix
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=schelcj@umich.edu
@@ -15,7 +15,7 @@
 #PBS -l nodes=1:ppn=3,walltime=242:00:00,pmem=4gb
 #PBS -l ddisk=200gb
 #PBS -m a
-#PBS -d ../run/flux
+#PBS -d ../logs/flux
 #PBS -M schelcj@umich.edu
 #PBS -q flux
 #PBS -l qos=flux
@@ -24,12 +24,7 @@
 #PBS -j oe
 #PBS -N align-topmed
 
-export PATH=/usr/cluster/bin:/usr/cluster/sbin:$PATH # XXX - temp hack till old binaries are purged
-
 TMP_DIR="/tmp/topmed"
-PIPELINE="bam2fastq"
-ALIGN_THREADS=6
-GOTCLOUD_CMD="gotcloud"
 
 if [ -z $BAM_CENTER ]; then
   echo "BAM_CENTER is not defined!"
@@ -56,7 +51,7 @@ if [ ! -z $SLURM_JOB_ID ]; then
   NODE=$SLURM_JOB_NODELIST
   CLST_ENV="csg"
   PREFIX="/net/topmed/working"
-  JOB_LOG="../run/csg/slurm-${JOB_ID}.out"
+  ALIGN_THREADS=6
 
   for id in $(ls -1 $TMP_DIR); do
     job_state="$(sacct -j $id -X -n -o state%7)"
@@ -71,7 +66,6 @@ elif [ ! -z $PBS_JOBID ]; then
   CLST_ENV="flux"
   PREFIX="/dept/csg/topmed/working"
   ALIGN_THREADS=3
-  JOB_LOG="../run/flux/align.sh.o${JOB_ID}"
 
 else
   echo "Unknown cluster environment"
@@ -88,6 +82,9 @@ case "$BAM_CENTER" in
   nygc)
     PIPELINE="binBam2fastq"
     ;;
+  *)
+    PIPELINE="bam2fastq"
+    ;;
 esac
 
 BAM_ID="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\S*' | sort -u | cut -d \: -f 2)"
@@ -95,17 +92,14 @@ TMP_DIR="${TMP_DIR}/${JOB_ID}"
 PROJECT_DIR="${PREFIX}/schelcj/align"
 REF_DIR="${PREFIX}/mktrost/gotcloud.ref"
 OUT_DIR="${PREFIX}/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}"
-RUN_DIR="${PROJECT_DIR}/../run"
 GOTCLOUD_CONF="${PROJECT_DIR}/gotcloud.conf.${CLST_ENV}"
 GOTCLOUD_ROOT="${PROJECT_DIR}/../gotcloud.${CLST_ENV}"
 FASTQ_LIST="$TMP_DIR/fastq.list"
 BAM_LIST="$TMP_DIR/bam.list"
 
-export PERL5LIB=${PROJECT_DIR}/local.${CLST_ENV}/lib/perl5:$PERL5LIB
 export PERL_CARTON_PATH=${PROJECT_DIR}/local.${CLST_ENV}
-export PATH=$GOTCLOUD_ROOT:$PATH
-mkdir -p $OUT_DIR $TMP_DIR
-echo "$BAM_ID $BAM_FILE" > $BAM_LIST
+export PERL5LIB=${PERL_CARTON_PATH}/lib/perl5:$PERL5LIB
+export PATH=$GOTCLOUD_ROOT:${PROJECT_DIR}/bin:$PATH
 
 echo "
 OUT_DIR:    $OUT_DIR
@@ -124,16 +118,25 @@ GOTCLOUD:   $(which gotcloud)
 PIPELINE:   $PIPELINE
 GC_CONF:    $GOTCLOUD_CONF
 GC_ROOT:    $GOTCLOUD_ROOT
+
 "
 
 if [ ! -z $DELAY ]; then
-  echo "DELAY:      $DELAY"
+  echo "Delaying execution for ${DELAY} minutes"
   sleep "${DELAY}m"
 fi
 
-$PROJECT_DIR/bin/topmed update --bamid $BAM_DB_ID --jobid $JOB_ID
+echo "Creating OUT_DIR and TMP_DIR"
+mkdir -p $OUT_DIR $TMP_DIR
 
-$GOTCLOUD_CMD pipe         \
+echo "Creating BAM_LIST"
+echo "$BAM_ID $BAM_FILE" > $BAM_LIST
+
+echo "Updating cache with current job id"
+topmed update --bamid $BAM_DB_ID --jobid $JOB_ID
+
+echo "Beginning gotcloud pipeline"
+gotcloud pipe              \
   --gcroot  $GOTCLOUD_ROOT \
   --name    $PIPELINE      \
   --conf    $GOTCLOUD_CONF \
@@ -145,33 +148,28 @@ rc=$?
 
 if [ "$rc" -ne 0 ]; then
   echo "$PIPELINE failed with exit code $rc" 1>&2
-  $PROJECT_DIR/bin/topmed update --bamid $BAM_DB_ID --state failed
-  exit $rc
+  topmed update --bamid $BAM_DB_ID --state failed
 else
-  echo "GC PIPE RC: $rc"
-fi
+  echo "Begining gotcloud alignment"
+  gotcloud align                   \
+    --gcroot    $GOTCLOUD_ROOT     \
+    --conf      $GOTCLOUD_CONF     \
+    --threads   $ALIGN_THREADS     \
+    --outdir    $OUT_DIR           \
+    --fastqlist $FASTQ_LIST        \
+    --override  "TMP_DIR=$TMP_DIR" \
+    --ref_dir   $REF_DIR
 
-$GOTCLOUD_CMD align              \
-  --gcroot    $GOTCLOUD_ROOT     \
-  --conf      $GOTCLOUD_CONF     \
-  --threads   $ALIGN_THREADS     \
-  --outdir    $OUT_DIR           \
-  --fastqlist $FASTQ_LIST        \
-  --override  "TMP_DIR=$TMP_DIR" \
-  --ref_dir   $REF_DIR
+  rc=$?
 
-rc=$?
-
-if [ "$rc" -ne 0 ]; then
-  echo "Alighment failed with exit code $rc" 1>&2
-  $PROJECT_DIR/bin/topmed update --bamid $BAM_DB_ID --state failed
-else
-  echo "GC ALIGN RC: $rc"
-  $PROJECT_DIR/bin/topmed update --bamid $BAM_DB_ID --state completed
+  if [ "$rc" -ne 0 ]; then
+    echo "Alignment failed with exit code $rc" 1>&2
+    topmed update --bamid $BAM_DB_ID --state failed
+  else
+    topmed update --bamid $BAM_DB_ID --state completed
+  fi
 fi
 
 echo "Purging $TMP_DIR on $NODE"
 rm -rf $TMP_DIR
-
-mv $JOB_LOG $OUT_DIR
 exit $rc
