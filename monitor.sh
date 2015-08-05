@@ -2,7 +2,7 @@
 
 #SBATCH --ignore-pbs
 #SBATCH --time=28-0
-#SBATCH --partition=nomosix
+#SBATCH --partition=topmed
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=schelcj@umich.edu
 #SBATCH --workdir=../run/csg
