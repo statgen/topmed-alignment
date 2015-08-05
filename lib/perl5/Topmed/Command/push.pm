@@ -40,7 +40,7 @@ sub execute {
       next;
     }
 
-    unless ($bam_ref->{status}) {
+    unless (defined $bam_ref->{status}) {
       say "Found undefined status for $bamid in the cache" if $self->app->global_options->{verbose};
       next;
     }
