@@ -21,10 +21,9 @@ for my $id (keys %{$index}) {
     next if $bam->{job_id} =~ /nyx/;
     chomp(my $job_state = capture(qq(sacct -j $bam->{job_id} -X -n -o state%7)));
 
-    #next if $job_state =~ /running/i;
+    next if $job_state =~ /running/i;
 
-    #print Dumper $bam, $job_state;
-    say "JOB: $bam->{job_id} STATE: $job_state";
+    say "bin/topmed resubmit -b $id";
   }
 }
 
