@@ -5,7 +5,7 @@
 #SBATCH --partition=topmed
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=schelcj@umich.edu
-#SBATCH --workdir=../run/csg
+#SBATCH --workdir=../logs/monitor
 #SBATCH --job-name=monitor-topmed
 
 #PBS -l qos=flux,proces=1,walltime=672:00:00,mem=1gb
@@ -14,7 +14,7 @@
 #PBS -A goncalo_flux
 #PBS -V
 #PBS -j oe
-#PBS -d ../run/flux
+#PBS -d ../logs/monitor
 #PBS -N monitor-topmed
 
 if [ ! -z $SLURM_JOB_ID ]; then
