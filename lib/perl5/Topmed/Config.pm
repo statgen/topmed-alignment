@@ -57,7 +57,7 @@ Readonly::Hash our %BAM_STATUS => (
 );
 
 Readonly::Hash our %JOB_CMDS => (
-  csg  => 'sbatch',
+  csg  => '/usr/cluster/bin/sbatch',
   flux => 'qsub',
 );
 
