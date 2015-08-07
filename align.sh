@@ -6,7 +6,7 @@
 #SBATCH --mem=15000
 #SBATCH --gres=tmp:sata:200
 #SBATCH --time=10-02:00:00
-#SBATCH --workdir=../logs/align
+#SBATCH --workdir=/net/topmed/working/schelcj/logs/align
 #SBATCH --partition=nomosix
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=schelcj@umich.edu
@@ -15,7 +15,7 @@
 #PBS -l nodes=1:ppn=3,walltime=242:00:00,pmem=4gb
 #PBS -l ddisk=200gb
 #PBS -m a
-#PBS -d ../logs/align
+#PBS -d /dept/csg/topmed/working/schelcj/logs/align
 #PBS -M schelcj@umich.edu
 #PBS -q flux
 #PBS -l qos=flux
@@ -23,6 +23,13 @@
 #PBS -V
 #PBS -j oe
 #PBS -N align-topmed
+
+echo "Starting remapping pipeline $(date)"
+
+if [ ! -z $DELAY ]; then
+  echo "Delaying execution for ${DELAY} minutes"
+  sleep "${DELAY}m"
+fi
 
 export PATH=/usr/cluster/bin:/usr/cluster/sbin:$PATH
 
@@ -58,13 +65,8 @@ else
 fi
 
 PROJECT_DIR="${PREFIX}/schelcj/align"
-REF_DIR="${PREFIX}/mktrost/gotcloud.ref"
-
 GOTCLOUD_CONF="${PROJECT_DIR}/gotcloud.conf.${CLST_ENV}"
 GOTCLOUD_ROOT="${PROJECT_DIR}/../gotcloud.${CLST_ENV}"
-
-TMP_DIR="${TMP_DIR}/${JOB_ID}"
-FASTQ_LIST="${TMP_DIR}/fastq.list"
 
 export PERL_CARTON_PATH=${PROJECT_DIR}/local.${CLST_ENV}
 export PERL5LIB=${PERL_CARTON_PATH}/lib/perl5:${PROJECT_DIR}/lib/perl5:$PERL5LIB
@@ -73,39 +75,21 @@ export PATH=${GOTCLOUD_ROOT}:${PROJECT_DIR}/bin:${PATH}
 if [ -z $BAM_DB_ID ]; then
   echo "BAM_DB_ID is not defined!"
   exit 20
+else
+  echo "Updating cache with current job id"
+  topmed update --bamid $BAM_DB_ID --jobid $JOB_ID
 fi
 
 if [ -z $BAM_CENTER ]; then
   echo "BAM_CENTER is not defined!"
   topmed update --bamid $BAM_DB_ID --state failed
   exit 30
-else
-  case "$BAM_CENTER" in
-    uw)
-      PIPELINE="cleanUpBam2fastq"
-      ;;
-    broad)
-      PIPELINE="binBam2fastq"
-      ;;
-    nygc)
-      PIPELINE="binBam2fastq"
-      ;;
-    *)
-      PIPELINE="bam2fastq"
-      ;;
-  esac
 fi
 
 if [ -z $BAM_FILE ]; then
   echo "BAM_FILE is not defined!"
   topmed update --bamid $BAM_DB_ID --state failed
   exit 40
-else
-  BAM_ID="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\S*' | sort -u | cut -d \: -f 2)"
-  BAM_LIST="$TMP_DIR/bam.list"
-
-  echo "Creating BAM_LIST"
-  echo "$BAM_ID $BAM_FILE" > $BAM_LIST
 fi
 
 if [ -z $BAM_PI ]; then
@@ -114,6 +98,26 @@ if [ -z $BAM_PI ]; then
   exit 50
 fi
 
+case "$BAM_CENTER" in
+  uw)
+    PIPELINE="cleanUpBam2fastq"
+    ;;
+  broad)
+    PIPELINE="binBam2fastq"
+    ;;
+  nygc)
+    PIPELINE="binBam2fastq"
+    ;;
+  *)
+    PIPELINE="bam2fastq"
+    ;;
+esac
+
+REF_DIR="${PREFIX}/mktrost/gotcloud.ref"
+TMP_DIR="${TMP_DIR}/${JOB_ID}"
+FASTQ_LIST="${TMP_DIR}/fastq.list"
+BAM_ID="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\S*' | sort -u | cut -d \: -f 2)"
+BAM_LIST="$TMP_DIR/bam.list"
 OUT_DIR="${PREFIX}/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}"
 
 echo "
@@ -135,16 +139,11 @@ GC_CONF:    $GOTCLOUD_CONF
 GC_ROOT:    $GOTCLOUD_ROOT
 "
 
-if [ ! -z $DELAY ]; then
-  echo "Delaying execution for ${DELAY} minutes"
-  sleep "${DELAY}m"
-fi
-
 echo "Creating OUT_DIR and TMP_DIR"
 mkdir -p $OUT_DIR $TMP_DIR
 
-echo "Updating cache with current job id"
-topmed update --bamid $BAM_DB_ID --jobid $JOB_ID
+echo "Creating BAM_LIST"
+echo "$BAM_ID $BAM_FILE" > $BAM_LIST
 
 echo "Beginning gotcloud pipeline"
 gotcloud pipe              \
