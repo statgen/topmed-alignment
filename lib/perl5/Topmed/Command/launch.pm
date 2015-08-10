@@ -80,7 +80,16 @@ sub execute {
     my $clst  = $opts->{cluster};
     my $entry = $cache->entry($bamid);
     my $bam   = $entry->thaw();
-    my $path  = File::Spec->join($BAM_FILE_PREFIX{$clst}, $bam->{center}, $bam->{dir}, $bam->{name});
+    my $host  = $BAM_HOST_PRIMARY;
+
+    my $center_path = File::Spec->join($BAM_FILE_PREFIX{$clst}, $bam->{center});
+    my $path        = File::Spec->join($center_path, $bam->{dir}, $bam->{name});
+
+    if (-l $center_path) {
+      my $file       = Path::Class->file($path);
+      my @components = $file->components();
+      $host          = $components[4];
+    }
 
     next if $opts->{center} and lc($bam->{center}) ne lc($opts->{center});
     next if $opts->{study}  and lc($bam->{study}) ne lc($opts->{study});
@@ -107,6 +116,7 @@ sub execute {
               BAM_FILE   => $path,
               BAM_PI     => $bam->{pi},
               BAM_DB_ID  => $bamid,
+              BAM_HOST   => $host,
               DELAY      => $delay,
             }
           }

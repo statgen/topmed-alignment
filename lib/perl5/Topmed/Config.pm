@@ -9,6 +9,7 @@ our @EXPORT = (
     $BATCH_SCRIPT
     %JOB_CMDS
     $BAM_CACHE_INDEX
+    $BAM_HOST_PRIMARY
     %BAM_FILE_PREFIX
     %BAM_STATUS
     @TIME_REMAINING_FORMAT_REGEXPS
@@ -20,6 +21,7 @@ our @EXPORT_OK = (
     $BATCH_SCRIPT
     %JOB_CMDS
     $BAM_CACHE_INDEX
+    $BAM_HOST_PRIMARY
     %BAM_FILE_PREFIX
     %BAM_STATUS
     @TIME_REMAINING_FORMAT_REGEXPS
@@ -32,6 +34,7 @@ our %EXPORT_TAGS = (
       $BATCH_SCRIPT
       %JOB_CMDS
       $BAM_CACHE_INDEX
+      $BAM_HOST_PRIMARY
       %BAM_FILE_PREFIX
       %BAM_STATUS
       @TIME_REMAINING_FORMAT_REGEXPS
@@ -39,8 +42,9 @@ our %EXPORT_TAGS = (
   ]
 );
 
-Readonly::Scalar our $BATCH_SCRIPT    => qq{$Bin/../align.sh};
-Readonly::Scalar our $BAM_CACHE_INDEX => 'bam_idx';
+Readonly::Scalar our $BATCH_SCRIPT     => qq{$Bin/../align.sh};
+Readonly::Scalar our $BAM_CACHE_INDEX  => 'bam_idx';
+Readonly::Scalar our $BAM_HOST_PRIMARY => 'topmed';
 
 Readonly::Hash our %BAM_FILE_PREFIX => (
   csg  => '/net/topmed/incoming/topmed',
@@ -62,6 +66,7 @@ Readonly::Hash our %JOB_CMDS => (
 );
 
 Readonly::Array our @TIME_REMAINING_FORMAT_REGEXPS => (
+
   # dd-hh:mm:ss
   qr/(?<days>\d{1,2})\-(?<hours>\d{1,2}):\d{2}:\d{2}/,
 

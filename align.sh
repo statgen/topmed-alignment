@@ -39,7 +39,7 @@ if [ ! -z $SLURM_JOB_ID ]; then
   JOB_ID=$SLURM_JOB_ID
   NODE=$SLURM_JOB_NODELIST
   CLST_ENV="csg"
-  PREFIX="/net/topmed/working"
+  PREFIX="/net"
   ALIGN_THREADS=6
 
   for id in $(ls -1 $TMP_DIR); do
@@ -54,7 +54,7 @@ elif [ ! -z $PBS_JOBID ]; then
   JOB_ID=$PBS_JOBID
   NODE="$(cat $PBS_NODEFILE)"
   CLST_ENV="flux"
-  PREFIX="/dept/csg/topmed/working"
+  PREFIX="/dept/csg"
   ALIGN_THREADS=3
 
   for id in $(ls -1 $TMP_DIR); do
@@ -70,7 +70,7 @@ else
   exit 10
 fi
 
-PROJECT_DIR="${PREFIX}/schelcj/align"
+PROJECT_DIR="${PREFIX}/topmed/working/schelcj/align"
 GOTCLOUD_CONF="${PROJECT_DIR}/gotcloud.conf.${CLST_ENV}"
 GOTCLOUD_ROOT="${PROJECT_DIR}/../gotcloud.${CLST_ENV}"
 
@@ -104,6 +104,12 @@ if [ -z $BAM_PI ]; then
   exit 50
 fi
 
+if [ -z $BAM_HOST ]; then
+  echo "BAM_HOST is not defined!"
+  topmed update --bamid $BAM_DB_ID --state failed
+  exit 60
+fi
+
 case "$BAM_CENTER" in
   uw)
     PIPELINE="cleanUpBam2fastq"
@@ -124,7 +130,7 @@ TMP_DIR="${TMP_DIR}/${JOB_ID}"
 FASTQ_LIST="${TMP_DIR}/fastq.list"
 BAM_ID="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\S*' | sort -u | cut -d \: -f 2)"
 BAM_LIST="$TMP_DIR/bam.list"
-OUT_DIR="${PREFIX}/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}"
+OUT_DIR="${PREFIX}/$BAM_HOST/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}"
 
 echo "
 OUT_DIR:    $OUT_DIR
