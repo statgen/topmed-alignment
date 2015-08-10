@@ -40,6 +40,7 @@ sub parse_time {
     if ($time =~ $regexp) {
       return (($+{days} * 24) + $+{hours}) if $+{days} and $+{hours};
       return $+{hours} if $+{hours};
+      return int($+{seconds} / 60 / 60) if $+{seconds};
     }
   }
 

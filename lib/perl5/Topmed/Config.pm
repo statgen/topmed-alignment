@@ -58,7 +58,7 @@ Readonly::Hash our %BAM_STATUS => (
 
 Readonly::Hash our %JOB_CMDS => (
   csg  => '/usr/cluster/bin/sbatch',
-  flux => 'qsub',
+  flux => '/usr/local/torque/bin/qsub',
 );
 
 Readonly::Array our @TIME_REMAINING_FORMAT_REGEXPS => (
@@ -73,6 +73,9 @@ Readonly::Array our @TIME_REMAINING_FORMAT_REGEXPS => (
 
   # hh:mm
   qr/(?<hours>\d{1,2}):\d{2}/,
+
+  # sssssss
+  qr/(?<seconds>\d{1,7})/,
 );
 
 Readonly::Scalar my $CACHE_ROOT         => qq{$Bin/../../cache};
