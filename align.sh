@@ -57,7 +57,13 @@ elif [ ! -z $PBS_JOBID ]; then
   PREFIX="/dept/csg/topmed/working"
   ALIGN_THREADS=3
 
-  # TODO - purge stale job tmp directories
+  for id in $(ls -1 $TMP_DIR); do
+    checkjob -v $id 2 > /dev/null
+    if [ $? -ne 0 ]; then
+      echo "Removing stale job tmp directory for job id: $id"
+      rm -rf $TMP_DIR/$id
+    fi
+  done
 
 else
   echo "Unknown cluster environment"
