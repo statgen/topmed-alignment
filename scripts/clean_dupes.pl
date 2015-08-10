@@ -4,17 +4,37 @@ use FindBin qw($Bin);
 use Modern::Perl;
 use Data::Dumper;
 use File::Slurp::Tiny qw(read_lines);
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any indexes);
+use File::Basename;
+use IPC::System::Simple qw(run);
 
 my $align_status = q{/net/1000g/hmkang/etc/nowseq/topmed/topmed.latest.alignstatus};
 my @results      = parse_align_status($align_status);
 
 for my $result (@results) {
-  if (any {$_->{state} =~ /DUP_/} @{$result->{results}}) {
-    if (any {$_->{state} eq 'ALIGN_COMPLETE'} @{$result->{results}}) {
-      print Dumper $result;
-    }
-  }
+# my @indexes = indexes {$_->{state} =~ /QPLOT/} @{$result->{results}};
+# if (@indexes) {
+#   my $pos = $result->{results}->[$indexes[0]];
+#   print Dumper \@indexes;
+# }
+
+# my @indexes = indexes {$_->{state} eq 'ALIGN_COMPLETE_NO_OK'} @{$result->{results}};
+# if (@indexes) {
+#   my $index = $result->{results}->[$indexes[0]];
+#   my $dir   = $index->{result};
+#   my $file  = $dir . '/' . basename($dir) . '.OK';
+
+#   say("touch $file");
+# }
+
+# if (any {$_->{state} =~ /DUP_/} @{$result->{results}}) {
+#   if (any {$_->{state} =~ 'ALIGN_COMPLETE'} @{$result->{results}}) {
+
+#     for (@{$result->{results}}) {
+#       run(qq{rm -rf $_->{result}}) if $_->{state} =~ /DUP/;
+#     }
+#   }
+# }
 }
 
 sub parse_align_status {
