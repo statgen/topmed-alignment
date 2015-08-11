@@ -12,6 +12,9 @@ sub opt_spec {
     ['undef|u',   'Show BAMs with undefined state'],
     ['bamid|b=i', 'Dump BAM cache entry'],
     ['jobid|j=i', 'Dump BAM cache for job id'],
+    ['centers',   'Dump cached centers'],
+    ['studies',   'Dump cached studies'],
+    ['pis',       'Dump cached PIs'],
   );
 }
 
@@ -53,6 +56,18 @@ sub execute {
 
   if ($opts->{jobid}) {
     $self->show_jobid($opts->{jobid});
+  }
+
+  if ($opts->{centers}) {
+    print Dumper $conf->cache->entry('centers')->thaw();
+  }
+
+  if ($opts->{studies}) {
+    print Dumper $conf->cache->entry('studies')->thaw();
+  }
+
+  if ($opts->{pis}) {
+    print Dumper $conf->cache->entry('pis')->thaw();
   }
 }
 

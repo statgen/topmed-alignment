@@ -70,16 +70,19 @@ sub execute {
   }
 
   say 'Caching Centers' if $self->app->global_options->{verbose};
+  print Dumper $centers if $self->app->global_options->{debug};
   my $center_entry = $cache->entry('centers');
-  $center_entry->thaw($centers);
+  $center_entry->freeze($centers);
 
   say 'Caching Studies' if $self->app->global_options->{verbose};
+  print Dumper $studies if $self->app->global_options->{debug};
   my $study_entry = $cache->entry('studies');
-  $study_entry->thaw($studies);
+  $study_entry->freeze($studies);
 
   say 'Caching PIs' if $self->app->global_options->{verbose};
+  print Dumper $pis if $self->app->global_options->{debug};
   my $pi_entry = $cache->entry('pis');
-  $pi_entry->thaw($pis);
+  $pi_entry->freeze($pis);
 }
 
 1;
