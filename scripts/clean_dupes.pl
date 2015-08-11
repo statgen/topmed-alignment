@@ -3,38 +3,95 @@
 use FindBin qw($Bin);
 use Modern::Perl;
 use Data::Dumper;
-use File::Slurp::Tiny qw(read_lines);
+use File::Slurp::Tiny qw(read_lines read_file);
+use File::Basename;
 use List::MoreUtils qw(any indexes);
 use File::Basename;
 use IPC::System::Simple qw(run);
+use Topmed::DB;
+use Topmed::Config;
 
 my $align_status = q{/net/1000g/hmkang/etc/nowseq/topmed/topmed.latest.alignstatus};
 my @results      = parse_align_status($align_status);
+my $db           = Topmed::DB->new();
+my $config       = Topmed::Config->new();
+my $cache        = $config->cache();
 
 for my $result (@results) {
-# my @indexes = indexes {$_->{state} =~ /QPLOT/} @{$result->{results}};
-# if (@indexes) {
-#   my $pos = $result->{results}->[$indexes[0]];
-#   print Dumper \@indexes;
-# }
+  # my @indexes = indexes {$_->{state} =~ /QPLOT/} @{$result->{results}};
+  # if (@indexes) {
+  #   my $result = $result->{results}->[$indexes[0]];
 
-# my @indexes = indexes {$_->{state} eq 'ALIGN_COMPLETE_NO_OK'} @{$result->{results}};
-# if (@indexes) {
-#   my $index = $result->{results}->[$indexes[0]];
-#   my $dir   = $index->{result};
-#   my $file  = $dir . '/' . basename($dir) . '.OK';
+  #   if ($result->{state} =~ /DUP_QPLOT/) {
+  #     if (-e $result->{result}) {
+  #       say "Deleteing RESULT: $result->{result}";
+  #       run("rm -rf $result->{result}");
+  #     }
+  #     next;
+  #   }
 
-#   say("touch $file");
-# }
+  #   my $bam = $db->resultset('Bamfile')->search({bamname => {like => basename($result->{result}) . '%'}})->first();
 
-# if (any {$_->{state} =~ /DUP_/} @{$result->{results}}) {
-#   if (any {$_->{state} =~ 'ALIGN_COMPLETE'} @{$result->{results}}) {
+  #   unless ($bam) {
+  #     if (-e $result->{result}) {
+  #       say "Deleteing RESULT: $result->{result}";
+  #       run("rm -rf $result->{result}");
+  #     }
+  #     next;
+  #   }
 
-#     for (@{$result->{results}}) {
-#       run(qq{rm -rf $_->{result}}) if $_->{state} =~ /DUP/;
-#     }
-#   }
-# }
+  #   say "Deleteing RESULT: $result->{result}";
+  #   run("rm -rf $result->{result}");
+
+  #   say 'Resubmitting BAM: ' . $bam->bamid;
+  #   run('bin/topmed resubmit -b ' . $bam->bamid);
+  # }
+
+  # my @indexes = indexes {$_->{state} =~ /ALIGN_FAILED/} @{$result->{results}};
+  # if (@indexes) {
+  #   my $result = $result->{results}->[$indexes[0]];
+
+  #   say "Deleteing RESULT: $result->{result}";
+  #   run("rm -rf $result->{result}");
+
+  #   my $bam = $db->resultset('Bamfile')->search({bamname => {like => basename($result->{result}) . '%'}})->first();
+
+  #   next unless $bam;
+
+  #   my %r_status = reverse %BAM_STATUS;
+  #   my $status   = $r_status{$bam->status};
+
+  #   given ($status) {
+  #     when (/failed|completed/) {
+  #       say 'Resubmitting BAM: ' . $bam->bamid;
+  #       run('bin/topmed resubmit -b ' . $bam->bamid);
+  #     }
+  #     when (/requested/) {
+  #       say 'BAM: ' . $bam->bamid . ' is in correct state';
+  #     }
+  #     default {
+  #       die 'UNKNOWN STATUS';
+  #     }
+  #   }
+  # }
+
+  # my @indexes = indexes {$_->{state} eq 'ALIGN_COMPLETE_NO_OK'} @{$result->{results}};
+  # if (@indexes) {
+  #   my $index = $result->{results}->[$indexes[0]];
+  #   my $dir   = $index->{result};
+  #   my $file  = $dir . '/' . basename($dir) . '.OK';
+
+  #   say("touch $file");
+  # }
+
+  # if (any {$_->{state} =~ /DUP_/} @{$result->{results}}) {
+  #   if (any {$_->{state} =~ 'ALIGN_COMPLETE'} @{$result->{results}}) {
+
+  #     for (@{$result->{results}}) {
+  #       run(qq{rm -rf $_->{result}}) if $_->{state} =~ /DUP/;
+  #     }
+  #   }
+  # }
 }
 
 sub parse_align_status {
