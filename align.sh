@@ -58,7 +58,7 @@ elif [ ! -z $PBS_JOBID ]; then
   ALIGN_THREADS=3
 
   for id in $(ls -1 $TMP_DIR); do
-    checkjob -v $id 2 > /dev/null
+    qstat -f -e $id > /dev/null 2>&1
     if [ $? -ne 0 ]; then
       echo "Removing stale job tmp directory for job id: $id"
       rm -rf $TMP_DIR/$id
