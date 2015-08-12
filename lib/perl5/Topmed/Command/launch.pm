@@ -129,6 +129,7 @@ sub execute {
         $bam->{status} = $BAM_STATUS{submitted};
         $bam->{clst}   = $clst;
         $bam->{delay}  = $delay;
+        $bam->{host}   = $host;
 
         $entry->freeze($bam);
       }
