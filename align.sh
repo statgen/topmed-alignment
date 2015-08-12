@@ -125,12 +125,12 @@ case "$BAM_CENTER" in
     ;;
 esac
 
-REF_DIR="${PREFIX}/mktrost/gotcloud.ref"
+REF_DIR="${PREFIX}/topmed/working/mktrost/gotcloud.ref"
 TMP_DIR="${TMP_DIR}/${JOB_ID}"
 FASTQ_LIST="${TMP_DIR}/fastq.list"
 BAM_ID="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\S*' | sort -u | cut -d \: -f 2)"
-BAM_LIST="$TMP_DIR/bam.list"
-OUT_DIR="${PREFIX}/$BAM_HOST/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}"
+BAM_LIST="${TMP_DIR}/bam.list"
+OUT_DIR="${PREFIX}/${BAM_HOST}/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}"
 
 echo "
 OUT_DIR:    $OUT_DIR
@@ -142,6 +142,7 @@ BAM_CENTER: $BAM_CENTER
 BAM_LIST:   $BAM_LIST
 BAM_PI:     $BAM_PI
 BAM_DB_ID:  $BAM_DB_ID
+BAM_HOST:   $BAM_HOST
 FASTQ_LIST: $FASTQ_LIST
 NODE:       $NODE
 JOBID:      $JOB_ID
