@@ -135,7 +135,7 @@ sub execute {
 
         if ($output =~ /$JOB_OUTPUT_REGEXP{$clst}/) {
           $bam->{job_id} = $+{jobid};
-          say "Captured job id $bam->{job_id} from $JOB_CMDS{$clst} output" if $self->app->global_options->{verbose};
+          say "Captured job id $bam->{job_id} from $JOB_CMDS{$clst} output" if $self->app->global_options->{debug};
         }
 
         $bam->{status} = $BAM_STATUS{submitted};
