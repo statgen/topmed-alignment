@@ -13,6 +13,7 @@ our @IMPORT_MODULES = (
   'File::Slurp::Tiny' => [qw(read_file read_lines)],
   'File::Spec',
   'List::MoreUtils' => [qw(all any none)],
+  'Path::Class',
 );
 
 our %IMPORT_BUNDLES = (
