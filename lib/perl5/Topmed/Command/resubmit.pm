@@ -5,14 +5,17 @@ use Topmed::Base qw(db);
 use Topmed::Config;
 
 sub opt_spec {
-  return (['bamid|b=i', 'BAM id to resubmit for processing'],);
+  return (
+    ['bamid|b=i', 'BAM id to resubmit for processing'],
+    ['jobid|j=i', 'Jobid to resubmit for processing'],
+  );
 }
 
 sub validate_args {
   my ($self, $opts, $args) = @_;
 
-  unless ($opts->{bamid}) {
-    $self->usage_error('BAM ID is required');
+  unless ($opts->{bamid} or $opts->{jobid}) {
+    $self->usage_error('bam id or job id are required');
   }
 
   if ($self->app->global_options->{help}) {
@@ -25,11 +28,28 @@ sub validate_args {
 sub execute {
   my ($self, $opts, $args) = @_;
 
+  my $bamid = undef;
   my $conf  = Topmed::Config->new();
-  my $cache = $conf->cache();
-  my $entry = $cache->entry($opts->{bamid});
 
-  die "BAM ID [$opts->{bamid}] does not exist in cache" unless $entry->exists;
+  if ($opts->{bamid}) {
+    $bamid = $opts->{bamid};
+
+  } elsif ($opts->{jobid}) {
+    my $db  = Topmed::DB->new();
+    my $bam = $db->resultset('Bamfile')->search({jobidmapping => {like => $opts->{jobid} . '%'}});
+
+    die "No matching BAM for job id $opts->{jobid}" unless $bam->count;
+    die "Multiple BAMs have job id $opts->{jobid}" if $bam->count > 1;
+
+    $bamid = $bam->first->bamid;
+  }
+
+  die "BAM ID undefined" unless defined $bamid;
+
+  my $cache = $conf->cache();
+  my $entry = $cache->entry($bamid);
+
+  die "BAM ID [$bamid] does not exist in cache" unless $entry->exists;
 
   my $bam = $entry->thaw();
   delete $bam->{job_id};
@@ -39,7 +59,7 @@ sub execute {
 
   $entry->freeze($bam);
 
-  say "Reset BAM [$opts->{bamid}] successfully" if $self->app->global_options->{verbose};
+  say "Reset BAM [$bamid] successfully" if $self->app->global_options->{verbose};
   print Dumper $bam if $self->app->global_options->{debug};
 }
 
