@@ -24,7 +24,7 @@
 #PBS -j oe
 #PBS -N align-topmed
 
-echo "Starting remapping pipeline $(date)"
+echo "[$(date)] Starting remapping pipeline"
 
 if [ ! -z $DELAY ]; then
   echo "Delaying execution for ${DELAY} minutes"

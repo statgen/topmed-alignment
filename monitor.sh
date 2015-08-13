@@ -42,7 +42,7 @@ export PATH=${PROJECT_DIR}/bin:$PATH
 export PERL_CARTON_PATH=${PROJECT_DIR}/local.${CLST_ENV}
 export PERL5LIB=${PERL_CARTON_PATH}/lib/perl5:$PERL5LIB
 
-echo "Starting monitor process for cluster $CLST_ENV"
+echo "[$(date)] Starting monitor process for cluster $CLST_ENV"
 
 while true; do
   case "$CLST_ENV" in
