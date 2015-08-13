@@ -8,6 +8,7 @@ our @EXPORT = (
   qw(
     $BATCH_SCRIPT
     %JOB_CMDS
+    %JOB_OUTPUT_REGEXP
     $BAM_CACHE_INDEX
     $BAM_HOST_PRIMARY
     %BAM_FILE_PREFIX
@@ -20,6 +21,7 @@ our @EXPORT_OK = (
   qw(
     $BATCH_SCRIPT
     %JOB_CMDS
+    %JOB_OUTPUT_REGEXP
     $BAM_CACHE_INDEX
     $BAM_HOST_PRIMARY
     %BAM_FILE_PREFIX
@@ -33,6 +35,7 @@ our %EXPORT_TAGS = (
     qw(
       $BATCH_SCRIPT
       %JOB_CMDS
+      %JOB_OUTPUT_REGEXP
       $BAM_CACHE_INDEX
       $BAM_HOST_PRIMARY
       %BAM_FILE_PREFIX
@@ -63,6 +66,11 @@ Readonly::Hash our %BAM_STATUS => (
 Readonly::Hash our %JOB_CMDS => (
   csg  => '/usr/cluster/bin/sbatch',
   flux => '/usr/local/torque/bin/qsub',
+);
+
+Readonly::Hash our %JOB_OUTPUT_REGEXP => (
+  flux => qr/^(?<jobid>\d+)\.nyx\.arc\-ts\.umich\.edu$/i,
+  csg  => qr/^Submitted batch job (?<jobid>\d+)$/i,
 );
 
 Readonly::Array our @TIME_REMAINING_FORMAT_REGEXPS => (

@@ -104,10 +104,8 @@ sub execute {
       last if ++$jobs_submitted > $opts->{limit};
 
       say "Sumitting remapping job for $bam->{name}" if $self->app->global_options->{verbose};
-      print Dumper $bam if $self->app->global_options->{debug};
 
       unless ($opts->{'dry_run'}) {
-
         my $delay = int(rand(120));
         my $cmd   = System::Command->new(
           ($JOB_CMDS{$clst}, $BATCH_SCRIPT), {
@@ -122,15 +120,30 @@ sub execute {
           }
         );
 
+        my $output = q{};
         my $stdout = $cmd->stdout();
-        while (<$stdout>) {print $_ }
+        while (<$stdout>) { $output .= $_; }
+
+        if ($self->app->global_options->{debug}) {
+          my $stderr = $cmd->stderr();
+          while (<$stderr>) { print $_; }
+        }
+
         $cmd->close();
+
+        say "Output from $JOB_CMDS{$clst} was '$output'" if $self->app->global_options->{debug};
+
+        if ($output =~ /$JOB_OUTPUT_REGEXP{$clst}/) {
+          $bam->{job_id} = $+{jobid};
+          say "Captured job id $bam->{job_id} from $JOB_CMDS{$clst} output" if $self->app->global_options->{verbose};
+        }
 
         $bam->{status} = $BAM_STATUS{submitted};
         $bam->{clst}   = $clst;
         $bam->{delay}  = $delay;
         $bam->{host}   = $host;
 
+        print Dumper $bam if $self->app->global_options->{debug};
         $entry->freeze($bam);
       }
 
