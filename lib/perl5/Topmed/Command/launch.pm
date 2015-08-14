@@ -86,7 +86,7 @@ sub execute {
     my $path        = File::Spec->join($center_path, $bam->{dir}, $bam->{name});
 
     if (-l $center_path) {
-      my $file       = Path::Class->file($path);
+      my $file       = Path::Class->file(readlink($center_path));
       my @components = $file->components();
       $host          = $components[4];
     }
