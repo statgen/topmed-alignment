@@ -18,6 +18,8 @@
 #PBS -d /dept/csg/topmed/working/schelcj/logs/monitor
 #PBS -N monitor-topmed
 
+export PATH=/usr/cluster/bin:/usr/cluster/sbin:$PATH
+
 if [ ! -z $SLURM_JOB_ID ]; then
   JOB_ID=$SLURM_JOB_ID
   CLST_ENV="csg"
