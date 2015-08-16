@@ -27,7 +27,7 @@ for my $id (keys %{$index}) {
 sub _process_csg_jobs {
   my ($job_id, $bam_id) = @_;
   chomp(my $job_state = capture(qq(sacct -j $job_id -X -n -o state%7)));
-  next if $job_state =~ /running|pending/i;
+  return if $job_state =~ /running|pending/i;
   say "bin/topmed resubmit -b $bam_id";
 }
 
