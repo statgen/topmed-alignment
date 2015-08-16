@@ -12,7 +12,7 @@
 #SBATCH --mail-user=schelcj@umich.edu
 #SBATCH --job-name=align-topmed
 
-#PBS -l nodes=1,ncpus=3,walltime=242:00:00,pmem=4gb
+#PBS -l nodes=1,ncpus=4,walltime=242:00:00,pmem=4gb
 #PBS -l ddisk=200gb
 #PBS -m a
 #PBS -d /dept/csg/topmed/working/schelcj/logs/align
@@ -55,7 +55,7 @@ elif [ ! -z $PBS_JOBID ]; then
   NODE="$(cat $PBS_NODEFILE)"
   CLST_ENV="flux"
   PREFIX="/dept/csg"
-  ALIGN_THREADS=3
+  ALIGN_THREADS=4
 
   for id in $(ls -1 $TMP_DIR); do
     qstat -f -e $id > /dev/null 2>&1
