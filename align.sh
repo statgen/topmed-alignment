@@ -27,7 +27,7 @@
 echo "[$(date)] Starting remapping pipeline"
 
 if [ ! -z $DELAY ]; then
-  echo "Delaying execution for ${DELAY} minutes"
+  echo "[$(date)] Delaying execution for ${DELAY} minutes"
   sleep "${DELAY}m"
 fi
 
@@ -45,7 +45,7 @@ if [ ! -z $SLURM_JOB_ID ]; then
   for id in $(ls -1 $TMP_DIR); do
     job_state="$(sacct -j $id -X -n -o state%7)"
     if [ "$job_state" != "RUNNING " ]; then # XXX - left trailing space on purpose
-      echo "Removing stale job tmp directory for job id: $id"
+      echo "[$(date)] Removing stale job tmp directory for job id: $id"
       rm -rf $TMP_DIR/$id
     fi
   done
@@ -60,13 +60,13 @@ elif [ ! -z $PBS_JOBID ]; then
   for id in $(ls -1 $TMP_DIR); do
     qstat -f -e $id > /dev/null 2>&1
     if [ $? -ne 0 ]; then
-      echo "Removing stale job tmp directory for job id: $id"
+      echo "[$(date)] Removing stale job tmp directory for job id: $id"
       rm -rf $TMP_DIR/$id
     fi
   done
 
 else
-  echo "Unknown cluster environment"
+  echo "[$(date)] Unknown cluster environment"
   exit 10
 fi
 
@@ -79,33 +79,33 @@ export PERL5LIB=${PERL_CARTON_PATH}/lib/perl5:${PROJECT_DIR}/lib/perl5:$PERL5LIB
 export PATH=${GOTCLOUD_ROOT}:${PROJECT_DIR}/bin:${PATH}
 
 if [ -z $BAM_DB_ID ]; then
-  echo "BAM_DB_ID is not defined!"
+  echo "[$(date)] BAM_DB_ID is not defined!"
   exit 20
 else
-  echo "Updating cache with current job id"
+  echo "[$(date)] Updating cache with current job id"
   topmed update --bamid $BAM_DB_ID --jobid $JOB_ID
 fi
 
 if [ -z $BAM_CENTER ]; then
-  echo "BAM_CENTER is not defined!"
+  echo "[$(date)] BAM_CENTER is not defined!"
   topmed update --bamid $BAM_DB_ID --state failed
   exit 30
 fi
 
 if [ -z $BAM_FILE ]; then
-  echo "BAM_FILE is not defined!"
+  echo "[$(date)] BAM_FILE is not defined!"
   topmed update --bamid $BAM_DB_ID --state failed
   exit 40
 fi
 
 if [ -z $BAM_PI ]; then
-  echo "BAM_PI is not defined!"
+  echo "[$(date)] BAM_PI is not defined!"
   topmed update --bamid $BAM_DB_ID --state failed
   exit 50
 fi
 
 if [ -z $BAM_HOST ]; then
-  echo "BAM_HOST is not defined!"
+  echo "[$(date)] BAM_HOST is not defined!"
   topmed update --bamid $BAM_DB_ID --state failed
   exit 60
 fi
@@ -132,7 +132,7 @@ BAM_ID="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\S*' | sort -u 
 BAM_LIST="${TMP_DIR}/bam.list"
 OUT_DIR="${PREFIX}/${BAM_HOST}/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}"
 
-echo "
+echo "[$(date)]
 OUT_DIR:    $OUT_DIR
 TMP_DIR:    $TMP_DIR
 REF_DIR:    $REF_DIR
@@ -152,13 +152,13 @@ GC_CONF:    $GOTCLOUD_CONF
 GC_ROOT:    $GOTCLOUD_ROOT
 "
 
-echo "Creating OUT_DIR and TMP_DIR"
+echo "[$(date)] Creating OUT_DIR and TMP_DIR"
 mkdir -p $OUT_DIR $TMP_DIR
 
-echo "Creating BAM_LIST"
+echo "[$(date)] Creating BAM_LIST"
 echo "$BAM_ID $BAM_FILE" > $BAM_LIST
 
-echo "Beginning gotcloud pipeline"
+echo "[$(date)] Beginning gotcloud pipeline"
 gotcloud pipe              \
   --gcroot  $GOTCLOUD_ROOT \
   --name    $PIPELINE      \
@@ -170,10 +170,10 @@ gotcloud pipe              \
 rc=$?
 
 if [ "$rc" -ne 0 ]; then
-  echo "$PIPELINE failed with exit code $rc" 1>&2
+  echo "[$(date)] $PIPELINE failed with exit code $rc" 1>&2
   topmed update --bamid $BAM_DB_ID --state failed
 else
-  echo "Begining gotcloud alignment"
+  echo "[$(date)] Begining gotcloud alignment"
   gotcloud align                   \
     --gcroot    $GOTCLOUD_ROOT     \
     --conf      $GOTCLOUD_CONF     \
@@ -186,16 +186,16 @@ else
   rc=$?
 
   if [ "$rc" -ne 0 ]; then
-    echo "Alignment failed with exit code $rc" 1>&2
+    echo "[$(date)] Alignment failed with exit code $rc" 1>&2
     topmed update --bamid $BAM_DB_ID --state failed
   else
-    echo "Alignment completed"
+    echo "[$(date)] Alignment completed"
     topmed update --bamid $BAM_DB_ID --state completed
   fi
 fi
 
-echo "Purging $TMP_DIR on $NODE"
+echo "[$(date)] Purging $TMP_DIR on $NODE"
 rm -rf $TMP_DIR
 
-echo "Exiting [RC: $rc]"
+echo "[$(date)] Exiting [RC: $rc]"
 exit $rc

@@ -33,7 +33,7 @@ elif [ ! -z $PBS_JOBID ]; then
   SUBMIT_CMD="qsub"
 
 else
-  echo "Unknown cluster environment"
+  echo "[$(date)] Unknown cluster environment"
   exit 1
 fi
 
@@ -62,19 +62,19 @@ while true; do
   sleep_delay=$(cat ${CONTROL_DIR}/monitor_sleep)
 
   if [ -z $remaining ]; then
-    echo "Unable to determine time remaining [$remaining] for job [$JOB_ID]"
+    echo "[$(date)] Unable to determine time remaining [$remaining] for job [$JOB_ID]"
     exit 1
   fi
 
   if [ $remaining -gt $min_time_left ]; then
-    echo "Launching $job_limit more job(s) [Remaining: ${remaining}h]"
+    echo "[$(date)] Launching $job_limit more job(s) [Remaining: ${remaining}h]"
     topmed launch -v -c $CLST_ENV -l $job_limit
   else
-    echo "Resubmitting and exiting [Remaining: ${remaining}h]"
+    echo "[$(date)] Resubmitting and exiting [Remaining: ${remaining}h]"
     $SUBMIT_CMD $PROJECT_DIR/monitor.sh
     exit 0
   fi
 
-  echo "Sleeping for $sleep_delay before launching more jobs"
+  echo "[$(date)] Sleeping for $sleep_delay before launching more jobs"
   sleep $sleep_delay
 done
