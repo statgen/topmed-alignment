@@ -59,7 +59,13 @@ sub execute {
   }
 
   if ($opts->{jobid}) {
-  my $bam   = $db->resultset('Bamfile')->search({jobidmapping => {like => $opts->{jobid} . '%'}})->first();
+    my $bam   = $db->resultset('Bamfile')->search({jobidmapping => {like => $opts->{jobid} . '%'}})->first();
+
+    unless ($bam) {
+      say "No match BAM for jobid $opts->{jobid}";
+      next
+    }
+
     printf "ID: %-8s %-30s center: %-10s study: %-10s PI: %-10s Status: %s\n", $bam->bamid, $bam->bamname, $bam->run->center->centername, $bam->studyname, $bam->piname, $r_bam_status{$bam->status};
   }
 
