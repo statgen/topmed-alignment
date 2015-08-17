@@ -15,7 +15,6 @@ my $align_status = q{/net/1000g/hmkang/etc/nowseq/topmed/topmed.latest.alignstat
 my @results      = parse_align_status($align_status);
 my $db           = Topmed::DB->new();
 my $config       = Topmed::Config->new();
-my $cache        = $config->cache();
 
 for my $result (@results) {
   # my @indexes = indexes {$_->{state} =~ /QPLOT/} @{$result->{results}};

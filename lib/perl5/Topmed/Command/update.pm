@@ -15,10 +15,7 @@ sub opt_spec {
 sub validate_args {
   my ($self, $opts, $args) = @_;
 
-  my $conf  = Topmed::Config->new();
-  my $cache = $conf->cache();
-
-  unless ($opts->{bamid}) {
+  unless ($self->app->global_options->{help} or $opts->{bamid}) {
     $self->usage_error('BAM DB ID is required');
   }
 
@@ -28,15 +25,8 @@ sub validate_args {
     }
   }
 
-  my $entry = $cache->entry($opts->{bamid});
-
-  unless ($entry->exists) {
-    $self->usage_error('BAM does not exist in cache');
-  }
-
-  $self->{stash}->{cache_entry} = $entry;
-
   if ($self->app->global_options->{help}) {
+    say $self->usage->text;
     print $self->app->usage->text;
     exit;
   }
@@ -45,18 +35,15 @@ sub validate_args {
 sub execute {
   my ($self, $opts, $args) = @_;
 
-  my $entry = $self->{stash}->{cache_entry};
-  my $bam   = $entry->thaw();
+  my $db  = Topmed::DB->new();
+  my $bam = $db->resultset('Bamfile')->find($opts->{bamid});
+  die "BAM [$opts->{bamid}] does not exist in the db" unless $bam;
 
-  if ($opts->{state}) {
-    $bam->{status} = $BAM_STATUS{$opts->{state}};
-  }
+  $bam->update({datemapping => $BAM_STATUS{$opts->{state}}});
 
   if ($opts->{jobid}) {
-    $bam->{job_id} = $opts->{jobid};
+    $bam->update({jobidmapping => $opts->{jobid}});
   }
-
-  $entry->freeze($bam);
 }
 
 1;

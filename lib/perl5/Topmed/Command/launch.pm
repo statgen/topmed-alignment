@@ -3,23 +3,24 @@ package Topmed::Command::launch;
 use Topmed -command;
 use Topmed::Base;
 use Topmed::Config;
+use Topmed::DB;
 
 sub opt_spec {
   return (
     ['cluster|c=s', 'Cluster environment [csg|flux]'],
+    ['dry_run|n',   'Dry run; Do everything except submit the job'],
+    ['limit|l=i',   'Limit number of jobs submitted'],
     ['study=s',     'Only map BAMs from a sepcific study'],
     ['center=s',    'Only map BAMs from a specific center'],
     ['pi=s',        'Only map BAMs from a specific PI'],
-    ['dry_run|n',   'Dry run; Do everything except submit the job'],
-    ['limit|l=i',   'Limit number of jobs submitted'],
   );
 }
 
 sub validate_args {
   my ($self, $opts, $args) = @_;
 
-  my $conf  = Topmed::Config->new();
-  my $cache = $conf->cache();
+  my $db = Topmed::DB->new();
+  $self->{stash}->{db} = $db;
 
   unless ($opts->{cluster}) {
     $self->usage_error('Cluster environment is required');
@@ -30,28 +31,19 @@ sub validate_args {
   }
 
   if ($opts->{center}) {
-    my $entry   = $cache->entry('centers');
-    my $centers = $entry->thaw();
-
-    unless (exists $centers->{$opts->{center}}) {
+    unless ($db->resultset('Center')->search({centername => $opts->{center}})->count()) {
       $self->usage_error('Invalid Center');
     }
   }
 
   if ($opts->{study}) {
-    my $entry   = $cache->entry('studies');
-    my $studies = $entry->thaw();
-
-    unless (exists $studies->{$opts->{study}}) {
+    unless ($db->resultset('Bamfile')->search({studyname => $opts->{study}})->count()) {
       $self->usage_error('Invalid Study');
     }
   }
 
   if ($opts->{pi}) {
-    my $entry = $cache->entry('pis');
-    my $pis   = $entry->thaw();
-
-    unless (exists $pis->{$opts->{pi}}) {
+    unless ($db->resultset('Bamfile')->search({piname => $opts->{pi}})->count()) {
       $self->usage_error('Invalid PI');
     }
   }
@@ -66,24 +58,41 @@ sub validate_args {
 sub execute {
   my ($self, $opts, $args) = @_;
 
-  my $jobs_submitted = 0;
-  my $conf           = Topmed::Config->new();
-  my $cache          = $conf->cache();
-  my $idx            = $cache->entry($BAM_CACHE_INDEX);
+  my $jobs   = 0;
+  my $db     = $self->{stash}->{db};
+  my $attrs  = {};
+  my $search = {};
 
-  unless ($idx->exists) {
-    die 'No index of BAM IDs found!';
+  if ($opts->{study}) {
+    $search->{studyname} = $opts->{study};
   }
 
-  my $indexes = $idx->thaw();
-  for my $bamid (keys %{$indexes}) {
-    my $clst  = $opts->{cluster};
-    my $entry = $cache->entry($bamid);
-    my $bam   = $entry->thaw();
-    my $host  = $BAM_HOST_PRIMARY;
+  if ($opts->{pi}) {
+    $search->{piname} = $opts->{pi};
+  }
 
-    my $center_path = File::Spec->join($BAM_FILE_PREFIX{$clst}, $bam->{center});
-    my $path        = File::Spec->join($center_path, $bam->{dir}, $bam->{name});
+  if ($opts->{center}) {
+    $attrs = {join => {run => 'center'}};
+    $search->{'center.centername'} = $opts->{center};
+  }
+
+  if ($self->app->global_options->{debug}) {
+    $Data::Dumper::Varname = 'SEARCH';
+    print Dumper $search;
+
+    $Data::Dumper::Varname = 'ATTRS';
+    print Dumper $attrs;
+  }
+
+  for my $bam ($db->resultset('Bamfile')->search($search, $attrs)) {
+    next if $bam->status >= $BAM_STATUS{submitted};
+    next unless $bam->has_arrived();
+    last if $opts->{limit} and ++$jobs > $opts->{limit};
+
+    my $clst        = $opts->{cluster};
+    my $host        = $BAM_HOST_PRIMARY;
+    my $center_path = File::Spec->join($BAM_FILE_PREFIX{$clst}, $bam->run->center->centername);
+    my $path        = File::Spec->join($center_path, $bam->run->dirname, $bam->bamname);
 
     if (-l $center_path) {
       my $file       = Path::Class->file(readlink($center_path));
@@ -91,62 +100,48 @@ sub execute {
       $host          = $components[4];
     }
 
-    next if $opts->{center} and lc($bam->{center}) ne lc($opts->{center});
-    next if $opts->{study}  and lc($bam->{study}) ne lc($opts->{study});
-    next if $opts->{pi}     and lc($bam->{pi}) ne lc($opts->{pi});
+    say "Sumitting remapping job for " . $bam->bamname if $self->app->global_options->{verbose};
 
-    unless (defined $bam->{status}) {
-      say "$bamid has an undefined status!" if $self->app->global_options->{verbose};
-      next;
-    }
+    my $job_env = {
+      env => {
+        BAM_CENTER => $bam->run->center->centername,
+        BAM_FILE   => $path,
+        BAM_PI     => $bam->piname,
+        BAM_DB_ID  => $bam->bamid,
+        BAM_HOST   => $host,
+        DELAY      => int(rand(120)),
+      }
+    };
 
-    if ($bam->{status} == $BAM_STATUS{requested}) {
-      last if ++$jobs_submitted > $opts->{limit};
+    print Dumper $job_env if $self->app->global_options->{debug};
 
-      say "Sumitting remapping job for $bam->{name}" if $self->app->global_options->{verbose};
+    unless ($opts->{'dry_run'}) {
+      my $job_id = undef;
+      my $output = q{};
+      my $cmd    = System::Command->new(($JOB_CMDS{$clst}, $BATCH_SCRIPT), $job_env);
+      my $stdout = $cmd->stdout();
+      while (<$stdout>) {$output .= $_;}
 
-      unless ($opts->{'dry_run'}) {
-        my $delay = int(rand(120));
-        my $cmd   = System::Command->new(
-          ($JOB_CMDS{$clst}, $BATCH_SCRIPT), {
-            env => {
-              BAM_CENTER => $bam->{center},
-              BAM_FILE   => $path,
-              BAM_PI     => $bam->{pi},
-              BAM_DB_ID  => $bamid,
-              BAM_HOST   => $host,
-              DELAY      => $delay,
-            }
-          }
-        );
-
-        my $output = q{};
-        my $stdout = $cmd->stdout();
-        while (<$stdout>) { $output .= $_; }
-
-        if ($self->app->global_options->{debug}) {
-          my $stderr = $cmd->stderr();
-          while (<$stderr>) { print $_; }
-        }
-
-        $cmd->close();
-
-        say "Output from $JOB_CMDS{$clst} was '$output'" if $self->app->global_options->{debug};
-
-        if ($output =~ /$JOB_OUTPUT_REGEXP{$clst}/) {
-          $bam->{job_id} = $+{jobid};
-          say "Captured job id $bam->{job_id} from $JOB_CMDS{$clst} output" if $self->app->global_options->{debug};
-        }
-
-        $bam->{status} = $BAM_STATUS{submitted};
-        $bam->{clst}   = $clst;
-        $bam->{delay}  = $delay;
-        $bam->{host}   = $host;
-
-        print Dumper $bam if $self->app->global_options->{debug};
-        $entry->freeze($bam);
+      if ($self->app->global_options->{debug}) {
+        my $stderr = $cmd->stderr();
+        while (<$stderr>) {print $_;}
       }
 
+      $cmd->close();
+
+      say "Output from $JOB_CMDS{$clst} was '$output'" if $self->app->global_options->{debug};
+
+      if ($output =~ /$JOB_OUTPUT_REGEXP{$clst}/) {
+        $job_id = $+{jobid};
+        say "Captured job id '$job_id' from $JOB_CMDS{$clst} output" if $self->app->global_options->{debug};
+      }
+
+      $bam->update(
+        {
+          datemapping  => $BAM_STATUS{submitted},
+          jobidmapping => $job_id,
+        }
+      );
     }
   }
 }

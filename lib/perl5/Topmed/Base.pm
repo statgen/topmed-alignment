@@ -6,7 +6,6 @@ our @IMPORT_MODULES = (
   'FindBin' => [qw($Bin)],
   'English' => [qw(-no_match_vars)],
   'Modern::Perl',
-  'Cache::File',
   'Data::Dumper',
   'System::Command',
   'Readonly',
@@ -16,10 +15,6 @@ our @IMPORT_MODULES = (
   'Path::Class',
 );
 
-our %IMPORT_BUNDLES = (
-  db => [
-    'Topmed::DB'
-  ]
-);
+our %IMPORT_BUNDLES = ();
 
 1;

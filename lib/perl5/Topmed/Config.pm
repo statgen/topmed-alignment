@@ -9,7 +9,6 @@ our @EXPORT = (
     $BATCH_SCRIPT
     %JOB_CMDS
     %JOB_OUTPUT_REGEXP
-    $BAM_CACHE_INDEX
     $BAM_HOST_PRIMARY
     %BAM_FILE_PREFIX
     %BAM_STATUS
@@ -22,7 +21,6 @@ our @EXPORT_OK = (
     $BATCH_SCRIPT
     %JOB_CMDS
     %JOB_OUTPUT_REGEXP
-    $BAM_CACHE_INDEX
     $BAM_HOST_PRIMARY
     %BAM_FILE_PREFIX
     %BAM_STATUS
@@ -36,7 +34,6 @@ our %EXPORT_TAGS = (
       $BATCH_SCRIPT
       %JOB_CMDS
       %JOB_OUTPUT_REGEXP
-      $BAM_CACHE_INDEX
       $BAM_HOST_PRIMARY
       %BAM_FILE_PREFIX
       %BAM_STATUS
@@ -46,7 +43,6 @@ our %EXPORT_TAGS = (
 );
 
 Readonly::Scalar our $BATCH_SCRIPT     => qq{$Bin/../align.sh};
-Readonly::Scalar our $BAM_CACHE_INDEX  => 'bam_idx';
 Readonly::Scalar our $BAM_HOST_PRIMARY => 'topmed';
 
 Readonly::Hash our %BAM_FILE_PREFIX => (
@@ -91,8 +87,7 @@ Readonly::Array our @TIME_REMAINING_FORMAT_REGEXPS => (
   qr/(?<seconds>\d{1,7})/,
 );
 
-Readonly::Scalar my $CACHE_ROOT         => qq{$Bin/../../cache};
-Readonly::Scalar my $DB_CONNECTION_INFO => q{/usr/cluster/monitor/etc/.db_connections/topmed};
+Readonly::Scalar my $DB_CONNECTION_INFO => qq{$Bin/../../.db_connections/topmed};
 
 has '_conn'   => (is => 'ro', isa => 'HashRef',     lazy => 1, builder => '_build__conn');
 has 'db'      => (is => 'ro', isa => 'Str',         lazy => 1, builder => '_build_db');
@@ -101,7 +96,6 @@ has 'db_pass' => (is => 'ro', isa => 'Str',         lazy => 1, builder => '_buil
 has 'db_host' => (is => 'ro', isa => 'Str',         lazy => 1, builder => '_build_db_host');
 has 'db_port' => (is => 'ro', isa => 'Str',         lazy => 1, builder => '_build_db_port');
 has 'dsn'     => (is => 'ro', isa => 'Str',         lazy => 1, builder => '_build_dsn');
-has 'cache'   => (is => 'ro', isa => 'Cache::File', lazy => 1, builder => '_build_cache');
 
 sub _build__conn {
   my ($self) = @_;
@@ -145,10 +139,6 @@ sub _build_db_port {
 sub _build_dsn {
   my ($self) = @_;
   return sprintf('dbi:mysql:database=%s;host=%s;port=%d', $self->db, $self->db_host, $self->db_port);
-}
-
-sub _build_cache {
-  return Cache::File->new(cache_root => $CACHE_ROOT, lock_level => Cache::File::LOCK_NFS);
 }
 
 no Moose;

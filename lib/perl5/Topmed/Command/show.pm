@@ -8,13 +8,12 @@ use Topmed::DB;
 sub opt_spec {
   return (
     ['state|s=s', 'Mark the bam as [requested|failed|completed|cancelled]'],
-    ['dump',      'Dump the cache to STDOUT'],
     ['undef|u',   'Show BAMs with undefined state'],
-    ['bamid|b=i', 'Dump BAM cache entry'],
-    ['jobid|j=i', 'Dump BAM cache for job id'],
-    ['centers',   'Dump cached centers'],
-    ['studies',   'Dump cached studies'],
-    ['pis',       'Dump cached PIs'],
+    ['bamid|b=i', 'BAM entry'],
+    ['jobid|j=i', 'BAM entry for job id'],
+    ['centers',   'available centers'],
+    ['studies',   'available studies'],
+    ['pis',       'available PIs'],
   );
 }
 
@@ -35,130 +34,52 @@ sub validate_args {
 sub execute {
   my ($self, $opts, $args) = @_;
 
-  my $conf  = Topmed::Config->new();
-  $self->{stash}->{cache} = $conf->cache();
+  my $db = Topmed::DB->new();
+  my %r_bam_status = reverse %BAM_STATUS;
 
   if ($opts->{state}) {
-    $self->show_state($opts->{state});
-  }
-
-  if ($opts->{dump}) {
-    $self->dump_cache();
+    for my $bam ($db->resultset('Bamfile')->all()) {
+      if ($bam->status == $BAM_STATUS{$opts->{state}}) {
+        printf "ID: %-8s %-30s center: %-10s study: %-10s PI: %-10s\n", $bam->bamid, $bam->bamname, $bam->run->center->centername, $bam->studyname, $bam->piname;
+        print Dumper $bam if $self->app->global_options->{'debug'};
+      }
+    }
   }
 
   if ($opts->{undef}) {
-    $self->show_state('undef');
+    for my $bam ($db->resultset('Bamfile')->search({datemapping => undef})) {
+      say 'BAM (' . $bam->bamid . ') has an undefined state' if $self->app->global_options->{'verbose'};
+      print Dumper $bam if $self->app->global_options->{'debug'};
+    }
   }
 
   if ($opts->{bamid}) {
-    $self->show_bam($opts->{bamid});
+    my $bam = $db->resultset('Bamfile')->find($opts->{bamid});
+    printf "ID: %-8s %-30s center: %-10s study: %-10s PI: %-10s Status: %s\n", $bam->bamid, $bam->bamname, $bam->run->center->centername, $bam->studyname, $bam->piname, $r_bam_status{$bam->status};
   }
 
   if ($opts->{jobid}) {
-    $self->show_jobid($opts->{jobid});
+  my $bam   = $db->resultset('Bamfile')->search({jobidmapping => {like => $opts->{jobid} . '%'}})->first();
+    printf "ID: %-8s %-30s center: %-10s study: %-10s PI: %-10s Status: %s\n", $bam->bamid, $bam->bamname, $bam->run->center->centername, $bam->studyname, $bam->piname, $r_bam_status{$bam->status};
   }
 
   if ($opts->{centers}) {
-    print Dumper $conf->cache->entry('centers')->thaw();
+    for my $center ($db->resultset('Center')->all()) {
+      say $center->centername;
+    }
   }
 
   if ($opts->{studies}) {
-    print Dumper $conf->cache->entry('studies')->thaw();
+    for my $study ($db->resultset('Bamfile')->search({}, {columns => ['studyname'], distinct => 1})) {
+      say $study->studyname;
+    }
   }
 
   if ($opts->{pis}) {
-    print Dumper $conf->cache->entry('pis')->thaw();
-  }
-}
-
-sub dump_cache {
-  my ($self) = @_;
-
-  my $cache = $self->{stash}->{cache};
-  my $entry = $cache->entry($BAM_CACHE_INDEX);
-  my $index = $entry->thaw();
-
-  die 'Unable to locate BAM cache index entry' unless $entry->exists();
-
-  $Data::Dumper::Varname = 'BAM_INDEX';
-  print Dumper $index;
-
-  for my $id (keys %{$index}) {
-    my $entry = $cache->entry($id);
-
-    $Data::Dumper::Varname = 'BAM_' . $id;
-    print Dumper $entry->thaw();
-  }
-
-  return;
-}
-
-sub show_state {
-  my ($self, $state) = @_;
-
-  my $cache  = $self->{stash}->{cache};
-  my $entry  = $cache->entry($BAM_CACHE_INDEX);
-  my $bamids = $entry->thaw();
-
-  for my $bamid (keys %{$bamids}) {
-    my $bam_entry = $cache->entry($bamid);
-
-    unless ($bam_entry->exists()) {
-      say "BAM ($bamid) listed in index but has no cache entry" if $self->app->global_options->('debug');
-      next;
-    }
-
-    my $bam = $bam_entry->thaw();
-
-    if ($state eq 'undef') {
-      unless (defined($bam->{status})) {
-        say "BAM ($bamid) has an undefined state" if $self->app->global_options->{'verbose'};
-        print Dumper $bam if $self->app->global_options->{'debug'};
-      }
-
-      next;
-    }
-
-    unless (defined $bam->{status}) {
-      say "BAM ($bamid) has an undefined state" if $self->app->global_options->{'verbose'};
-      print Dumper $bam if $self->app->global_options->{'debug'};
-      next;
-    }
-
-    if ($bam->{status} == $BAM_STATUS{$state}) {
-      printf "ID: %-8s %-30s center: %-10s study: %-10s PI: %-10s\n", $bam->{id}, $bam->{name}, $bam->{center}, $bam->{study}, $bam->{pi};
-      print Dumper $bam if $self->app->global_options->{'debug'};
+    for my $pi ($db->resultset('Bamfile')->search({}, {columns => ['piname'], distinct => 1})) {
+      say $pi->piname;
     }
   }
-
-  return;
-}
-
-sub show_bam {
-  my ($self, $bamid) = @_;
-
-  my $cache = $self->{stash}->{cache};
-  my $entry = $cache->entry($bamid);
-
-  die "BAM $bamid does not exist in the cache" unless $entry->exists();
-
-  print Dumper $entry->thaw();
-  return;
-}
-
-sub show_jobid {
-  my ($self, $jobid) = @_;
-
-  my $cache = $self->{stash}->{cache};
-  my $db    = Topmed::DB->new();
-  my $bam   = $db->resultset('Bamfile')->search({jobidmapping => {like => $jobid . '%'}})->first();
-
-  unless ($bam) {
-    say "No matching BAM for job id $jobid";
-    return;
-  }
-
-  print Dumper $cache->entry($bam->id)->thaw();
 }
 
 1;
@@ -167,4 +88,4 @@ __END__
 
 =head1
 
-Topmed::Command::show - View info about BAM files in the cache
+Topmed::Command::show - View info about BAM files in the database

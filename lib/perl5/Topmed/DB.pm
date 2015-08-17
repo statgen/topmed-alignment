@@ -2,7 +2,7 @@ package Topmed::DB;
 
 use base qw(Topmed::DB::Schema);
 
-use Topmed::Base qw(cids);
+use Topmed::Base;
 use Topmed::Config;
 use Topmed::DB::Schema;
 

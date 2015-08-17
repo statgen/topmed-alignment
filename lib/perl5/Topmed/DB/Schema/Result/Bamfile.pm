@@ -265,4 +265,13 @@ sub status {
   }
 }
 
+sub has_arrived {
+  my ($self) = @_;
+
+  # XXX - not sure, logic from TPG
+  return defined $self->datearrived;
+  return undef if $self->datearrived =~ /\D/;
+  return undef if $self->datearrived < 10;
+}
+
 1;

@@ -1,5 +1,4 @@
 requires 'Modern::Perl';
-requires 'Cache::File';
 requires 'App::Cmd';
 requires 'Import::Base';
 requires 'System::Command';
