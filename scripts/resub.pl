@@ -1,32 +1,32 @@
 #!/usr/bin/env perl
 
-use FindBin qw($Bin);
-use lib (qq($Bin/../lib/perl5));
-
+use Modern::Perl;
+use Data::Dumper;
 use List::MoreUtils qw(:all);
 use File::Slurp qw(read_file);
 use IPC::System::Simple qw(capture);
-
-use Topmed::Base;
 use Topmed::Config;
-use Topmed::DB;
 
-die;
+my $clst  = $ARGV[0];
+my $conf  = Topmed::Config->new();
+my $db    = Topmed::DB->new();
 
-my $clst = $ARGV[0];
-my $db   = Topmed::DB->new();
+=cut
+my $cache = $conf->cache();
+my $index = $cache->entry($BAM_CACHE_INDEX)->thaw();
 
-for my $bam ($db->resultset('Bamfile')->all()) {
-  next if $bam->status != $BAM_STATUS{submitted};
-  next if $bam->status != $BAM_STATUS{failed};     # FIXME
+for my $id (keys %{$index}) {
+  my $bam = $cache->entry($id)->thaw();
+  next unless $bam->{status} == $BAM_STATUS{submitted} or $bam->{status} == $BAM_STATUS{failed};
 
-  if (defined $bam->jobidmapping) {
+  if (exists $bam->{clst} and exists $bam->{job_id}) {
     given ($clst) {
-      when (/csg/)  {_process_csg_jobs($bam->jobidmapping,  $bam->bamid)}
-      when (/flux/) {_process_flux_jobs($bam->jobidmapping, $bam->bamid)}
+      when (/csg/) {_process_csg_jobs($bam->{job_id}, $id)}
+      when (/flux/) {_process_flux_jobs($bam->{job_id}, $id)}
     }
   }
 }
+=cut
 
 sub _process_csg_jobs {
   my ($job_id, $bam_id) = @_;
