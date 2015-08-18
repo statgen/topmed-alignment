@@ -82,7 +82,7 @@ if [ -z $BAM_DB_ID ]; then
   echo "[$(date)] BAM_DB_ID is not defined!"
   exit 20
 else
-  echo "[$(date)] Updating cache with current job id"
+  echo "[$(date)] Updating database with current job id ($JOB_ID)"
   topmed update --bamid $BAM_DB_ID --jobid $JOB_ID
 fi
 
