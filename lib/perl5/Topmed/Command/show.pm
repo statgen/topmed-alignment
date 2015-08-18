@@ -108,7 +108,7 @@ sub execute {
       next if $state eq '';
 
       unless ($state =~ /running|pending|0/i) {
-        say $bam->status_line . " State: $state";
+        say $bam->status_line . " JobId: $job_id State: $state";
       }
     }
   }
