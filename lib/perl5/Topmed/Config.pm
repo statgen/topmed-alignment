@@ -9,7 +9,9 @@ our @EXPORT = (
     $BATCH_SCRIPT
     %JOB_CMDS
     %JOB_OUTPUT_REGEXP
+    %JOB_STATE_CMD_FORMAT
     $BAM_HOST_PRIMARY
+    $BAM_STATUS_LINE_FMT
     %BAM_FILE_PREFIX
     %BAM_STATUS
     @TIME_REMAINING_FORMAT_REGEXPS
@@ -21,7 +23,9 @@ our @EXPORT_OK = (
     $BATCH_SCRIPT
     %JOB_CMDS
     %JOB_OUTPUT_REGEXP
+    %JOB_STATE_CMD_FORMAT
     $BAM_HOST_PRIMARY
+    $BAM_STATUS_LINE_FMT
     %BAM_FILE_PREFIX
     %BAM_STATUS
     @TIME_REMAINING_FORMAT_REGEXPS
@@ -34,7 +38,9 @@ our %EXPORT_TAGS = (
       $BATCH_SCRIPT
       %JOB_CMDS
       %JOB_OUTPUT_REGEXP
+      %JOB_STATE_CMD_FORMAT
       $BAM_HOST_PRIMARY
+      $BAM_STATUS_LINE_FMT
       %BAM_FILE_PREFIX
       %BAM_STATUS
       @TIME_REMAINING_FORMAT_REGEXPS
@@ -42,8 +48,9 @@ our %EXPORT_TAGS = (
   ]
 );
 
-Readonly::Scalar our $BATCH_SCRIPT     => qq{$Bin/../align.sh};
-Readonly::Scalar our $BAM_HOST_PRIMARY => 'topmed';
+Readonly::Scalar our $BATCH_SCRIPT        => qq{$Bin/../align.sh};
+Readonly::Scalar our $BAM_HOST_PRIMARY    => 'topmed';
+Readonly::Scalar our $BAM_STATUS_LINE_FMT => q{ID: %-8s %-30s center: %-10s study: %-10s PI: %-15s Status: %s};
 
 Readonly::Hash our %BAM_FILE_PREFIX => (
   csg  => '/net/topmed/incoming/topmed',
@@ -69,6 +76,11 @@ Readonly::Hash our %JOB_OUTPUT_REGEXP => (
   csg  => qr/^Submitted batch job (?<jobid>\d+)$/i,
 );
 
+Readonly::Hash our %JOB_STATE_CMD_FORMAT => (
+  flux => q{checkjob -v %d > /dev/null 2>&1 && echo $?},
+  csg  => q{sacct -j %d -X -n -o state%%7},
+);
+
 Readonly::Array our @TIME_REMAINING_FORMAT_REGEXPS => (
 
   # dd-hh:mm:ss
@@ -89,13 +101,13 @@ Readonly::Array our @TIME_REMAINING_FORMAT_REGEXPS => (
 
 Readonly::Scalar my $DB_CONNECTION_INFO => qq{$Bin/../../.db_connections/topmed};
 
-has '_conn'   => (is => 'ro', isa => 'HashRef',     lazy => 1, builder => '_build__conn');
-has 'db'      => (is => 'ro', isa => 'Str',         lazy => 1, builder => '_build_db');
-has 'db_user' => (is => 'ro', isa => 'Str',         lazy => 1, builder => '_build_db_user');
-has 'db_pass' => (is => 'ro', isa => 'Str',         lazy => 1, builder => '_build_db_pass');
-has 'db_host' => (is => 'ro', isa => 'Str',         lazy => 1, builder => '_build_db_host');
-has 'db_port' => (is => 'ro', isa => 'Str',         lazy => 1, builder => '_build_db_port');
-has 'dsn'     => (is => 'ro', isa => 'Str',         lazy => 1, builder => '_build_dsn');
+has '_conn'   => (is => 'ro', isa => 'HashRef', lazy => 1, builder => '_build__conn');
+has 'db'      => (is => 'ro', isa => 'Str',     lazy => 1, builder => '_build_db');
+has 'db_user' => (is => 'ro', isa => 'Str',     lazy => 1, builder => '_build_db_user');
+has 'db_pass' => (is => 'ro', isa => 'Str',     lazy => 1, builder => '_build_db_pass');
+has 'db_host' => (is => 'ro', isa => 'Str',     lazy => 1, builder => '_build_db_host');
+has 'db_port' => (is => 'ro', isa => 'Str',     lazy => 1, builder => '_build_db_port');
+has 'dsn'     => (is => 'ro', isa => 'Str',     lazy => 1, builder => '_build_dsn');
 
 sub _build__conn {
   my ($self) = @_;

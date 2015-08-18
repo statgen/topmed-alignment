@@ -274,4 +274,10 @@ sub has_arrived {
   return undef if $self->datearrived < 10;
 }
 
+sub status_line {
+  my ($self) = @_;
+  my %r_bam_status = reverse %BAM_STATUS;
+  return sprintf $BAM_STATUS_LINE_FMT, $self->bamid, $self->bamname, $self->run->center->centername, $self->studyname, $self->piname, $r_bam_status{$self->status};
+}
+
 1;

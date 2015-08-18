@@ -13,6 +13,7 @@ our @IMPORT_MODULES = (
   'File::Spec',
   'List::MoreUtils' => [qw(all any none)],
   'Path::Class',
+  'IPC::System::Simple' => [qw(run capture EXIT_ANY)],
 );
 
 our %IMPORT_BUNDLES = ();
