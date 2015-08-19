@@ -39,7 +39,9 @@ sub execute {
   my $bam = $db->resultset('Bamfile')->find($opts->{bamid});
   die "BAM [$opts->{bamid}] does not exist in the db" unless $bam;
 
-  $bam->update({datemapping => $BAM_STATUS{$opts->{state}}});
+  if ($opts->{state}) {
+    $bam->update({datemapping => $BAM_STATUS{$opts->{state}}});
+  }
 
   if ($opts->{jobid}) {
     $bam->update({jobidmapping => $opts->{jobid}});
