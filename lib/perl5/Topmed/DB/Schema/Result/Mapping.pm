@@ -49,9 +49,10 @@ __PACKAGE__->table("mappings");
 
 =head2 job_id
 
-  data_type: 'bigint'
+  data_type: 'varchar'
   default_value: 0
   is_nullable: 1
+  size: 45
 
 =head2 bam_host
 
@@ -87,7 +88,7 @@ __PACKAGE__->add_columns(
   "run_id",
   { data_type => "integer", default_value => 0, is_nullable => 1 },
   "job_id",
-  { data_type => "bigint", default_value => 0, is_nullable => 1 },
+  { data_type => "varchar", default_value => 0, is_nullable => 1, size => 45 },
   "bam_host",
   { data_type => "varchar", is_nullable => 1, size => 45 },
   "status",
@@ -125,8 +126,8 @@ __PACKAGE__->set_primary_key("id");
 __PACKAGE__->add_unique_constraint("idx_bam_id", ["bam_id"]);
 
 
-# Created by DBIx::Class::Schema::Loader v0.07043 @ 2015-08-19 13:07:49
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:azHTSn4VawbW1rTK8gRiAA
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2015-08-19 14:02:40
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QoApNbLvKmwapURLy4SHrQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

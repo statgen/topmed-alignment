@@ -8,6 +8,17 @@ my $db = Topmed::DB->new();
 
 for my $bam ($db->resultset('Bamfile')->all()) {
   my $mapping = $db->resultset('Mapping')->find_or_create({bam_id => $bam->bamid});
+  my $cluster = undef;
+
+  if (not defined $bam->jobidmapping) {
+    $cluster = undef;
+  } elsif ($bam->jobidmapping =~ /nyx/) {
+    $cluster = 'flux';
+  } elsif ($bam->jobidmapping < 16510425) {
+    $cluster = 'csg';
+  } elsif ($bam->jobidmapping > 16510425) {
+    $cluster = 'flux';
+  }
 
   $mapping->update(
     {
@@ -15,6 +26,7 @@ for my $bam ($db->resultset('Bamfile')->all()) {
       center_id => $bam->run->centerid,
       job_id    => $bam->jobidmapping,
       status    => $bam->status,
+      cluster   => $cluster,
     }
   );
 

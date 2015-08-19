@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS `nhlbi`.`mappings` (
   `bam_id` INT(11) NOT NULL DEFAULT 0,
   `center_id` INT(11) NULL DEFAULT 0,
   `run_id` INT(11) NULL DEFAULT 0,
-  `job_id` BIGINT NULL DEFAULT 0,
+  `job_id` VARCHAR(45) NULL DEFAULT 0,
   `bam_host` VARCHAR(45) NULL DEFAULT NULL,
   `status` INT(2) NULL DEFAULT NULL,
   `cluster` VARCHAR(45) NULL DEFAULT NULL,
