@@ -12,8 +12,8 @@
 #SBATCH --mail-user=schelcj@umich.edu
 #SBATCH --job-name=align-topmed
 
-#PBS -l nodes=1,ncpus=4,walltime=242:00:00,mem=16gb
-#PBS -l ddisk=200gb
+#PBS -l nodes=1:ppn=4,walltime=242:00:00,pmem=4gb
+#PBS -l ddisk=50gb
 #PBS -m a
 #PBS -d /dept/csg/topmed/working/schelcj/logs/align
 #PBS -M schelcj@umich.edu
@@ -25,11 +25,6 @@
 #PBS -N align-topmed
 
 echo "[$(date)] Starting remapping pipeline"
-
-if [ ! -z $DELAY ]; then
-  echo "[$(date)] Delaying execution for ${DELAY} minutes"
-  sleep "${DELAY}m"
-fi
 
 export PATH=/usr/cluster/bin:/usr/cluster/sbin:$PATH
 
@@ -155,8 +150,18 @@ GC_ROOT:    $GOTCLOUD_ROOT
 echo "[$(date)] Creating OUT_DIR and TMP_DIR"
 mkdir -p $OUT_DIR $TMP_DIR
 
+if [ $? -ne 0 ]; then
+  echo "[$(date)] Failed to create OUT_DIR and or TMP_DIR"
+  exit 70
+fi
+
 echo "[$(date)] Creating BAM_LIST"
 echo "$BAM_ID $BAM_FILE" > $BAM_LIST
+
+if [ ! -z $DELAY ]; then
+  echo "[$(date)] Delaying execution for ${DELAY} minutes"
+  sleep "${DELAY}m"
+fi
 
 echo "[$(date)] Beginning gotcloud pipeline"
 gotcloud pipe              \
