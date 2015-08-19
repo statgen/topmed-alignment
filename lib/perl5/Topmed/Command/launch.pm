@@ -157,6 +157,7 @@ sub execute {
           delay     => $delay,
         }
       );
+      say 'Updated mapping record ' . $job->id if $self->app->global_options->{debug};
     }
   }
 }
