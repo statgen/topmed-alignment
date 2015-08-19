@@ -77,7 +77,8 @@ Readonly::Hash our %JOB_OUTPUT_REGEXP => (
 );
 
 Readonly::Hash our %JOB_STATE_CMD_FORMAT => (
-  flux => q{checkjob -v %d > /dev/null 2>&1 && echo $?},
+#  flux => q{checkjob -v %d > /dev/null 2>&1 && echo $?},
+  flux => q{qstat -f -e %d > /dev/null 2>&1 || echo $?},
   csg  => q{sacct -j %d -X -n -o state%%7},
 );
 

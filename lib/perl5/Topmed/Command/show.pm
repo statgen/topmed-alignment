@@ -97,6 +97,8 @@ sub execute {
 
   if ($opts->{stale}) {
     for my $bam ($db->resultset('Bamfile')->search({datemapping => $BAM_STATUS{submitted}})) {
+      next if $opts->{cluster} eq 'csg' and $bam->jobidmapping =~ /nyx/;
+
       (my $job_id = $bam->jobidmapping) =~ s/\.nyx$//g;
 
       my $cmd = sprintf $JOB_STATE_CMD_FORMAT{$opts->{cluster}}, $job_id;
