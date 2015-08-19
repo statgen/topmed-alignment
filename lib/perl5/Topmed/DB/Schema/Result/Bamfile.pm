@@ -283,6 +283,11 @@ __PACKAGE__->belongs_to(
   {'foreign.studyid' => 'self.studyid'}
 );
 
+__PACKAGE__->belongs_to(
+  mapping => 'Topmed::DB::Schema::Result::Mapping',
+  {'foreign.bam_id' => 'self.bamid'}
+);
+
 sub status {
   no if $PERL_VERSION >= 5.017011, warnings => 'experimental::smartmatch';
 
@@ -311,7 +316,14 @@ sub has_arrived {
 sub status_line {
   my ($self) = @_;
   my %r_bam_status = reverse %BAM_STATUS;
-  return sprintf $BAM_STATUS_LINE_FMT, $self->bamid, $self->bamname, $self->run->center->centername, $self->studyname, $self->piname, $r_bam_status{$self->status};
+  return sprintf $BAM_STATUS_LINE_FMT,
+    $self->bamid,
+    $self->bamname,
+    $self->run->center->centername,
+    $self->studyname,
+    $self->piname,
+    $r_bam_status{$self->status},
+    $self->mapping->cluster // 'unknown';
 }
 
 1;

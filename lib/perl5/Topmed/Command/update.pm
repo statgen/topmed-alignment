@@ -37,14 +37,17 @@ sub execute {
 
   my $db  = Topmed::DB->new();
   my $bam = $db->resultset('Bamfile')->find($opts->{bamid});
+
   die "BAM [$opts->{bamid}] does not exist in the db" unless $bam;
 
   if ($opts->{state}) {
     $bam->update({datemapping => $BAM_STATUS{$opts->{state}}});
+    $bam->mapping->update({status => $BAM_STATUS{$opts->{state}}});
   }
 
   if ($opts->{jobid}) {
     $bam->update({jobidmapping => $opts->{jobid}});
+    $bam->mapping->update({job_id => $opts->{jobid}});
   }
 }
 

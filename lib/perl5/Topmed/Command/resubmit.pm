@@ -51,6 +51,15 @@ sub execute {
     }
   );
 
+  $bam->mapping->update(
+    {
+      job_id  => undef,
+      cluster => undef,
+      delay   => undef,
+      status  => $BAM_STATUS{requested},
+    }
+  );
+
   say "Reset BAM [$bamid] successfully" if $self->app->global_options->{verbose};
 }
 

@@ -97,11 +97,12 @@ sub execute {
     if (-l $center_path) {
       my $file       = Path::Class->file(readlink($center_path));
       my @components = $file->components();
-      $host          = $components[4];
+      $host = $components[4];
     }
 
     say "Sumitting remapping job for " . $bam->bamname if $self->app->global_options->{verbose};
 
+    my $delay   = int(rand(120));
     my $job_env = {
       env => {
         BAM_CENTER => $bam->run->center->centername,
@@ -109,7 +110,7 @@ sub execute {
         BAM_PI     => $bam->piname,
         BAM_DB_ID  => $bam->bamid,
         BAM_HOST   => $host,
-        DELAY      => int(rand(120)),
+        DELAY      => $delay,
       }
     };
 
@@ -140,6 +141,20 @@ sub execute {
         {
           datemapping  => $BAM_STATUS{submitted},
           jobidmapping => $job_id,
+        }
+      );
+
+      my $job = $db->resultset('Mapping')->find_or_create({bam_id => $bam->bamid});
+
+      $job->update(
+        {
+          run_id    => $bam->runid,
+          center_id => $bam->run->centerid,
+          job_id    => $job_id,
+          bam_host  => $host,
+          status    => $BAM_STATUS{submitted},
+          cluster   => $opts->{cluster},
+          delay     => $delay,
         }
       );
     }

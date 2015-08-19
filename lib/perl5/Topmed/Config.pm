@@ -50,7 +50,7 @@ our %EXPORT_TAGS = (
 
 Readonly::Scalar our $BATCH_SCRIPT        => qq{$Bin/../align.sh};
 Readonly::Scalar our $BAM_HOST_PRIMARY    => 'topmed';
-Readonly::Scalar our $BAM_STATUS_LINE_FMT => q{ID: %-8s %-30s center: %-10s study: %-10s PI: %-15s Status: %s};
+Readonly::Scalar our $BAM_STATUS_LINE_FMT => q{ID: %-8s %-30s center: %-10s study: %-10s PI: %-15s Status: %-10s Cluster: %-5s};
 
 Readonly::Hash our %BAM_FILE_PREFIX => (
   csg  => '/net/topmed/incoming/topmed',
