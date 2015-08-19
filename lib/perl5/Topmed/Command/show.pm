@@ -97,7 +97,7 @@ sub execute {
 
   if ($opts->{stale}) {
     for my $bam ($db->resultset('Bamfile')->search({datemapping => $BAM_STATUS{submitted}})) {
-      next if $opts->{cluster} eq 'csg' and $bam->jobidmapping =~ /nyx/;
+      next unless $bam->mapping->cluster eq $opts->{cluster};
 
       (my $job_id = $bam->jobidmapping) =~ s/\.nyx$//g;
 
