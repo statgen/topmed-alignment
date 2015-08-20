@@ -8,7 +8,7 @@ sub opt_spec {
   return (
     ['bamid|b=i', 'ID From topmed db of BAM to update'],
     ['jobid|j=s', 'Record the job id that processed the BAM'],
-    ['state|s=s', 'Mark the bam as [requested|failed|completed|cancelled]'],
+    ['state|s=s', 'Mark the bam as [requested|failed|completed|cancelled|submitted]'],
   );
 }
 
@@ -41,8 +41,10 @@ sub execute {
   die "BAM [$opts->{bamid}] does not exist in the db" unless $bam;
 
   if ($opts->{state}) {
-    $bam->update({datemapping => $BAM_STATUS{$opts->{state}}});
-    $bam->mapping->update({status => $BAM_STATUS{$opts->{state}}});
+    my $status = ($opts->{state} eq 'completed') ? time() : $BAM_STATUS{$opts->{state}};
+
+    $bam->update({datemapping => $status});
+    $bam->mapping->update({status => $status});
   }
 
   if ($opts->{jobid}) {

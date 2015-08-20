@@ -13,6 +13,7 @@ sub opt_spec {
     ['study=s',     'Only map BAMs from a sepcific study'],
     ['center=s',    'Only map BAMs from a specific center'],
     ['pi=s',        'Only map BAMs from a specific PI'],
+    ['bamid|b=i',   'Remap a specific BAM based on the db id (override studies, centers, and pis)'],
   );
 }
 
@@ -48,6 +49,12 @@ sub validate_args {
     }
   }
 
+  if ($opts->{bamid}) {
+    unless ($db->resultset('Bamfile')->search({bamid => $opts->{bamid}})->count()) {
+      $self->usage_error('Invalid BAM ID');
+    }
+  }
+
   if ($self->app->global_options->{help}) {
     say $self->app->usage->text;
     print $self->usage->text;
@@ -63,17 +70,21 @@ sub execute {
   my $attrs  = {};
   my $search = {};
 
-  if ($opts->{study}) {
-    $search->{studyname} = $opts->{study};
-  }
+  if ($opts->{bamid}) {
+    $search->{bamid} = $opts->{bamid};
+  } else {
+    if ($opts->{study}) {
+      $search->{studyname} = $opts->{study};
+    }
 
-  if ($opts->{pi}) {
-    $search->{piname} = $opts->{pi};
-  }
+    if ($opts->{pi}) {
+      $search->{piname} = $opts->{pi};
+    }
 
-  if ($opts->{center}) {
-    $attrs = {join => {run => 'center'}};
-    $search->{'center.centername'} = $opts->{center};
+    if ($opts->{center}) {
+      $attrs = {join => {run => 'center'}};
+      $search->{'center.centername'} = $opts->{center};
+    }
   }
 
   if ($self->app->global_options->{debug}) {
@@ -85,7 +96,7 @@ sub execute {
   }
 
   for my $bam ($db->resultset('Bamfile')->search($search, $attrs)) {
-    next if $bam->status >= $BAM_STATUS{submitted};
+    next if $bam->status >= $BAM_STATUS{submitted} and not $opts->{bamid};
     next unless $bam->has_arrived();
     last if $opts->{limit} and ++$jobs > $opts->{limit};
 
@@ -129,6 +140,12 @@ sub execute {
       }
 
       $cmd->close();
+      my $exit = $cmd->exit();
+
+      if ($exit) {
+        say "$JOB_CMDS{$clst} returned non-zero exit [$exit]";
+        next;
+      }
 
       say "Output from $JOB_CMDS{$clst} was '$output'" if $self->app->global_options->{debug};
 

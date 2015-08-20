@@ -7,7 +7,7 @@ use Topmed::DB;
 
 sub opt_spec {
   return (
-    ['state|s=s', 'Mark the bam as [requested|failed|completed|cancelled]'],
+    ['state|s=s', 'Mark the bam as [requested|failed|submitted|cancelled]'],
     ['undef|u',   'Show BAMs with undefined state'],
     ['bamid|b=i', 'BAM entry'],
     ['jobid|j=i', 'BAM entry for job id'],
@@ -16,6 +16,7 @@ sub opt_spec {
     ['centers',   'available centers'],
     ['studies',   'available studies'],
     ['pis',       'available PIs'],
+    ['completed', 'Show completed BAMs'],
   );
 }
 
@@ -48,6 +49,15 @@ sub execute {
   if ($opts->{state}) {
     for my $bam ($db->resultset('Bamfile')->all()) {
       if ($bam->status == $BAM_STATUS{$opts->{state}}) {
+        say $bam->status_line;
+        print Dumper $bam if $self->app->global_options->{'debug'};
+      }
+    }
+  }
+
+  if ($opts->{completed}) {
+    for my $bam ($db->resultset('Bamfile')->all()) {
+      if ($bam->status >= $BAM_STATUS{completed}) {
         say $bam->status_line;
         print Dumper $bam if $self->app->global_options->{'debug'};
       }

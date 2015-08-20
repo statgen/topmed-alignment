@@ -1,13 +1,10 @@
 #!/usr/bin/env perl
 
-use FindBin qw($Bin);
-use Modern::Perl;
-use Data::Dumper;
 use File::Slurp::Tiny qw(read_lines read_file);
 use File::Basename;
 use List::MoreUtils qw(any indexes);
 use File::Basename;
-use IPC::System::Simple qw(run);
+use Topmed::Base;
 use Topmed::DB;
 use Topmed::Config;
 
@@ -17,6 +14,55 @@ my $db           = Topmed::DB->new();
 my $config       = Topmed::Config->new();
 
 for my $result (@results) {
+  my @indexes = indexes {$_->{state} =~ /ALIGN_COMPLETE/} @{$result->{results}};
+  if (@indexes) {
+    my $record = $result->{results}->[$indexes[0]];
+    my $path   = Path::Class::File->new($result->{orig_bam});
+    my @comps  = $path->components();
+    my $name   = $comps[-1];
+    my $bam    = $db->resultset('Bamfile')->search({bamname => $name})->first;
+
+    if ($bam->status < $BAM_STATUS{completed}) {
+      next unless $bam->mapping->cluster;
+      next if $bam->mapping->cluster eq 'flux';
+      chomp(my $job_state = capture(EXIT_ANY, sprintf $JOB_STATE_CMD_FORMAT{$bam->mapping->cluster}, $bam->mapping->job_id));
+
+      if ($job_state =~ /running/i) {
+        say 'Completing BAM: ' . $bam->mapping->job_id;
+#        run('scancel ' . $bam->mapping->job_id);
+#        $bam->update({datemapping => $BAM_STATUS{completed}});
+#        $bam->mapping->update({status => $BAM_STATUS{completed}});
+
+      } elsif ($job_state =~ /pending/i) {
+        say 'Completing BAM: ' . $bam->mapping->job_id;
+#        run('scancel ' . $bam->mapping->job_id);
+#        $bam->update({datemapping => $BAM_STATUS{completed}});
+#        $bam->mapping->update({status => $BAM_STATUS{completed}});
+
+      } elsif ($job_state =~ /cancel/i) {
+        say 'Marking complete just in case ' . $bam->mapping->job_id;
+#        $bam->update({datemapping => $BAM_STATUS{completed}});
+#        $bam->mapping->update({status => $BAM_STATUS{completed}});
+      } else {
+        print Dumper $bam->bamname . ' => ' . $bam->status . ' => ' . $job_state . 'JOBID: ' . $bam->mapping->job_id . ' BAM: ' . $result->{orig_bam};
+      }
+    } else {
+        print Dumper $bam->bamname . ' => ' . $bam->status . ' BAM: ' . $result->{orig_bam};
+    }
+  }
+
+# my @indexes = indexes {$_->{state} =~ /ALIGN_COMPLETE/} @{$result->{results}};
+# if (scalar @indexes > 1) {
+#   for my $index (@indexes) {
+#     my $dir = $result->{results}->[$index]->{result};
+#     if (basename($dir) =~ /^LP/) {
+#       say $dir;
+#       #run("rm -rf $dir");
+#     }
+#   }
+# }
+# next;
+
   # my @indexes = indexes {$_->{state} =~ /QPLOT/} @{$result->{results}};
   # if (@indexes) {
   #   my $result = $result->{results}->[$indexes[0]];
