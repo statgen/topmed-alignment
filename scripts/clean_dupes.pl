@@ -8,7 +8,7 @@ use Topmed::Base;
 use Topmed::DB;
 use Topmed::Config;
 
-my $align_status = q{/net/1000g/hmkang/etc/nowseq/topmed/topmed.latest.alignstatus};
+my $align_status = q{topmed.latest.alignstatus};
 my @results      = parse_align_status($align_status);
 my $db           = Topmed::DB->new();
 my $config       = Topmed::Config->new();
@@ -24,8 +24,10 @@ for my $result (@results) {
 
     if ($bam->status < $BAM_STATUS{completed}) {
       next unless $bam->mapping->cluster;
-      next if $bam->mapping->cluster eq 'flux';
-      chomp(my $job_state = capture(EXIT_ANY, sprintf $JOB_STATE_CMD_FORMAT{$bam->mapping->cluster}, $bam->mapping->job_id));
+      next if $bam->mapping->cluster eq 'csg';
+      (my $job_id = $bam->mapping->job_id) =~ s/\.nyx(?:\.arc\-ts\.umich\.edu)?//g;
+
+      chomp(my $job_state = capture(EXIT_ANY, sprintf $JOB_STATE_CMD_FORMAT{$bam->mapping->cluster}, $job_id));
 
       if ($job_state =~ /running/i) {
         say 'Completing BAM: ' . $bam->mapping->job_id;
@@ -43,11 +45,17 @@ for my $result (@results) {
         say 'Marking complete just in case ' . $bam->mapping->job_id;
 #        $bam->update({datemapping => $BAM_STATUS{completed}});
 #        $bam->mapping->update({status => $BAM_STATUS{completed}});
+      } elsif ($job_state == 0) {
+#       run('qdel ' . $job_id);
+
+#       my $now = time();
+#       $bam->update({datemapping => $now});
+#       $bam->mapping->update({status => $now});
+
+        say $bam->status_line . 'State: [' . $job_state . ']' . ' JOBID: ' . $job_id;
       } else {
-        print Dumper $bam->bamname . ' => ' . $bam->status . ' => ' . $job_state . 'JOBID: ' . $bam->mapping->job_id . ' BAM: ' . $result->{orig_bam};
+        say $bam->status_line;
       }
-    } else {
-        print Dumper $bam->bamname . ' => ' . $bam->status . ' BAM: ' . $result->{orig_bam};
     }
   }
 
