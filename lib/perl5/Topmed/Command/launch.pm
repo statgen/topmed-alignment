@@ -165,13 +165,14 @@ sub execute {
 
       $job->update(
         {
-          run_id    => $bam->runid,
-          center_id => $bam->run->centerid,
-          job_id    => $job_id,
-          bam_host  => $host,
-          status    => $BAM_STATUS{submitted},
-          cluster   => $opts->{cluster},
-          delay     => $delay,
+          run_id      => $bam->runid,
+          center_id   => $bam->run->centerid,
+          job_id      => $job_id,
+          bam_host    => $host,
+          status      => $BAM_STATUS{submitted},
+          cluster     => $opts->{cluster},
+          delay       => $delay,
+          modified_at => DateTime->now(),
         }
       );
       say 'Updated mapping record ' . $job->id if $self->app->global_options->{debug};

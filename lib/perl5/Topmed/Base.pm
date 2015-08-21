@@ -14,6 +14,7 @@ our @IMPORT_MODULES = (
   'List::MoreUtils' => [qw(all any none)],
   'Path::Class',
   'IPC::System::Simple' => [qw(run capture EXIT_ANY)],
+  'DateTime',
 );
 
 our %IMPORT_BUNDLES = ();

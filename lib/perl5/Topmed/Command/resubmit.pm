@@ -53,10 +53,11 @@ sub execute {
 
   $bam->mapping->update(
     {
-      job_id  => undef,
-      cluster => undef,
-      delay   => undef,
-      status  => $BAM_STATUS{requested},
+      job_id      => undef,
+      cluster     => undef,
+      delay       => undef,
+      status      => $BAM_STATUS{requested},
+      modified_at => DateTime->now(),
     }
   );
 
