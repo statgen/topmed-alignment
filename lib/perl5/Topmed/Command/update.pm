@@ -44,12 +44,22 @@ sub execute {
     my $status = ($opts->{state} eq 'completed') ? time() : $BAM_STATUS{$opts->{state}};
 
     $bam->update({datemapping => $status});
-    $bam->mapping->update({status => $status});
+    $bam->mapping->update(
+      {
+        status      => $status,
+        modified_at => DateTime->now(),
+      }
+    );
   }
 
   if ($opts->{jobid}) {
     $bam->update({jobidmapping => $opts->{jobid}});
-    $bam->mapping->update({job_id => $opts->{jobid}});
+    $bam->mapping->update(
+      {
+        job_id      => $opts->{jobid},
+        modified_at => DateTime->now(),
+      }
+    );
   }
 }
 

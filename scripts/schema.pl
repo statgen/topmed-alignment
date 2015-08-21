@@ -12,6 +12,7 @@ make_schema_at(
   'Topmed::DB::Schema', {
     debug => 1,
     dump_directory => qq($Bin/../lib/perl5),
+    components     => [qw(InflateColumn::DateTime)],
   },
   [$config->dsn, $config->db_user, $config->db_pass]
 );

@@ -11,3 +11,4 @@ requires 'Moose';
 requires 'Makefile::Parser';
 requires 'IPC::System::Simple';
 requires 'DateTime';
+requires 'DateTime::Format::MySQL';
