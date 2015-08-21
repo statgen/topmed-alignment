@@ -10,3 +10,4 @@ requires 'DBIx::Class::Schema::Loader';
 requires 'Moose';
 requires 'Makefile::Parser';
 requires 'IPC::System::Simple';
+requires 'DateTime';
