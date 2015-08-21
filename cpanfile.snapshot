@@ -70,43 +70,55 @@ DISTRIBUTIONS
       perl 5.008001
       strict 0
       warnings 0
-  Cache-2.11
-    pathname: S/SH/SHLOMIF/Cache-2.11.tar.gz
+  CPAN-Meta-2.150005
+    pathname: D/DA/DAGOLDEN/CPAN-Meta-2.150005.tar.gz
     provides:
-      Cache 2.11
-      Cache::Entry 2.11
-      Cache::File 2.11
-      Cache::File::Entry 2.11
-      Cache::File::Handle undef
-      Cache::File::Heap 2.11
-      Cache::IOString undef
-      Cache::Memory 2.11
-      Cache::Memory::Entry 2.11
-      Cache::Memory::HeapElem undef
-      Cache::Null 2.11
-      Cache::Null::Entry 2.11
-      Cache::RemovalStrategy 2.11
-      Cache::RemovalStrategy::FIFO undef
-      Cache::RemovalStrategy::LRU undef
-      Cache::Tester 2.11
+      CPAN::Meta 2.150005
+      CPAN::Meta::Converter 2.150005
+      CPAN::Meta::Feature 2.150005
+      CPAN::Meta::History 2.150005
+      CPAN::Meta::Merge 2.150005
+      CPAN::Meta::Prereqs 2.150005
+      CPAN::Meta::Spec 2.150005
+      CPAN::Meta::Validator 2.150005
     requirements:
-      DB_File 1.72
-      Date::Parse 2.24
-      Digest::SHA 0
-      Fcntl 1.03
-      File::Find 0
-      File::NFSLock 1.20
-      File::Path 1.00
-      File::Spec 0.8
-      Heap::Fibonacci 0.01
-      IO::File 1.08
-      IO::Handle 1.21
-      IO::String 1.02
-      Module::Build 0
-      Storable 1.00
-      Symbol 1.02
-      Test::More 0.45
+      CPAN::Meta::Requirements 2.121
+      CPAN::Meta::YAML 0.008
+      Carp 0
+      ExtUtils::MakeMaker 6.17
+      JSON::PP 2.27200
+      Parse::CPAN::Meta 1.4414
+      Scalar::Util 0
+      perl 5.008
+      strict 0
+      version 0.88
+      warnings 0
+  CPAN-Meta-Requirements-2.133
+    pathname: D/DA/DAGOLDEN/CPAN-Meta-Requirements-2.133.tar.gz
+    provides:
+      CPAN::Meta::Requirements 2.133
+    requirements:
+      B 0
+      Carp 0
+      ExtUtils::MakeMaker 6.17
       perl 5.006
+      strict 0
+      version 0.88
+      warnings 0
+  CPAN-Meta-YAML-0.016
+    pathname: D/DA/DAGOLDEN/CPAN-Meta-YAML-0.016.tar.gz
+    provides:
+      CPAN::Meta::YAML 0.016
+    requirements:
+      B 0
+      Carp 0
+      Exporter 0
+      ExtUtils::MakeMaker 6.17
+      Fcntl 0
+      Scalar::Util 0
+      perl 5.008001
+      strict 0
+      warnings 0
   Capture-Tiny-0.30
     pathname: D/DA/DAGOLDEN/Capture-Tiny-0.30.tar.gz
     provides:
@@ -199,6 +211,11 @@ DISTRIBUTIONS
       MRO::Compat 0
       Test::Exception 0
       perl 5.006002
+  Class-Factory-Util-1.7
+    pathname: D/DR/DROLSKY/Class-Factory-Util-1.7.tar.gz
+    provides:
+      Class::Factory::Util 1.7
+    requirements:
   Class-Inspector-1.28
     pathname: A/AD/ADAMK/Class-Inspector-1.28.tar.gz
     provides:
@@ -727,6 +744,52 @@ DISTRIBUTIONS
       vars 0
       warnings 0
       warnings::register 0
+  DateTime-Format-Builder-0.81
+    pathname: D/DR/DROLSKY/DateTime-Format-Builder-0.81.tar.gz
+    provides:
+      DateTime::Format::Builder 0.81
+      DateTime::Format::Builder::Parser 0.81
+      DateTime::Format::Builder::Parser::Dispatch 0.81
+      DateTime::Format::Builder::Parser::Quick 0.81
+      DateTime::Format::Builder::Parser::Regex 0.81
+      DateTime::Format::Builder::Parser::Strptime 0.81
+      DateTime::Format::Builder::Parser::generic 0.81
+      DateTime::Format::Fall undef
+      DateTime::Format::Simple undef
+    requirements:
+      Carp 0
+      Class::Factory::Util 1.6
+      DateTime 1.00
+      DateTime::Format::Strptime 1.04
+      ExtUtils::MakeMaker 6.30
+      Params::Validate 0.72
+      Scalar::Util 0
+      base 0
+      strict 0
+      vars 0
+      warnings 0
+  DateTime-Format-MySQL-0.05
+    pathname: X/XM/XMIKEW/DateTime-Format-MySQL-0.05.tar.gz
+    provides:
+      DateTime::Format::MySQL 0.05
+    requirements:
+      DateTime 0
+      DateTime::Format::Builder 0.6
+      Module::Build 0
+  DateTime-Format-Strptime-1.56
+    pathname: D/DR/DROLSKY/DateTime-Format-Strptime-1.56.tar.gz
+    provides:
+      DateTime::Format::Strptime 1.56
+    requirements:
+      Carp 0
+      DateTime 1.00
+      DateTime::Locale 0.45
+      DateTime::TimeZone 0.79
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      Params::Validate 0.64
+      strict 0
+      vars 0
   DateTime-Locale-0.46
     pathname: D/DR/DROLSKY/DateTime-Locale-0.46.tar.gz
     provides:
@@ -1747,12 +1810,6 @@ DISTRIBUTIONS
       File::Spec 0.8
       Pod::Man 0
       perl 5.006
-  File-NFSLock-1.27
-    pathname: B/BB/BBB/File-NFSLock-1.27.tar.gz
-    provides:
-      File::NFSLock 1.27
-    requirements:
-      ExtUtils::MakeMaker 0
   File-Slurp-9999.19
     pathname: U/UR/URI/File-Slurp-9999.19.tar.gz
     provides:
@@ -1835,29 +1892,6 @@ DISTRIBUTIONS
       Clone 0
       ExtUtils::MakeMaker 0
       perl 5.008001
-  Heap-0.80
-    pathname: J/JM/JMM/Heap-0.80.tar.gz
-    provides:
-      Heap 0.80
-      Heap::Binary 0.80
-      Heap::Binomial 0.80
-      Heap::Elem 0.80
-      Heap::Elem::Num 0.80
-      Heap::Elem::NumRev 0.80
-      Heap::Elem::Ref 0.80
-      Heap::Elem::RefRev 0.80
-      Heap::Elem::Str 0.80
-      Heap::Elem::StrRev 0.80
-      Heap::Fibonacci 0.80
-    requirements:
-      ExtUtils::MakeMaker 0
-      Test::Simple 0.45
-  IO-String-1.08
-    pathname: G/GA/GAAS/IO-String-1.08.tar.gz
-    provides:
-      IO::String 1.08
-    requirements:
-      ExtUtils::MakeMaker 0
   IO-TieCombine-1.004
     pathname: R/RJ/RJBS/IO-TieCombine-1.004.tar.gz
     provides:
@@ -1870,6 +1904,15 @@ DISTRIBUTIONS
       Symbol 0
       strict 0
       warnings 0
+  IO-Tty-1.12
+    pathname: T/TO/TODDR/IO-Tty-1.12.tar.gz
+    provides:
+      IO::Pty 1.12
+      IO::Tty 1.12
+      IO::Tty::Constant undef
+    requirements:
+      ExtUtils::MakeMaker 0
+      Test::More 0
   IO-stringy-2.111
     pathname: D/DS/DSKOLL/IO-stringy-2.111.tar.gz
     provides:
@@ -1946,6 +1989,15 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
+  JSON-PP-2.27300
+    pathname: M/MA/MAKAMAKA/JSON-PP-2.27300.tar.gz
+    provides:
+      JSON::PP 2.27300
+      JSON::PP::Boolean 2.27300
+      JSON::PP::IncrParser 2.27300
+    requirements:
+      ExtUtils::MakeMaker 0
+      Test::More 0
   Lingua-EN-FindNumber-1.31
     pathname: N/NE/NEILB/Lingua-EN-FindNumber-1.31.tar.gz
     provides:
@@ -2188,6 +2240,56 @@ DISTRIBUTIONS
       perl 5.010
       strict 0
       warnings 0
+  Module-Build-0.4214
+    pathname: L/LE/LEONT/Module-Build-0.4214.tar.gz
+    provides:
+      Module::Build 0.4214
+      Module::Build::Base 0.4214
+      Module::Build::Compat 0.4214
+      Module::Build::Config 0.4214
+      Module::Build::Cookbook 0.4214
+      Module::Build::Dumper 0.4214
+      Module::Build::Notes 0.4214
+      Module::Build::PPMMaker 0.4214
+      Module::Build::Platform::Default 0.4214
+      Module::Build::Platform::MacOS 0.4214
+      Module::Build::Platform::Unix 0.4214
+      Module::Build::Platform::VMS 0.4214
+      Module::Build::Platform::VOS 0.4214
+      Module::Build::Platform::Windows 0.4214
+      Module::Build::Platform::aix 0.4214
+      Module::Build::Platform::cygwin 0.4214
+      Module::Build::Platform::darwin 0.4214
+      Module::Build::Platform::os2 0.4214
+      Module::Build::PodParser 0.4214
+    requirements:
+      CPAN::Meta 2.142060
+      CPAN::Meta::YAML 0.003
+      Cwd 0
+      Data::Dumper 0
+      ExtUtils::CBuilder 0.27
+      ExtUtils::Install 0
+      ExtUtils::Manifest 0
+      ExtUtils::Mkbootstrap 0
+      ExtUtils::ParseXS 2.21
+      File::Basename 0
+      File::Compare 0
+      File::Copy 0
+      File::Find 0
+      File::Path 0
+      File::Spec 0.82
+      File::Temp 0.15
+      Getopt::Long 0
+      Module::Metadata 1.000002
+      Parse::CPAN::Meta 1.4401
+      Perl::OSType 1
+      Pod::Man 2.17
+      Test::Harness 3.16
+      Test::More 0.49
+      Text::Abbrev 0
+      Text::ParseWords 0
+      perl 5.008000
+      version 0.87
   Module-Build-Tiny-0.039
     pathname: L/LE/LEONT/Module-Build-Tiny-0.039.tar.gz
     provides:
@@ -2747,6 +2849,20 @@ DISTRIBUTIONS
       strict 0
       vars 0
       warnings 0
+  Parse-CPAN-Meta-1.4417
+    pathname: D/DA/DAGOLDEN/Parse-CPAN-Meta-1.4417.tar.gz
+    provides:
+      Parse::CPAN::Meta 1.4417
+    requirements:
+      CPAN::Meta::YAML 0.011
+      Carp 0
+      Encode 0
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      File::Spec 0.80
+      JSON::PP 2.27200
+      perl 5.008001
+      strict 0
   Path-Class-0.35
     pathname: K/KW/KWILLIAMS/Path-Class-0.35.tar.gz
     provides:
@@ -3182,49 +3298,6 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       perl 5.008
-  TimeDate-2.30
-    pathname: G/GB/GBARR/TimeDate-2.30.tar.gz
-    provides:
-      Date::Format 2.24
-      Date::Format::Generic 2.24
-      Date::Language 1.10
-      Date::Language::Afar 0.99
-      Date::Language::Amharic 1.00
-      Date::Language::Austrian 1.01
-      Date::Language::Brazilian 1.01
-      Date::Language::Bulgarian 1.01
-      Date::Language::Chinese 1.00
-      Date::Language::Chinese_GB 1.01
-      Date::Language::Czech 1.01
-      Date::Language::Danish 1.01
-      Date::Language::Dutch 1.02
-      Date::Language::English 1.01
-      Date::Language::Finnish 1.01
-      Date::Language::French 1.04
-      Date::Language::Gedeo 0.99
-      Date::Language::German 1.02
-      Date::Language::Greek 1.00
-      Date::Language::Hungarian 1.01
-      Date::Language::Icelandic 1.01
-      Date::Language::Italian 1.01
-      Date::Language::Norwegian 1.01
-      Date::Language::Oromo 0.99
-      Date::Language::Romanian 1.01
-      Date::Language::Russian 1.01
-      Date::Language::Russian_cp1251 1.01
-      Date::Language::Russian_koi8r 1.01
-      Date::Language::Sidama 0.99
-      Date::Language::Somali 0.99
-      Date::Language::Spanish 1.00
-      Date::Language::Swedish 1.01
-      Date::Language::Tigrinya 1.00
-      Date::Language::TigrinyaEritrean 1.00
-      Date::Language::TigrinyaEthiopian 1.00
-      Date::Language::Turkish 1.0
-      Date::Parse 2.30
-      Time::Zone 2.24
-    requirements:
-      ExtUtils::MakeMaker 0
   Try-Tiny-0.22
     pathname: D/DO/DOY/Try-Tiny-0.22.tar.gz
     provides:
