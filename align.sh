@@ -126,6 +126,7 @@ FASTQ_LIST="${TMP_DIR}/fastq.list"
 BAM_ID="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\S*' | sort -u | cut -d \: -f 2)"
 BAM_LIST="${TMP_DIR}/bam.list"
 OUT_DIR="${PREFIX}/${BAM_HOST}/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}"
+JOB_LOG="${OUT_DIR}/job_log"
 
 echo "[$(date)]
 OUT_DIR:    $OUT_DIR
@@ -158,6 +159,28 @@ fi
 echo "[$(date)] Creating BAM_LIST"
 echo "$BAM_ID $BAM_FILE" > $BAM_LIST
 
+echo "[$(date)] Recording job info"
+echo "---" >> $JOB_LOG
+echo "start: $(date)" >> $JOB_LOG
+echo "jobid: $JOB_ID" >> $JOB_LOG
+echo "out_dir: $OUT_DIR" >> $JOB_LOG
+echo "tmp_dir: $TMP_DIR" >> $JOB_LOG
+echo "ref_dir: $REF_DIR" >> $JOB_LOG
+echo "pipeline: $PIPELINE" >> $JOB_LOG
+echo "gc_conf: $GOTCLOUD_CONF" >> $JOB_LOG
+echo "gc_root: $GOTCLOUD_ROOT" >> $JOB_LOG
+echo "gotcloud: $(which gotcloud)" >> $JOB_LOG
+echo "delay: $DELAY" >> $JOB_LOG
+echo "bam: $BAM_FILE" >> $JOB_LOG
+echo "bam_id: $BAM_ID" >> $JOB_LOG
+echo "bam_center: $BAM_CENTER" >> $JOB_LOG
+echo "bam_list: $BAM_LIST" >> $JOB_LOG
+echo "bam_pi: $BAM_PI" >> $JOB_LOG
+echo "bam_db_id: $BAM_DB_ID" >> $JOB_LOG
+echo "bam_host: $BAM_HOST" >> $JOB_LOG
+echo "fastq_list: $FASTQ_LIST" >> $JOB_LOG
+echo "node: $NODE" >> $JOB_LOG
+
 if [ ! -z $DELAY ]; then
   echo "[$(date)] Delaying execution for ${DELAY} minutes"
   sleep "${DELAY}m"
@@ -174,6 +197,8 @@ gotcloud pipe              \
 
 rc=$?
 
+echo "pipe_rc: $rc" >> $JOB_LOG
+
 if [ "$rc" -ne 0 ]; then
   echo "[$(date)] $PIPELINE failed with exit code $rc" 1>&2
   topmed update --bamid $BAM_DB_ID --state failed
@@ -189,6 +214,7 @@ else
     --ref_dir   $REF_DIR
 
   rc=$?
+  echo "align_rc: $rc" >> $JOB_LOG
 
   if [ "$rc" -ne 0 ]; then
     echo "[$(date)] Alignment failed with exit code $rc" 1>&2
@@ -203,4 +229,5 @@ echo "[$(date)] Purging $TMP_DIR on $NODE"
 rm -rf $TMP_DIR
 
 echo "[$(date)] Exiting [RC: $rc]"
+echo "end: $(date)" >> $JOB_LOG
 exit $rc
