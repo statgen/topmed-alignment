@@ -8,13 +8,14 @@ use Topmed::Base;
 use Topmed::DB;
 use Topmed::Config;
 
-my $align_status = q{topmed.latest.alignstatus};
+my $align_status = q{/net/1000g/hmkang/etc/nowseq/topmed/topmed.latest.alignstatus};
 my @results      = parse_align_status($align_status);
 my $db           = Topmed::DB->new();
 my $config       = Topmed::Config->new();
 
 for my $result (@results) {
   my @indexes = indexes {$_->{state} =~ /ALIGN_COMPLETE/} @{$result->{results}};
+
   if (@indexes) {
     my $record = $result->{results}->[$indexes[0]];
     my $path   = Path::Class::File->new($result->{orig_bam});
@@ -22,42 +23,69 @@ for my $result (@results) {
     my $name   = $comps[-1];
     my $bam    = $db->resultset('Bamfile')->search({bamname => $name})->first;
 
-    if ($bam->status < $BAM_STATUS{completed}) {
+    unless (defined $bam) {
+      print Dumper $record;
+    } elsif ($bam->status != $BAM_STATUS{completed}) {
+      #print Dumper $bam->bamid . ' => ' . $bam->datemapping . ' => ' . $bam->mapping->status;
+      #
       next unless $bam->mapping->cluster;
-      next if $bam->mapping->cluster eq 'csg';
-      (my $job_id = $bam->mapping->job_id) =~ s/\.nyx(?:\.arc\-ts\.umich\.edu)?//g;
+      if ($bam->mapping->cluster eq 'csg') {
+#       chomp(my $job_state = capture(EXIT_ANY, sprintf $JOB_STATE_CMD_FORMAT{$bam->mapping->cluster}, $bam->mapping->job_id));
+#       run('scancel ' . $bam->mapping->job_id);
+#       $bam->update({datemapping => time()});
+#       $bam->mapping->update({status => $bam->datemapping});
+#       say 'cancelled ' . $bam->mapping->job_id;
+      } elsif ($bam->mapping->cluster eq 'flux') {
+        chomp(my $job_state = capture(EXIT_ANY, sprintf $JOB_STATE_CMD_FORMAT{$bam->mapping->cluster}, $bam->mapping->job_id));
+        print Dumper $bam->bamid;
+      }
+    }
+  }
 
-      chomp(my $job_state = capture(EXIT_ANY, sprintf $JOB_STATE_CMD_FORMAT{$bam->mapping->cluster}, $job_id));
+# my @indexes = indexes {$_->{state} =~ /ALIGN_COMPLETE/} @{$result->{results}};
+# if (@indexes) {
+#   my $record = $result->{results}->[$indexes[0]];
+#   my $path   = Path::Class::File->new($result->{orig_bam});
+#   my @comps  = $path->components();
+#   my $name   = $comps[-1];
+#   my $bam    = $db->resultset('Bamfile')->search({bamname => $name})->first;
 
-      if ($job_state =~ /running/i) {
-        say 'Completing BAM: ' . $bam->mapping->job_id;
+#   if ($bam->status < $BAM_STATUS{completed}) {
+#     next unless $bam->mapping->cluster;
+#     next if $bam->mapping->cluster eq 'csg';
+#     (my $job_id = $bam->mapping->job_id) =~ s/\.nyx(?:\.arc\-ts\.umich\.edu)?//g;
+
+#     chomp(my $job_state = capture(EXIT_ANY, sprintf $JOB_STATE_CMD_FORMAT{$bam->mapping->cluster}, $job_id));
+
+#     if ($job_state =~ /running/i) {
+#       say 'Completing BAM: ' . $bam->mapping->job_id;
 #        run('scancel ' . $bam->mapping->job_id);
 #        $bam->update({datemapping => $BAM_STATUS{completed}});
 #        $bam->mapping->update({status => $BAM_STATUS{completed}});
 
-      } elsif ($job_state =~ /pending/i) {
-        say 'Completing BAM: ' . $bam->mapping->job_id;
+#     } elsif ($job_state =~ /pending/i) {
+#       say 'Completing BAM: ' . $bam->mapping->job_id;
 #        run('scancel ' . $bam->mapping->job_id);
 #        $bam->update({datemapping => $BAM_STATUS{completed}});
 #        $bam->mapping->update({status => $BAM_STATUS{completed}});
 
-      } elsif ($job_state =~ /cancel/i) {
-        say 'Marking complete just in case ' . $bam->mapping->job_id;
+#     } elsif ($job_state =~ /cancel/i) {
+#       say 'Marking complete just in case ' . $bam->mapping->job_id;
 #        $bam->update({datemapping => $BAM_STATUS{completed}});
 #        $bam->mapping->update({status => $BAM_STATUS{completed}});
-      } elsif ($job_state == 0) {
+#     } elsif ($job_state == 0) {
 #       run('qdel ' . $job_id);
 
 #       my $now = time();
 #       $bam->update({datemapping => $now});
 #       $bam->mapping->update({status => $now});
 
-        say $bam->status_line . 'State: [' . $job_state . ']' . ' JOBID: ' . $job_id;
-      } else {
-        say $bam->status_line;
-      }
-    }
-  }
+#       say $bam->status_line . 'State: [' . $job_state . ']' . ' JOBID: ' . $job_id;
+#     } else {
+#       say $bam->status_line;
+#     }
+#   }
+# }
 
 # my @indexes = indexes {$_->{state} =~ /ALIGN_COMPLETE/} @{$result->{results}};
 # if (scalar @indexes > 1) {
