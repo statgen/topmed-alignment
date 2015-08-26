@@ -15,11 +15,11 @@ sub startup : Test(startup) {
   $test->{fixtures} = {
     cluster      => 'csg',
     bam_path     => qq{$BAM_FILE_PREFIX{csg}/illumina/2015may27.remainder/LP6008062-DNA_F07.hg19.bam},
-    results_path => qq{$CLUSTER_PREFIX{csg}/topmed/$BAM_RESULTS_DIR/illumina/Barnes/LP6008062-DNA_F07},
-    cram_path    => qq{$CLUSTER_PREFIX{csg}/topmed/$BAM_RESULTS_DIR/illumina/Barnes/LP6008062-DNA_F07/bams/LP6008062-DNA_F07.recal.cram},
-    crai_path    => qq{$CLUSTER_PREFIX{csg}/topmed/$BAM_RESULTS_DIR/illumina/Barnes/LP6008062-DNA_F07/bams/LP6008062-DNA_F07.recal.cram.crai},
+    results_path => qq{$CLUSTER_PREFIX{csg}/topmed/$BAM_RESULTS_DIR/illumina/Barnes/NWD646250},
+    cram_path    => qq{$CLUSTER_PREFIX{csg}/topmed/$BAM_RESULTS_DIR/illumina/Barnes/NWD646250/bams/NWD646250.recal.cram},
+    crai_path    => qq{$CLUSTER_PREFIX{csg}/topmed/$BAM_RESULTS_DIR/illumina/Barnes/NWD646250/bams/NWD646250.recal.cram.crai},
     pi           => q{Barnes},
-    sample_id    => q{LP6008062-DNA_F07},
+    sample_id    => q{NWD646250},
     id           => q{2758},
     host         => q{topmed},
     center       => q{illumina},
@@ -38,7 +38,6 @@ sub setup : Test(setup => 1) {
   $test->{bam} = $test->class->new(
     cluster   => $fixtures->{cluster},
     id        => $fixtures->{id},
-    sample_id => $fixtures->{sample_id},
     center    => $fixtures->{center},
     rundir    => $fixtures->{rundir},
     name      => $fixtures->{name},
@@ -84,7 +83,7 @@ sub test_cram : Test(1) {
   my $bam      = $test->{bam};
   my $fixtures = $test->{fixtures};
 
-  # diag($bam->cram);
+  diag($bam->cram);
   is($bam->cram, $fixtures->{cram_path}, 'cram path matches');
 }
 
@@ -94,7 +93,7 @@ sub test_crai : Test(1) {
   my $bam      = $test->{bam};
   my $fixtures = $test->{fixtures};
 
-  # diag($bam->crai);
+  diag($bam->crai);
   is($bam->crai, $fixtures->{crai_path}, 'cram path matches');
 }
 
@@ -103,6 +102,16 @@ sub test_is_complete : Test(1) {
 
   my $bam = $test->{bam};
   ok($bam->is_complete, 'BAM is complete');
+}
+
+sub test_sample_id : Test(1) {
+  my ($test) = @_;
+
+  my $bam = $test->{bam};
+  my $fixtures = $test->{fixtures};
+
+  # diag($bam->sample_id);
+  is($bam->sample_id, $fixtures->{sample_id}, 'sample id matches');
 }
 
 1;
