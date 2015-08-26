@@ -9,14 +9,14 @@
 #SBATCH --workdir=/net/topmed/working/schelcj/logs/align
 #SBATCH --partition=nomosix
 #SBATCH --mail-type=FAIL
-#SBATCH --mail-user=schelcj@umich.edu
+#SBATCH --mail-user=topmed-alignment@umich.edu
 #SBATCH --job-name=align-topmed
 
 #PBS -l nodes=1:ppn=4,walltime=242:00:00,pmem=4gb
 #PBS -l ddisk=50gb
 #PBS -m a
 #PBS -d /dept/csg/topmed/working/schelcj/logs/align
-#PBS -M schelcj@umich.edu
+#PBS -M topmed-alignment@umich.edu
 #PBS -q flux
 #PBS -l qos=flux
 #PBS -A goncalo_flux
