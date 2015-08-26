@@ -12,3 +12,6 @@ requires 'Makefile::Parser';
 requires 'IPC::System::Simple';
 requires 'DateTime';
 requires 'DateTime::Format::MySQL';
+requires 'File::Stat';
+
+requires 'Test::Class';

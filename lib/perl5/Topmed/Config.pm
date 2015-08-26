@@ -12,6 +12,8 @@ our @EXPORT = (
     %JOB_STATE_CMD_FORMAT
     $BAM_HOST_PRIMARY
     $BAM_STATUS_LINE_FMT
+    $BAM_RESULTS_DIR
+    %CLUSTER_PREFIX
     %BAM_FILE_PREFIX
     %BAM_STATUS
     @TIME_REMAINING_FORMAT_REGEXPS
@@ -26,6 +28,8 @@ our @EXPORT_OK = (
     %JOB_STATE_CMD_FORMAT
     $BAM_HOST_PRIMARY
     $BAM_STATUS_LINE_FMT
+    $BAM_RESULTS_DIR
+    %CLUSTER_PREFIX
     %BAM_FILE_PREFIX
     %BAM_STATUS
     @TIME_REMAINING_FORMAT_REGEXPS
@@ -41,6 +45,8 @@ our %EXPORT_TAGS = (
       %JOB_STATE_CMD_FORMAT
       $BAM_HOST_PRIMARY
       $BAM_STATUS_LINE_FMT
+      $BAM_RESULTS_DIR
+      %CLUSTER_PREFIX
       %BAM_FILE_PREFIX
       %BAM_STATUS
       @TIME_REMAINING_FORMAT_REGEXPS
@@ -51,10 +57,16 @@ our %EXPORT_TAGS = (
 Readonly::Scalar our $BATCH_SCRIPT        => qq{$Bin/../align.sh};
 Readonly::Scalar our $BAM_HOST_PRIMARY    => 'topmed';
 Readonly::Scalar our $BAM_STATUS_LINE_FMT => q{ID: %-8s %-30s center: %-10s study: %-10s PI: %-15s Status: %-10s Cluster: %-5s};
+Readonly::Scalar our $BAM_RESULTS_DIR     => q{working/schelcj/results};
+
+Readonly::Hash our %CLUSTER_PREFIX => (
+  csg  => '/net',
+  flux => '/dept/csg',
+);
 
 Readonly::Hash our %BAM_FILE_PREFIX => (
-  csg  => '/net/topmed/incoming/topmed',
-  flux => '/dept/csg/topmed/incoming/topmed',
+  csg  => qq{$CLUSTER_PREFIX{csg}/topmed/incoming/topmed},
+  flux => qq{$CLUSTER_PREFIX{flux}/topmed/incoming/topmed},
 );
 
 Readonly::Hash our %BAM_STATUS => (
