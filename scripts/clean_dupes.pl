@@ -8,7 +8,7 @@ use Topmed::Base;
 use Topmed::DB;
 use Topmed::Config;
 
-my $align_status = q{/net/1000g/hmkang/etc/nowseq/topmed/topmed.latest.alignstatus};
+my $align_status = q{../tmp/topmed.latest.alignstatus};
 my @results      = parse_align_status($align_status);
 my $db           = Topmed::DB->new();
 my $config       = Topmed::Config->new();
@@ -36,8 +36,18 @@ for my $result (@results) {
 #       $bam->mapping->update({status => $bam->datemapping});
 #       say 'cancelled ' . $bam->mapping->job_id;
       } elsif ($bam->mapping->cluster eq 'flux') {
-        chomp(my $job_state = capture(EXIT_ANY, sprintf $JOB_STATE_CMD_FORMAT{$bam->mapping->cluster}, $bam->mapping->job_id));
-        print Dumper $bam->bamid;
+        (my $job_id = $bam->mapping->job_id) =~ s/\.nyx(?:\.arc\-ts\.umich\.edu)?//g;
+        chomp(my $job_state = capture(EXIT_ANY, sprintf $JOB_STATE_CMD_FORMAT{$bam->mapping->cluster}, $job_id));
+        unless ($job_state) {
+          #run('qdel ' . $bam->mapping->job_id);
+          #$bam->update({datemapping => time()});
+          #$bam->mapping->update({status => $bam->datemapping});
+          #say 'cancelled ' . $bam->mapping->job_id;
+        }
+
+        if ($job_state == 153) {
+          print Dumper $bam->mapping->job_id;
+        }
       }
     }
   }
