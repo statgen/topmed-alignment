@@ -11,6 +11,7 @@ our @IMPORT_MODULES = (
   'Readonly',
   'File::Slurp::Tiny' => [qw(read_file read_lines)],
   'File::Spec',
+  'File::Basename',
   'List::MoreUtils' => [qw(all any none)],
   'Path::Class',
   'IPC::System::Simple' => [qw(run capture EXIT_ANY)],
