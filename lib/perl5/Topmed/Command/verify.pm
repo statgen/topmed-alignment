@@ -34,7 +34,9 @@ sub execute {
 
   my $db = Topmed::DB->new();
 
-  for my $bam_rs ($db->resultset('Bamfile')->search({datemapping => {'>=' => $BAM_STATUS{completed}}})) {
+  for my $bam_rs ($db->resultset('Bamfile')->all()) {
+    next unless $bam_rs->status == $BAM_STATUS{completed};
+
     my $bam = Topmed::BAM->new(
       cluster => $opts->{cluster},
       id      => $bam_rs->bamid,
