@@ -148,6 +148,11 @@ GC_CONF:    $GOTCLOUD_CONF
 GC_ROOT:    $GOTCLOUD_ROOT
 "
 
+if [ -e $OUT_DIR ]; then
+  echo "[$(date)] Found existing OUT_DIR deleting"
+  rm -rfv $OUT_DIR
+fi
+
 echo "[$(date)] Creating OUT_DIR and TMP_DIR"
 mkdir -p $OUT_DIR $TMP_DIR
 
