@@ -13,5 +13,8 @@ requires 'IPC::System::Simple';
 requires 'DateTime';
 requires 'DateTime::Format::MySQL';
 requires 'File::Stat';
+requires 'MooseX::AbstractFactory';
+requires 'WWW::Mechanize';
+requires 'JSON::Any';
 
 requires 'Test::Class';

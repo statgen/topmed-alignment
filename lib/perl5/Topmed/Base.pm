@@ -19,6 +19,13 @@ our @IMPORT_MODULES = (
   'DateTime',
 );
 
-our %IMPORT_BUNDLES = ();
+our %IMPORT_BUNDLES = (
+  www => [
+    qw(
+      WWW::Mechanize
+      JSON::Any
+      )
+  ]
+);
 
 1;
