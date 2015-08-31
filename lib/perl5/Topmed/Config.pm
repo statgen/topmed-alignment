@@ -10,13 +10,16 @@ our @EXPORT = (
     %JOB_CMDS
     %JOB_OUTPUT_REGEXP
     %JOB_STATE_CMD_FORMAT
+    %JOB_ELAPSED_TIME_FORMAT
+    %JOB_STATES
     $BAM_HOST_PRIMARY
     $BAM_STATUS_LINE_FMT
     $BAM_RESULTS_DIR
+    $FLUX_KIBANA_URL_FMT
     %CLUSTER_PREFIX
     %BAM_FILE_PREFIX
     %BAM_STATUS
-    @TIME_REMAINING_FORMAT_REGEXPS
+    @TIME_FORMAT_REGEXPS
     )
 );
 
@@ -26,13 +29,16 @@ our @EXPORT_OK = (
     %JOB_CMDS
     %JOB_OUTPUT_REGEXP
     %JOB_STATE_CMD_FORMAT
+    %JOB_ELAPSED_TIME_FORMAT
+    %JOB_STATES
     $BAM_HOST_PRIMARY
     $BAM_STATUS_LINE_FMT
     $BAM_RESULTS_DIR
+    $FLUX_KIBANA_URL_FMT
     %CLUSTER_PREFIX
     %BAM_FILE_PREFIX
     %BAM_STATUS
-    @TIME_REMAINING_FORMAT_REGEXPS
+    @TIME_FORMAT_REGEXPS
     )
 );
 
@@ -43,21 +49,27 @@ our %EXPORT_TAGS = (
       %JOB_CMDS
       %JOB_OUTPUT_REGEXP
       %JOB_STATE_CMD_FORMAT
+      %JOB_ELAPSED_TIME_FORMAT
+      %JOB_STATES
       $BAM_HOST_PRIMARY
       $BAM_STATUS_LINE_FMT
       $BAM_RESULTS_DIR
+      $FLUX_KIBANA_URL_FMT
       %CLUSTER_PREFIX
       %BAM_FILE_PREFIX
       %BAM_STATUS
-      @TIME_REMAINING_FORMAT_REGEXPS
+      @TIME_FORMAT_REGEXPS
       )
   ]
 );
+
+Readonly::Scalar my $DB_CONNECTION_INFO => qq{$Bin/../../.db_connections/topmed};
 
 Readonly::Scalar our $BATCH_SCRIPT        => qq{$Bin/../align.sh};
 Readonly::Scalar our $BAM_HOST_PRIMARY    => 'topmed';
 Readonly::Scalar our $BAM_STATUS_LINE_FMT => q{ID: %-8s %-30s center: %-10s study: %-10s PI: %-15s Status: %-10s Cluster: %-5s};
 Readonly::Scalar our $BAM_RESULTS_DIR     => q{working/schelcj/results};
+Readonly::Scalar our $FLUX_KIBANA_URL_FMT => q{https://kibana.arc-ts.umich.edu/logstash-joblogs-%d.*/pbsacctlog/_search};
 
 Readonly::Hash our %CLUSTER_PREFIX => (
   csg  => '/net',
@@ -89,30 +101,41 @@ Readonly::Hash our %JOB_OUTPUT_REGEXP => (
 );
 
 Readonly::Hash our %JOB_STATE_CMD_FORMAT => (
-#  flux => q{checkjob -v %d > /dev/null 2>&1 && echo $?},
+
+  #  flux => q{checkjob -v %d > /dev/null 2>&1 && echo $?},
   flux => q{qstat -f -e %d > /dev/null 2>&1 ; echo $?},
-  csg  => q{sacct -j %d -X -n -o state%%7},
+  csg  => q{sacct -j %d -X -n -o state%%20},
 );
 
-Readonly::Array our @TIME_REMAINING_FORMAT_REGEXPS => (
+Readonly::Hash our %JOB_ELAPSED_TIME_FORMAT => (
+  flux => undef,
+  csg  => q{sacct -j %d -X -n -o elapsed},
+);
 
-  # dd-hh:mm:ss
-  qr/(?<days>\d{1,2})\-(?<hours>\d{1,2}):\d{2}:\d{2}/,
+Readonly::Hash our %JOB_STATES => (
+  RUNNING   => 'running',
+  COMPLETED => 'completed',
+  FAILED    => 'failed',
+  REQUEUED  => 'requeued',
+  CANCELLED => 'cancelled',
+  0         => 'running',
+  153       => 'not_running',
+);
 
-  # dd:hh:mm:ss
-  qr/(?<days>\d{1,2}):(?<hours>\d{2}):\d{2}:\d{2}/,
+Readonly::Array our @TIME_FORMAT_REGEXPS => (
+
+  # dd-hh:mm:ss or dd:hh:mm:ss
+  qr/(?<days>\d{1,2})(?:\-|:)(?<hours>\d{2}):(?<minutes>\d{2}):(?<seconds>\d{2})/,
 
   # hh:mm:ss
-  qr/(?<hours>\d{1,2}):\d{2}:\d{2}/,
+  qr/(?<hours>\d{1,2}):(?<minutes>\d{2}):(?<seconds>\d{2})/,
 
   # hh:mm
-  qr/(?<hours>\d{1,2}):\d{2}/,
+  qr/(?<hours>\d{1,2}):(?<minutes>\d{2})/,
 
   # sssssss
   qr/(?<seconds>\d{1,7})/,
 );
-
-Readonly::Scalar my $DB_CONNECTION_INFO => qq{$Bin/../../.db_connections/topmed};
 
 has '_conn'   => (is => 'ro', isa => 'HashRef', lazy => 1, builder => '_build__conn');
 has 'db'      => (is => 'ro', isa => 'Str',     lazy => 1, builder => '_build_db');

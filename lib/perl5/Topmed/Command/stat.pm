@@ -53,7 +53,7 @@ sub execute {
 sub parse_time {
   my ($time) = @_;
 
-  for my $regexp (@TIME_REMAINING_FORMAT_REGEXPS) {
+  for my $regexp (@TIME_FORMAT_REGEXPS) {
     if ($time =~ $regexp) {
       return (($+{days} * 24) + $+{hours}) if $+{days} and $+{hours};
       return $+{hours} if $+{hours};

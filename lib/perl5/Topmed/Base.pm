@@ -22,8 +22,10 @@ our @IMPORT_MODULES = (
 our %IMPORT_BUNDLES = (
   www => [
     qw(
+      URI
+      URI::QueryParam
+      JSON::MaybeXS
       WWW::Mechanize
-      JSON::Any
       )
   ]
 );
