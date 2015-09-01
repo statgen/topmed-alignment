@@ -11,4 +11,11 @@ requires 'Moose';
 requires 'Makefile::Parser';
 requires 'IPC::System::Simple';
 requires 'DateTime';
+requires 'DateTime::Duration';
 requires 'DateTime::Format::MySQL';
+requires 'File::Stat';
+requires 'MooseX::AbstractFactory';
+requires 'WWW::Mechanize';
+requires 'JSON::MaybeXS';
+
+requires 'Test::Class';

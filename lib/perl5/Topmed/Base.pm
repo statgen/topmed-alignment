@@ -12,12 +12,22 @@ our @IMPORT_MODULES = (
   'File::Slurp::Tiny' => [qw(read_file read_lines)],
   'File::Spec',
   'File::Basename',
+  'File::Stat',
   'List::MoreUtils' => [qw(all any none)],
   'Path::Class',
   'IPC::System::Simple' => [qw(run capture EXIT_ANY)],
   'DateTime',
 );
 
-our %IMPORT_BUNDLES = ();
+our %IMPORT_BUNDLES = (
+  www => [
+    qw(
+      URI
+      URI::QueryParam
+      JSON::MaybeXS
+      WWW::Mechanize
+      )
+  ]
+);
 
 1;

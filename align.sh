@@ -148,12 +148,30 @@ GC_CONF:    $GOTCLOUD_CONF
 GC_ROOT:    $GOTCLOUD_ROOT
 "
 
+if [ -e $OUT_DIR ]; then
+  echo "[$(date)] Found existing OUT_DIR deleting"
+  rm -rfv $OUT_DIR
+
+  if [ $? -ne 0 ]; then
+    echo "[$(date)] Failed to remove existing OUT_DIR"
+    exit 70
+  fi
+fi
+
 echo "[$(date)] Creating OUT_DIR and TMP_DIR"
 mkdir -p $OUT_DIR $TMP_DIR
 
 if [ $? -ne 0 ]; then
   echo "[$(date)] Failed to create OUT_DIR and or TMP_DIR"
-  exit 70
+  exit 80
+fi
+
+echo "[$(date)] Setting permissions on TMP_DIR"
+chmod 750 $TMP_DIR
+
+if [ $? -ne 0 ]; then
+  echo "[$(date)] Failed to set permissions on TMP_DIR"
+  exit 90
 fi
 
 echo "[$(date)] Creating BAM_LIST"
