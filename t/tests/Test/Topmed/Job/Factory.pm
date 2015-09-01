@@ -18,13 +18,11 @@ sub startup : Test(startup => 1) {
   $test->{fixtures}->{clusters} = {
     Csg => {
       job_id  => 12520268,
-      elasped => 42,
       state   => 'completed',
     },
     Flux => {
-      job_id  => 456,
-      elapsed => 42,
-      state   => 'completed',
+      job_id  => 16700562,
+      state   => 'not_running',
     }
   };
 
@@ -41,7 +39,9 @@ sub setup : Test(setup) {
 }
 
 sub test_elapsed_csg_imp : Test(3) {
+  return 'wrong cluster' unless $ENV{TEST_CLUSTER} eq 'Csg';
   my ($test) = @_;
+
   my $job = $test->{fixtures}->{jobs}->{Csg};
 
   # 2-22:30:45
@@ -57,19 +57,40 @@ sub test_elapsed_csg_imp : Test(3) {
   is($job->elapsed->seconds, $elapsed->seconds, 'elapsed seconds match');
 }
 
-sub test_state_csg_imp : Test(2) {
+sub test_state_csg : Test(2) {
+  return 'wrong cluster' unless $ENV{TEST_CLUSTER} eq 'Csg';
   my ($test) = @_;
-  my $job = $test->{fixtures}->{jobs}->{Csg};
+
+  my $job   = $test->{fixtures}->{jobs}->{Csg};
+  my $state = $test->{fixtures}->{clusters}->{Csg}->{state};
 
   can_ok($job, 'state');
-  is($job->state, 'completed', 'state matches');
+  is($job->state, $state, 'state matches');
 }
 
-sub test_flux_meths : Test(2) {
+sub test_elapse_flux_imp : Test(3) {
+  return 'wrong cluster' unless $ENV{TEST_CLUSTER} eq 'Flux';
+  my ($test) = @_;
+  # 00:02:19
+}
+
+sub test_state_flux_imp : Test(2) {
+  return 'wrong cluster' unless $ENV{TEST_CLUSTER} eq 'Flux';
   my ($test) = @_;
 
-  my $url =
-    q{https://kibana.arc-ts.umich.edu/logstash-joblogs-2015.*/pbsacctlog/_search?fields=resources_used.walltime&q=jobid%3A456};
+  my $job   = $test->{fixtures}->{jobs}->{Flux};
+  my $state = $test->{fixtures}->{clusters}->{Flux}->{state};
+
+  diag($state);
+  can_ok($job, 'state');
+  is($job->state, $state, 'state matches');
+}
+
+sub test_flux_logstash : Test(2) {
+  return 'wrong cluster' unless $ENV{TEST_CLUSTER} eq 'Flux';
+  my ($test) = @_;
+
+  my $url = q{https://kibana.arc-ts.umich.edu/logstash-joblogs-2015.*/pbsacctlog/_search?fields=resources_used.walltime&q=jobid%3A16700562};
   my $job = $test->{fixtures}->{jobs}->{Flux};
   can_ok($job, '_logstash_url');
   is($job->_logstash_url, $url, 'logstash url matches');

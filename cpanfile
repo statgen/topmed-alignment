@@ -19,3 +19,5 @@ requires 'WWW::Mechanize';
 requires 'JSON::MaybeXS';
 
 requires 'Test::Class';
+requires 'Test::Most';
+requires 'Test::More';
