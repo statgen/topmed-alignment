@@ -16,14 +16,14 @@ while (<STDIN>) {
 }
 
 my ($min, $max) = minmax(values %jobs);
-say "Average Hours: " . $total / scalar keys %jobs;
+say "Average Hours: " . sprintf '%.2f', $total / scalar keys %jobs;
 say "Max Hours: " . $max;
 say "Total Hours: $total";
 
 sub parse_time {
   my ($time) = @_;
 
-  for my $regexp (@TIME_REMAINING_FORMAT_REGEXPS) {
+  for my $regexp (@TIME_FORMAT_REGEXPS) {
     if ($time =~ $regexp) {
       return (($+{days} * 24) + $+{hours}) if $+{days} and $+{hours};
       return $+{hours} if $+{hours};
