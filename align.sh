@@ -197,6 +197,7 @@ echo "bam_pi: $BAM_PI" >> $JOB_LOG
 echo "bam_db_id: $BAM_DB_ID" >> $JOB_LOG
 echo "bam_host: $BAM_HOST" >> $JOB_LOG
 echo "fastq_list: $FASTQ_LIST" >> $JOB_LOG
+echo "cluster: $CLST_ENV" >> $JOB_LOG
 echo "node: $NODE" >> $JOB_LOG
 
 if [ ! -z $DELAY ]; then

@@ -15,7 +15,7 @@ sub opt_spec {
 sub validate_args {
   my ($self, $opts, $args) = @_;
 
-  if ($opts->{time_left} and none {$opts->{time_left} =~ $_} @TIME_REMAINING_FORMAT_REGEXPS) {
+  if ($opts->{time_left} and none {$opts->{time_left} =~ $_} @TIME_FORMAT_REGEXPS) {
     $self->usage_error('Invalid time format');
   }
 
@@ -41,7 +41,7 @@ sub execute {
       $db->resultset('Mapping')->search({status => {'>=' => $BAM_STATUS{completed}}, cluster => 'flux'})->count(),
       $db->resultset('Mapping')->search({status => {'>=' => $BAM_STATUS{completed}}, cluster => 'csg'})->count(),
       $db->resultset('Mapping')->search({status => {'>=' => $BAM_STATUS{completed}}, cluster => undef})->count();
-    printf "Failed: %4d\n",    $db->resultset('Bamfile')->search({datemapping => $BAM_STATUS{failed}})->count();
+    printf "Failed: %5d\n",    $db->resultset('Bamfile')->search({datemapping => $BAM_STATUS{failed}})->count();
     printf "Submitted: %-10d (pending/running)\n", $db->resultset('Mapping')->search({status => $BAM_STATUS{submitted}})->count();
     printf "Requested: %-10d (ready for submission)\n", $db->resultset('Mapping')->search({status => $BAM_STATUS{requested}})->count();
     printf "Cancelled: %d\n", $db->resultset('Mapping')->search({status => $BAM_STATUS{cancelled}})->count();

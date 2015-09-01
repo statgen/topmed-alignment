@@ -69,11 +69,29 @@ __PACKAGE__->table("bamfiles");
   is_nullable: 1
   size: 96
 
-=head2 nwdid
+=head2 phs
 
   data_type: 'varchar'
   is_nullable: 1
-  size: 32
+  size: 12
+
+=head2 phs_consent_short_name
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 24
+
+=head2 phs_sra_sample_id
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 24
+
+=head2 phs_sra_data_details
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 255
 
 =head2 checksum
 
@@ -135,6 +153,12 @@ __PACKAGE__->table("bamfiles");
   is_nullable: 1
   size: 12
 
+=head2 datecram
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 12
+
 =head2 datebai
 
   data_type: 'varchar'
@@ -160,6 +184,12 @@ __PACKAGE__->table("bamfiles");
   size: 12
 
 =head2 jobidbackup
+
+  data_type: 'varchar'
+  is_nullable: 1
+  size: 12
+
+=head2 jobidcram
 
   data_type: 'varchar'
   is_nullable: 1
@@ -217,8 +247,14 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 0, size => 96 },
   "piname",
   { data_type => "varchar", is_nullable => 1, size => 96 },
-  "nwdid",
-  { data_type => "varchar", is_nullable => 1, size => 32 },
+  "phs",
+  { data_type => "varchar", is_nullable => 1, size => 12 },
+  "phs_consent_short_name",
+  { data_type => "varchar", is_nullable => 1, size => 24 },
+  "phs_sra_sample_id",
+  { data_type => "varchar", is_nullable => 1, size => 24 },
+  "phs_sra_data_details",
+  { data_type => "varchar", is_nullable => 1, size => 255 },
   "checksum",
   { data_type => "varchar", is_nullable => 0, size => 96 },
   "refname",
@@ -239,6 +275,8 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 1, size => 12 },
   "datebackup",
   { data_type => "varchar", is_nullable => 1, size => 12 },
+  "datecram",
+  { data_type => "varchar", is_nullable => 1, size => 12 },
   "datebai",
   { data_type => "varchar", is_nullable => 1, size => 12 },
   "datecp2ncbi",
@@ -248,6 +286,8 @@ __PACKAGE__->add_columns(
   "jobidmd5ver",
   { data_type => "varchar", is_nullable => 1, size => 12 },
   "jobidbackup",
+  { data_type => "varchar", is_nullable => 1, size => 12 },
+  "jobidcram",
   { data_type => "varchar", is_nullable => 1, size => 12 },
   "jobidbai",
   { data_type => "varchar", is_nullable => 1, size => 12 },
@@ -276,8 +316,8 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key("bamid");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07043 @ 2015-08-21 11:19:38
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:UdXhM47mKekT3GEs06qogQ
+# Created by DBIx::Class::Schema::Loader v0.07043 @ 2015-09-01 08:27:13
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:eu9jw1DalX16MIgd/f4pcg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
