@@ -17,6 +17,7 @@ requires 'File::Stat';
 requires 'MooseX::AbstractFactory';
 requires 'WWW::Mechanize';
 requires 'JSON::MaybeXS';
+requires 'Class::CSV';
 
 requires 'Test::Class';
 requires 'Test::Most';

@@ -17,6 +17,7 @@ our @IMPORT_MODULES = (
   'Path::Class',
   'IPC::System::Simple' => [qw(run capture EXIT_ANY)],
   'DateTime',
+  'Class::CSV',
 );
 
 our %IMPORT_BUNDLES = (
