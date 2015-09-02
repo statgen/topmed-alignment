@@ -81,7 +81,7 @@ sub execute {
 
     unless ($bam) {
       say "No match BAM for jobid $opts->{jobid}";
-      next
+      return;
     }
 
     say $bam->status_line;
