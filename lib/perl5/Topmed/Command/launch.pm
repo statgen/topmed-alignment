@@ -130,7 +130,10 @@ sub execute {
     unless ($opts->{'dry_run'}) {
       my $job_id = undef;
       my $output = q{};
-      my $cmd    = System::Command->new(($JOB_CMDS{$clst}, $BATCH_SCRIPT), $job_env);
+      my $cmd    = System::Command->new(($JOB_CMDS{$clst}, $BATCH_SCRIPT, $JOB_NAME_OPT{$clst}, $bam->expt_sampleid), $job_env);
+
+      print Dumper $cmd->cmdline() if $self->app->global_options->{debug};
+
       my $stdout = $cmd->stdout();
       while (<$stdout>) {$output .= $_;}
 

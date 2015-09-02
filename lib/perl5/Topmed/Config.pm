@@ -12,6 +12,7 @@ our @EXPORT = (
     %JOB_STATE_CMD_FORMAT
     %JOB_ELAPSED_TIME_FORMAT
     %JOB_STATES
+    %JOB_NAME_OPT
     $BAM_HOST_PRIMARY
     $BAM_STATUS_LINE_FMT
     $BAM_RESULTS_DIR
@@ -31,6 +32,7 @@ our @EXPORT_OK = (
     %JOB_STATE_CMD_FORMAT
     %JOB_ELAPSED_TIME_FORMAT
     %JOB_STATES
+    %JOB_NAME_OPT
     $BAM_HOST_PRIMARY
     $BAM_STATUS_LINE_FMT
     $BAM_RESULTS_DIR
@@ -51,6 +53,7 @@ our %EXPORT_TAGS = (
       %JOB_STATE_CMD_FORMAT
       %JOB_ELAPSED_TIME_FORMAT
       %JOB_STATES
+      %JOB_NAME_OPT
       $BAM_HOST_PRIMARY
       $BAM_STATUS_LINE_FMT
       $BAM_RESULTS_DIR
@@ -63,7 +66,7 @@ our %EXPORT_TAGS = (
   ]
 );
 
-Readonly::Scalar my $DB_CONNECTION_INFO => qq{$Bin/../../.db_connections/topmed};
+Readonly::Scalar my $DB_CONNECTION_INFO => $ENV{TOPMED_DB_CONNECTION_INFO} // qq{$Bin/../../.db_connections/topmed};
 
 Readonly::Scalar our $BATCH_SCRIPT        => qq{$Bin/../align.sh};
 Readonly::Scalar our $BAM_HOST_PRIMARY    => 'topmed';
@@ -110,6 +113,11 @@ Readonly::Hash our %JOB_STATE_CMD_FORMAT => (
 Readonly::Hash our %JOB_ELAPSED_TIME_FORMAT => (
   flux => undef,
   csg  => q{sacct -j %d -X -n -o elapsed},
+);
+
+Readonly::Hash our %JOB_NAME_OPT => (
+  flux => '-N',
+  csg  => '-J',
 );
 
 Readonly::Hash our %JOB_STATES => (
