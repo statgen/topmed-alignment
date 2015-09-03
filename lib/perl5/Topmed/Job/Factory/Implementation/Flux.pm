@@ -2,11 +2,12 @@ package Topmed::Job::Factory::Implementation::Flux;
 
 use Topmed::Base qw(www);
 use Topmed::Config;
+use Topmed::Util qw(:parsers);
 
 use Moose;
 
 has 'job_id' => (is => 'ro', isa => 'Int', required => 1);
-has '_logstash_url' => (is => 'ro', isa => 'URI', lazy => 1, builder => '_build__logstash_url');
+has '_logstash_url' => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build__logstash_url');
 
 sub _build__logstash_url {
   my ($self) = @_;
@@ -20,12 +21,17 @@ sub _build__logstash_url {
     }
   );
 
-  return $uri;
+  return $uri->as_string;
 }
 
 sub elapsed {
   my ($self) = @_;
-  return 42;
+
+  my $ua       = Mojo::UserAgent->new();
+  my $stash    = $ua->get($self->_logstash_url)->res->json;
+  my $walltime = $stash->{hits}->{hits}->[2]->{fields}->{'resources_used.walltime'}->[0];
+
+  return parse_time($walltime);
 }
 
 sub state {

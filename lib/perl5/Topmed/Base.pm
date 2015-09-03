@@ -26,7 +26,7 @@ our %IMPORT_BUNDLES = (
       URI
       URI::QueryParam
       JSON::MaybeXS
-      WWW::Mechanize
+      Mojo::UserAgent
       )
   ]
 );

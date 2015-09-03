@@ -16,8 +16,10 @@ requires 'DateTime::Format::MySQL';
 requires 'File::Stat';
 requires 'MooseX::AbstractFactory';
 requires 'WWW::Mechanize';
+requires 'Mojo::UserAgent';
 requires 'JSON::MaybeXS';
 requires 'Class::CSV';
+requires 'IO::Socket::SSL';
 
 requires 'Test::Class';
 requires 'Test::Most';
