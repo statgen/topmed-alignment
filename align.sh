@@ -254,14 +254,14 @@ if [ "$rc" -ne 0 ]; then
 
   max_runs=10
   run_count=$(find $RUN_DIR -maxdepth 1 -type d|wc -l)
-  runs=$(find $RUN_DIR -maxdepth 1 -type d|sort)
+  runs=$(find $RUN_DIR/* -maxdepth 1 -type d|sort)
 
   if [ $run_count -gt $max_runs ]; then
     count=0
     for run in $runs; do
       if [ $(($run_count - $max_runs)) -gt $count ]; then
-        echo "[$(date)] Purging past run from RUN_DIR"
-        rm -rfv $run
+        echo "[$(date)] Purging run [$(basename $run)] from RUN_DIR"
+        rm -rf $run
       fi
 
       count=$(($count + 1))
