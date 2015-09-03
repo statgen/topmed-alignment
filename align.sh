@@ -128,11 +128,13 @@ BAM_ID="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\S*' | sort -u 
 BAM_LIST="${TMP_DIR}/bam.list"
 OUT_DIR="${PREFIX}/${BAM_HOST}/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}"
 JOB_LOG="${OUT_DIR}/job_log"
+RUN_DIR="${PROJECT_DIR}/../run"
 
 echo "[$(date)]
 OUT_DIR:    $OUT_DIR
 TMP_DIR:    $TMP_DIR
 REF_DIR:    $REF_DIR
+RUN_DIR:    $RUN_DIR
 BAM:        $BAM_FILE
 BAM_ID:     $BAM_ID
 BAM_CENTER: $BAM_CENTER
@@ -185,6 +187,7 @@ echo "jobid: $JOB_ID" >> $JOB_LOG
 echo "out_dir: $OUT_DIR" >> $JOB_LOG
 echo "tmp_dir: $TMP_DIR" >> $JOB_LOG
 echo "ref_dir: $REF_DIR" >> $JOB_LOG
+echo "run_dir: $RUN_DIR" >> $JOB_LOG
 echo "pipeline: $PIPELINE" >> $JOB_LOG
 echo "gc_conf: $GOTCLOUD_CONF" >> $JOB_LOG
 echo "gc_root: $GOTCLOUD_ROOT" >> $JOB_LOG
@@ -245,8 +248,29 @@ else
   fi
 fi
 
-echo "[$(date)] Purging $TMP_DIR on $NODE"
-rm -rf $TMP_DIR
+if [ "$rc" -ne 0 ]; then
+  echo "[$(date)] Alignment failed, moving TMP_DIR to RUN_DIR"
+  mv $TMP_DIR $RUN_DIR
+
+  max_runs=10
+  run_count=$(find $RUN_DIR -maxdepth 1 -type d|wc -l)
+  runs=$(find $RUN_DIR -maxdepth 1 -type d|sort)
+
+  if [ $run_count -gt $max_runs ]; then
+    count=0
+    for run in $runs; do
+      if [ $(($run_count - $max_runs)) -gt $count ]; then
+        echo "[$(date)] Purging past run from RUN_DIR"
+        rm -rfv $run
+      fi
+
+      count=$(($count + 1))
+    done
+  fi
+else
+  echo "[$(date)] Purging $TMP_DIR on $NODE"
+  rm -rf $TMP_DIR
+fi
 
 echo "[$(date)] Exiting [RC: $rc]"
 echo "end: $(date)" >> $JOB_LOG
