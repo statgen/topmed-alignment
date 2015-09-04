@@ -23,7 +23,6 @@
 #PBS -V
 #PBS -j oe
 #PBS -N align-topmed
-#PBS -l epilogue.precancel=/dept/csg/topmed/working/schelcj/align/epilog-fail-flux.sh
 
 echo "[$(date)] Starting remapping pipeline"
 
