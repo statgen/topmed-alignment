@@ -97,6 +97,7 @@ sub execute {
 
   for my $bam ($db->resultset('Bamfile')->search($search, $attrs)) {
     next if $bam->status >= $BAM_STATUS{submitted} and not $opts->{bamid};
+    next unless $bam->status == $BAM_STATUS{requested};
     next unless $bam->has_arrived();
     last if $opts->{limit} and ++$jobs > $opts->{limit};
 
