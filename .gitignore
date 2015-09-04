@@ -1,3 +1,4 @@
 local.flux/
 local.csg/
 cpanfile.snapshot
+gotcloud.conf.*.test
