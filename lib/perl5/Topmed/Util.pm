@@ -56,6 +56,7 @@ sub parse_align_status {
 
 sub parse_time {
   my ($time) = @_;
+  return unless defined $time;
 
   for my $regexp (@TIME_FORMAT_REGEXPS) {
     return DateTime::Duration->new(%+) if $time =~ $regexp;
