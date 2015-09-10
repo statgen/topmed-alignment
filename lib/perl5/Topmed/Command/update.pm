@@ -87,6 +87,11 @@ sub execute {
         next;
       }
 
+      unless ($job->elapsed_seconds) {
+        say 'No record walltime yet for job id [' . $map->job_id . ']' if $self->app->global_options->{verbose};
+        next;
+      }
+
       if ($self->app->global_options->{verbose}) {
         say 'Recorded walltime of ' . $job->elapsed_seconds . ' for job id ' . $map->job_id;
       }
