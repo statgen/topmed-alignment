@@ -11,15 +11,17 @@ sub opt_spec {
     ['jobid|j=s',   'Record the job id that processed the BAM'],
     ['state|s=s',   'Mark the bam as [requested|failed|completed|cancelled|submitted]'],
     ['cluster|c=s', 'Cluster that bam/job is running on [csg|flux]'],
-    ['elapsed|e',   'Record the elapsed time for a given jobid'],
+    ['elapsed',     'Record the elapsed time for all completed jobs for the given cluster'],
   );
 }
 
 sub validate_args {
   my ($self, $opts, $args) = @_;
 
-  unless ($opts->{bamid} or $opts->{jobid}) {
-    $self->usage_error('BAM DB ID or job id are required');
+  unless ($opts->{elapsed}) {
+    unless ($opts->{bamid} or $opts->{jobid}) {
+      $self->usage_error('BAM DB ID or job id are required');
+    }
   }
 
   if ($opts->{state}) {
@@ -68,15 +70,30 @@ sub execute {
 
   if ($opts->{elapsed}) {
     die 'Required parameter(s) cluster missing' unless $opts->{cluster};
-    (my $job_id = $bam->mapping->job_id) =~ s/\.nyx(?:\.arc\-ts\.umich\.edu)//g;
-    my $job = Topmed::Job::Factory->create(ucfirst($opts->{cluster}), {job_id => $job_id});
 
-    unless (defined $job->elapsed) {
-      say "No record walltime yet for job id [$job_id]";
-      return;
+    my $maps = $db->resultset('Mapping')->search(
+      {
+        status   => {'>=' => $BAM_STATUS{completed}},
+        cluster  => $opts->{cluster},
+        walltime => 0,
+      }
+    );
+
+    for my $map ($maps->all()) {
+      my $job = Topmed::Job::Factory->create(ucfirst($opts->{cluster}), {job_id => $map->job_id});
+
+      unless (defined $job->elapsed) {
+        say 'No record walltime yet for job id [' . $map->job_id . ']' if $self->app->global_options->{verbose};
+        next;
+      }
+
+      if ($self->app->global_options->{verbose}) {
+        say 'Recorded walltime of ' . $job->elapsed_seconds . ' for job id ' . $map->job_id;
+      }
+
+      $map->update({walltime => $job->elapsed_seconds});
     }
 
-    print Dumper $job->job_id . ' => ' . $job->elapsed_seconds;
     return;
   }
 

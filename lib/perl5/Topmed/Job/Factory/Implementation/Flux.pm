@@ -6,8 +6,14 @@ use Topmed::Util qw(:parsers);
 
 use Moose;
 
-has 'job_id' => (is => 'ro', isa => 'Int', required => 1);
+has 'job_id' => (is => 'ro', isa => 'Str', required => 1);
 has '_logstash_url' => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build__logstash_url');
+
+around 'job_id' => sub {
+  my ($orig, $self) = @_;
+  (my $job_id = $self->$orig()) =~ s/\.nyx(?:\.arc\-ts\.umich\.edu)//g;
+  return $job_id;
+};
 
 sub _build__logstash_url {
   my ($self) = @_;
