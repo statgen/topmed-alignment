@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS `nhlbi`.`mappings` (
   `status` INT(2) NULL DEFAULT NULL,
   `cluster` VARCHAR(45) NULL DEFAULT NULL,
   `delay` INT(3) NULL DEFAULT NULL,
+  `walltime` INT(11) NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC),
   UNIQUE INDEX `idx_bam_id` (`bam_id` ASC),
