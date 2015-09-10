@@ -135,8 +135,8 @@ Readonly::Array our @TIME_FORMAT_REGEXPS => (
   # dd-hh:mm:ss or dd:hh:mm:ss
   qr/(?<days>\d{1,2})(?:\-|:)(?<hours>\d{2}):(?<minutes>\d{2}):(?<seconds>\d{2})/,
 
-  # hh:mm:ss
-  qr/(?<hours>\d{1,2}):(?<minutes>\d{2}):(?<seconds>\d{2})/,
+  # hhh:mm:ss
+  qr/(?<hours>\d{1,3}):(?<minutes>\d{2}):(?<seconds>\d{2})/,
 
   # hh:mm
   qr/(?<hours>\d{1,2}):(?<minutes>\d{2})/,

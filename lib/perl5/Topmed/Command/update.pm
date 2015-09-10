@@ -3,26 +3,33 @@ package Topmed::Command::update;
 use Topmed -command;
 use Topmed::Base;
 use Topmed::Config;
+use Topmed::Job::Factory;
 
 sub opt_spec {
   return (
-    ['bamid|b=i', 'ID From topmed db of BAM to update'],
-    ['jobid|j=s', 'Record the job id that processed the BAM'],
-    ['state|s=s', 'Mark the bam as [requested|failed|completed|cancelled|submitted]'],
+    ['bamid|b=i',   'ID From topmed db of BAM to update'],
+    ['jobid|j=s',   'Record the job id that processed the BAM'],
+    ['state|s=s',   'Mark the bam as [requested|failed|completed|cancelled|submitted]'],
+    ['cluster|c=s', 'Cluster that bam/job is running on [csg|flux]'],
+    ['elapsed|e',   'Record the elapsed time for a given jobid'],
   );
 }
 
 sub validate_args {
   my ($self, $opts, $args) = @_;
 
-  unless ($self->app->global_options->{help} or $opts->{bamid}) {
-    $self->usage_error('BAM DB ID is required');
+  unless ($opts->{bamid} or $opts->{jobid}) {
+    $self->usage_error('BAM DB ID or job id are required');
   }
 
   if ($opts->{state}) {
     unless (any {$opts->{state} eq $_} keys %BAM_STATUS) {
       $self->usage_error('Invalid state specificed');
     }
+  }
+
+  if ($opts->{cluster} and $opts->{cluster} !~ /csg|flux/) {
+    $self->usage_error('Invalid cluster specified');
   }
 
   if ($self->app->global_options->{help}) {
@@ -36,9 +43,16 @@ sub execute {
   my ($self, $opts, $args) = @_;
 
   my $db  = Topmed::DB->new();
-  my $bam = $db->resultset('Bamfile')->find($opts->{bamid});
+  my $bam = undef;
 
-  die "BAM [$opts->{bamid}] does not exist in the db" unless $bam;
+  if ($opts->{bamid}) {
+    $bam = $db->resultset('Bamfile')->find($opts->{bamid});
+    die "BAM [$opts->{bamid}] does not exist in the db" unless $bam;
+  } elsif ($opts->{jobid}) {
+    my $mapping = $db->resultset('Mapping')->search({job_id => {like => $opts->{jobid} . '%'}})->first;
+    die "Job [$opts->{jobid}] does not exist in the db" unless $mapping;
+    $bam = $mapping->bam;
+  }
 
   if ($opts->{state}) {
     my $status = ($opts->{state} eq 'completed') ? time() : $BAM_STATUS{$opts->{state}};
@@ -52,7 +66,21 @@ sub execute {
     );
   }
 
-  if ($opts->{jobid}) {
+  if ($opts->{elapsed}) {
+    die 'Required parameter(s) cluster missing' unless $opts->{cluster};
+    (my $job_id = $bam->mapping->job_id) =~ s/\.nyx(?:\.arc\-ts\.umich\.edu)//g;
+    my $job = Topmed::Job::Factory->create(ucfirst($opts->{cluster}), {job_id => $job_id});
+
+    unless (defined $job->elapsed) {
+      say "No record walltime yet for job id [$job_id]";
+      return;
+    }
+
+    print Dumper $job->job_id . ' => ' . $job->elapsed_seconds;
+    return;
+  }
+
+  if ($opts->{jobid} and $opts->{bamid}) {
     $bam->update({jobidmapping => $opts->{jobid}});
     $bam->mapping->update(
       {

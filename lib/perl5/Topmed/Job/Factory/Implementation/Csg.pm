@@ -15,6 +15,11 @@ sub elapsed {
   return parse_time($time);
 }
 
+sub elapsed_seconds {
+  my $e = shift->elapsed;
+  return ($e->days * 24 * 3600) + ($e->hours * 3600) + ($e->minutes * 60) + $e->seconds;
+}
+
 sub state {
   my ($self) = @_;
   my $cmd = sprintf $JOB_STATE_CMD_FORMAT{csg}, $self->job_id;

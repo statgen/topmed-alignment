@@ -6,6 +6,7 @@ requires(
   qw(
     job_id
     elapsed
+    elapsed_seconds
     state
     )
 );

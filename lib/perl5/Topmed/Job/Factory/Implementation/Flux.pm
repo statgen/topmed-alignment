@@ -27,11 +27,21 @@ sub _build__logstash_url {
 sub elapsed {
   my ($self) = @_;
 
-  my $ua       = Mojo::UserAgent->new();
-  my $stash    = $ua->get($self->_logstash_url)->res->json;
-  my $walltime = $stash->{hits}->{hits}->[2]->{fields}->{'resources_used.walltime'}->[0];
+  my $ua    = Mojo::UserAgent->new();
+  my $stash = $ua->get($self->_logstash_url)->res->json;
 
-  return parse_time($walltime);
+  for my $hit (@{$stash->{hits}->{hits}}) {
+    if (exists $hit->{fields}) {
+      return parse_time($hit->{fields}->{'resources_used.walltime'}->[0]);
+    }
+  }
+
+  return;
+}
+
+sub elapsed_seconds {
+  my $e = shift->elapsed;
+  return ($e->days * 24 * 3600) + ($e->hours * 3600) + ($e->minutes * 60) + $e->seconds;
 }
 
 sub state {
