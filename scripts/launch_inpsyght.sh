@@ -8,5 +8,5 @@ for bam in "${BAMS[@]}"; do
   export SAMPLE_ID="$(samtools view -H $bam| grep '^@RG' | grep -o 'SM:\S*' | sort -u | cut -d \: -f 2)"
 
   echo "Submitting BAM: $BAM_FILE for alignment with SAMPLE_ID: $SAMPLE_ID with initial DELAY: $DELAY"
-  echo "qsub -N $SAMPLE_ID batch.d/inpsyght.sh"
+  qsub -N $SAMPLE_ID batch.d/inpsyght.sh
 done

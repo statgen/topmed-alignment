@@ -48,13 +48,15 @@ if [ ! -z $SLURM_JOB_ID ]; then
   PREFIX="/net"
   ALIGN_THREADS=6
 
-  for id in $(ls -1 $TMP_DIR); do
-    job_state="$(sacct -j $id -X -n -o state%7)"
-    if [ "$job_state" != "RUNNING " ]; then # XXX - left trailing space on purpose
-      echo "[$(date)] Removing stale job tmp directory for job id: $id"
-      echo "rm -rf $TMP_DIR/$id" # XXX - debug
-    fi
-  done
+  if [ -d $TMP_DIR ]; then
+    for id in $(ls -1 $TMP_DIR); do
+      job_state="$(sacct -j $id -X -n -o state%7)"
+      if [ "$job_state" != "RUNNING " ]; then # XXX - left trailing space on purpose
+        echo "[$(date)] Removing stale job tmp directory for job id: $id"
+        rm -rf $TMP_DIR/$id
+      fi
+    done
+  fi
 
 elif [ ! -z $PBS_JOBID ]; then
   JOB_ID=$PBS_JOBID
@@ -63,13 +65,15 @@ elif [ ! -z $PBS_JOBID ]; then
   PREFIX="/dept/csg"
   ALIGN_THREADS=4
 
-  for id in $(ls -1 $TMP_DIR); do
-    qstat -f -e $id > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-      echo "[$(date)] Removing stale job tmp directory for job id: $id"
-      echo "rm -rf $TMP_DIR/$id" # XXX - debug
-    fi
-  done
+  if [ -d $TMP_DIR ]; then
+    for id in $(ls -1 $TMP_DIR); do
+      qstat -f -e $id > /dev/null 2>&1
+      if [ $? -ne 0 ]; then
+        echo "[$(date)] Removing stale job tmp directory for job id: $id"
+        rm -rf $TMP_DIR/$id
+      fi
+    done
+  fi
 
 else
   echo "[$(date)] Unknown cluster environment"
@@ -103,7 +107,7 @@ GC_CONF:    $GOTCLOUD_CONF
 
 if [ -e $OUT_DIR ]; then
   echo "[$(date)] Found existing OUT_DIR deleting"
-  echo "rm -rfv $OUT_DIR" # XXX - debug
+  rm -rfv $OUT_DIR
 
   if [ $? -ne 0 ]; then
     echo "[$(date)] Failed to remove existing OUT_DIR"
@@ -112,7 +116,7 @@ if [ -e $OUT_DIR ]; then
 fi
 
 echo "[$(date)] Creating OUT_DIR and TMP_DIR"
-echo "mkdir -p $OUT_DIR $TMP_DIR" # XXX - debug
+mkdir -p $OUT_DIR $TMP_DIR
 
 if [ $? -ne 0 ]; then
   echo "[$(date)] Failed to create OUT_DIR and or TMP_DIR"
@@ -120,7 +124,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "[$(date)] Setting permissions on TMP_DIR"
-echo "chmod 750 $TMP_DIR" # XXX - debug
+chmod 750 $TMP_DIR
 
 if [ $? -ne 0 ]; then
   echo "[$(date)] Failed to set permissions on TMP_DIR"
@@ -153,18 +157,16 @@ echo "node: $NODE" >> $JOB_LOG
 
 if [ ! -z $DELAY ]; then
   echo "[$(date)] Delaying execution for ${DELAY} minutes"
-  # sleep "${DELAY}m" # XXX - debug
+  sleep ${DELAY}m
 fi
 
 echo "[$(date)] Beginning gotcloud pipeline"
-echo "
 gotcloud pipe              \
   --name    $PIPELINE      \
   --conf    $GOTCLOUD_CONF \
   --numjobs 1              \
   --ref_dir $REF_DIR       \
   --outdir  $TMP_DIR
-" # XXX - debug
 
 rc=$?
 
@@ -174,7 +176,6 @@ if [ "$rc" -ne 0 ]; then
   echo "[$(date)] $PIPELINE failed with exit code $rc" 1>&2
 else
   echo "[$(date)] Begining gotcloud alignment"
-  echo "
   gotcloud align                   \
     --conf      $GOTCLOUD_CONF     \
     --threads   $ALIGN_THREADS     \
@@ -182,7 +183,6 @@ else
     --fastqlist $FASTQ_LIST        \
     --override  "TMP_DIR=$TMP_DIR" \
     --ref_dir   $REF_DIR
-  " # XXX - debug
 
   rc=$?
   echo "align_rc: $rc" >> $JOB_LOG
@@ -196,7 +196,7 @@ fi
 
 if [ "$rc" -ne 0 ]; then
   echo "[$(date)] Alignment failed, moving TMP_DIR to RUN_DIR"
-  echo "mv $TMP_DIR $RUN_DIR" # XXX - debug
+  mv $TMP_DIR $RUN_DIR
 
   max_runs=10
   run_count=$(find $RUN_DIR -maxdepth 1 -type d|wc -l)
@@ -207,7 +207,7 @@ if [ "$rc" -ne 0 ]; then
     for run in $runs; do
       if [ $(($run_count - $max_runs)) -gt $count ]; then
         echo "[$(date)] Purging run [$(basename $run)] from RUN_DIR"
-        echo "rm -rf $run" # XXX - debug
+        rm -rf $run
       fi
 
       count=$(($count + 1))
@@ -215,7 +215,7 @@ if [ "$rc" -ne 0 ]; then
   fi
 else
   echo "[$(date)] Purging $TMP_DIR on $NODE"
-  echo "rm -rf $TMP_DIR" # XXX - debug
+  rm -rf $TMP_DIR
 fi
 
 echo "[$(date)] Exiting [RC: $rc]"
