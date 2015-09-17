@@ -37,13 +37,15 @@ if [ ! -z $SLURM_JOB_ID ]; then
   PREFIX="/net"
   ALIGN_THREADS=6
 
-  for id in $(ls -1 $TMP_DIR); do
-    job_state="$(sacct -j $id -X -n -o state%7)"
-    if [ "$job_state" != "RUNNING " ]; then # XXX - left trailing space on purpose
-      echo "[$(date)] Removing stale job tmp directory for job id: $id"
-      rm -rf $TMP_DIR/$id
-    fi
-  done
+  if [ -d $TMP_DIR ]; then
+    for id in $(ls -1 $TMP_DIR); do
+      job_state="$(sacct -j $id -X -n -o state%7)"
+      if [ "$job_state" != "RUNNING " ]; then # XXX - left trailing space on purpose
+        echo "[$(date)] Removing stale job tmp directory for job id: $id"
+        rm -rf $TMP_DIR/$id
+      fi
+    done
+  fi
 
 elif [ ! -z $PBS_JOBID ]; then
   JOB_ID=$PBS_JOBID
@@ -52,13 +54,15 @@ elif [ ! -z $PBS_JOBID ]; then
   PREFIX="/dept/csg"
   ALIGN_THREADS=4
 
-  for id in $(ls -1 $TMP_DIR); do
-    qstat -f -e $id > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-      echo "[$(date)] Removing stale job tmp directory for job id: $id"
-      rm -rf $TMP_DIR/$id
-    fi
-  done
+  if [ -d $TMP_DIR ]; then
+    for id in $(ls -1 $TMP_DIR); do
+      qstat -f -e $id > /dev/null 2>&1
+      if [ $? -ne 0 ]; then
+        echo "[$(date)] Removing stale job tmp directory for job id: $id"
+        rm -rf $TMP_DIR/$id
+      fi
+    done
+  fi
 
 else
   echo "[$(date)] Unknown cluster environment"
