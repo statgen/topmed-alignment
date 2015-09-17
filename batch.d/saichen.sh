@@ -22,11 +22,11 @@
 #PBS -V
 #PBS -j oe
 
-TMP_DIR="/tmp/saichen"
-RUN_DIR="/net/esp/saichen/mapping.run"
+TMP_DIR="/tmp/gecco"
+RUN_DIR="/net/topmed/working/gecco/mapping.run"
 GOTCLOUD_CONF="/net/topmed/working/schelcj/align/gotcloud.conf.csg"
-PIPELINE="binBam2fastq"
-BAM_CENTER="saichen"
+PIPELINE="bam2fastq"
+BAM_CENTER="gecco"
 BAM_HOST=$BAM_CENTER
 
 echo "[$(date)] Starting remapping pipeline"
