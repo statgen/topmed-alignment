@@ -24,7 +24,7 @@
 
 TMP_DIR="/tmp/inpsyght"
 RUN_DIR="/dept/csg/inpsyght/mapping.run"
-GOTCLOUD_CONF="/dept/csg/topmed/working/schelcj/gotcloud.conf.flux"
+GOTCLOUD_CONF="/dept/csg/topmed/working/schelcj/align/gotcloud.conf.flux"
 PIPELINE="binBam2fastq"
 BAM_CENTER="inpsyght"
 BAM_HOST=$BAM_CENTER
