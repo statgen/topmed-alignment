@@ -6,7 +6,7 @@
 #SBATCH --mem=15000
 #SBATCH --gres=tmp:sata:200
 #SBATCH --time=10-02:00:00
-#SBATCH --workdir=/net/esp/saichen/mapping.logs
+#SBATCH --workdir=/net/topmed/working/gecco/mapping.logs
 #SBATCH --partition=nomosix
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=schelcj@umich.edu
@@ -14,7 +14,7 @@
 #PBS -l nodes=1:ppn=4,walltime=242:00:00,pmem=4gb
 #PBS -l ddisk=50gb
 #PBS -m a
-#PBS -d /dept/esp/saichen/mapping.logs
+#PBS -d /dept/csg/topmed/working/gecco/mapping.logs
 #PBS -M schelcj@umich.edu
 #PBS -q flux
 #PBS -l qos=flux
@@ -27,7 +27,7 @@ RUN_DIR="/net/topmed/working/gecco/mapping.run"
 GOTCLOUD_CONF="/net/topmed/working/schelcj/align/gotcloud.conf.csg"
 PIPELINE="bam2fastq"
 BAM_CENTER="gecco"
-BAM_HOST=$BAM_CENTER
+BAM_HOST="topmed"
 
 echo "[$(date)] Starting remapping pipeline"
 
@@ -84,7 +84,7 @@ REF_DIR="${PREFIX}/topmed/working/mktrost/gotcloud.ref"
 TMP_DIR="${TMP_DIR}/${JOB_ID}"
 FASTQ_LIST="${TMP_DIR}/fastq.list"
 BAM_LIST="${TMP_DIR}/bam.list"
-OUT_DIR="${PREFIX}/${BAM_HOST}/mapping.results/${SAMPLE_ID}"
+OUT_DIR="${PREFIX}/${BAM_HOST}/working/${BAM_CENTER}/mapping.results/${SAMPLE_ID}"
 JOB_LOG="${OUT_DIR}/job_log"
 
 echo "[$(date)]
