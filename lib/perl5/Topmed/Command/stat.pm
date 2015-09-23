@@ -41,7 +41,7 @@ sub execute {
       $db->resultset('Mapping')->search({status => {'>=' => $BAM_STATUS{completed}}, cluster => 'flux'})->count(),
       $db->resultset('Mapping')->search({status => {'>=' => $BAM_STATUS{completed}}, cluster => 'csg'})->count(),
       $db->resultset('Mapping')->search({status => {'>=' => $BAM_STATUS{completed}}, cluster => undef})->count();
-    printf "Failed: %6d\n",    $db->resultset('Bamfile')->search({datemapping => $BAM_STATUS{failed}})->count();
+    printf "Failed: %4d\n",    $db->resultset('Bamfile')->search({datemapping => $BAM_STATUS{failed}})->count();
     printf "Submitted: %-10d (pending/running)\n", $db->resultset('Bamfile')->search({datemapping => $BAM_STATUS{submitted}})->count();
     printf "Requested: %-10d (ready for submission)\n", $db->resultset('Bamfile')->search([{datemapping => $BAM_STATUS{requested}}, {datemapping => undef}])->count();
     printf "Cancelled: %d\n", $db->resultset('Bamfile')->search({datemapping => $BAM_STATUS{cancelled}})->count();
