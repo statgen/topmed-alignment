@@ -119,7 +119,7 @@ sub execute {
       say "Job state was '$state'" if $self->app->global_options->{debug};
       next if $state eq '';
 
-      unless ($state =~ /running|pending|requeu|0/i) {
+      unless ($state =~ /$VALID_JOB_STATES{$opts->{cluster}}/i) {
         say $bam->status_line . " JobId: $job_id State: $state";
       }
     }

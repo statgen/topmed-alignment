@@ -12,6 +12,7 @@ our @EXPORT = (
     %JOB_STATE_CMD_FORMAT
     %JOB_ELAPSED_TIME_FORMAT
     %JOB_STATES
+    %VALID_JOB_STATES
     %JOB_NAME_OPT
     $BAM_HOST_PRIMARY
     $BAM_STATUS_LINE_FMT
@@ -32,6 +33,7 @@ our @EXPORT_OK = (
     %JOB_STATE_CMD_FORMAT
     %JOB_ELAPSED_TIME_FORMAT
     %JOB_STATES
+    %VALID_JOB_STATES
     %JOB_NAME_OPT
     $BAM_HOST_PRIMARY
     $BAM_STATUS_LINE_FMT
@@ -53,6 +55,7 @@ our %EXPORT_TAGS = (
       %JOB_STATE_CMD_FORMAT
       %JOB_ELAPSED_TIME_FORMAT
       %JOB_STATES
+      %VALID_JOB_STATES
       %JOB_NAME_OPT
       $BAM_HOST_PRIMARY
       $BAM_STATUS_LINE_FMT
@@ -128,6 +131,11 @@ Readonly::Hash our %JOB_STATES => (
   CANCELLED => 'cancelled',
   0         => 'running',
   153       => 'not_running',
+);
+
+Readonly::Hash our %VALID_JOB_STATES => (
+  csg  => qr/running|pending|requeu/i,
+  flux => qr/0/,
 );
 
 Readonly::Array our @TIME_FORMAT_REGEXPS => (
