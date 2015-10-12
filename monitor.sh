@@ -4,13 +4,13 @@
 #SBATCH --time=28-0
 #SBATCH --partition=topmed
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=schelcj@umich.edu
+#SBATCH --mail-user=topmed-alignment@umich.edu
 #SBATCH --workdir=/net/topmed/working/schelcj/logs/monitor
 #SBATCH --job-name=monitor-topmed
 
 #PBS -l qos=flux,procs=1,walltime=672:00:00,mem=1gb
 #PBS -m abe
-#PBS -M schelcj@umich.edu
+#PBS -M topmed-alignment@umich.edu
 #PBS -A goncalo_flux
 #PBS -q flux
 #PBS -V
