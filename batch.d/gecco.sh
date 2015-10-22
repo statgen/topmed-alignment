@@ -2,10 +2,10 @@
 
 #SBATCH --ignore-pbs
 #SBATCH --nodes=1-1
-#SBATCH --cpus-per-task=6
-#SBATCH --mem=15000
+#SBATCH --cpus-per-task=12
+#SBATCH --mem=30000
 #SBATCH --gres=tmp:sata:200
-#SBATCH --time=10-02:00:00
+#SBATCH --time=20-02:00:00
 #SBATCH --workdir=/net/topmed/working/gecco/mapping.logs
 #SBATCH --partition=nomosix
 #SBATCH --mail-type=FAIL
@@ -46,7 +46,7 @@ if [ ! -z $SLURM_JOB_ID ]; then
   NODE=$SLURM_JOB_NODELIST
   CLST_ENV="csg"
   PREFIX="/net"
-  ALIGN_THREADS=6
+  ALIGN_THREADS=12
 
   if [ -d $TMP_DIR ]; then
     for id in $(ls -1 $TMP_DIR); do
