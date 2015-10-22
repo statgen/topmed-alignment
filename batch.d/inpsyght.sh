@@ -7,7 +7,7 @@
 #SBATCH --gres=tmp:sata:200
 #SBATCH --time=28-00:00:00
 #SBATCH --workdir=/net/inpsyght/mapping.logs
-#SBATCH --partition=inpsyght,bipolar
+#SBATCH --partition=bipolar
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=schelcj@umich.edu
 
