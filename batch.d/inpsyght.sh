@@ -45,6 +45,7 @@ if [ ! -z $SLURM_JOB_ID ]; then
   CLST_ENV="csg"
   PREFIX="/net"
   ALIGN_THREADS=12
+  OUT_DIR="${PREFIX}/${BAM_HOST}/mapping.results2/${SAMPLE_ID}"
 
   if [ -d $TMP_DIR ]; then
     for id in $(ls -1 $TMP_DIR); do
@@ -62,6 +63,7 @@ elif [ ! -z $PBS_JOBID ]; then
   CLST_ENV="flux"
   PREFIX="/dept/csg"
   ALIGN_THREADS=12
+  OUT_DIR="${PREFIX}/${BAM_HOST}/mapping.results/${SAMPLE_ID}"
 
   if [ -d $TMP_DIR ]; then
     for id in $(ls -1 $TMP_DIR); do
@@ -79,12 +81,11 @@ else
 fi
 
 RUN_DIR="${PREFIX}/inpsyght/mapping.run"
-GOTCLOUD_CONF="${PREFIX}/topmed/working/schelcj/align/gotcloud.conf.csg"
+GOTCLOUD_CONF="${PREFIX}/topmed/working/schelcj/align/gotcloud.conf.${CLST_ENV}"
 REF_DIR="${PREFIX}/topmed/working/mktrost/gotcloud.ref"
 TMP_DIR="${TMP_DIR}/${JOB_ID}"
 FASTQ_LIST="${TMP_DIR}/fastq.list"
 BAM_LIST="${TMP_DIR}/bam.list"
-OUT_DIR="${PREFIX}/${BAM_HOST}/mapping.results2/${SAMPLE_ID}"
 JOB_LOG="${OUT_DIR}/job_log"
 
 echo "[$(date)]
