@@ -9,22 +9,22 @@ OMNI_VCF = $(REF_DIR)/1000G_omni2.5.b38.sites.PASS.vcf.gz
 INDEL_PREFIX = $(REF_DIR)/1kg.pilot_release.merged.indels.sites.hg38
 
 # BWA_THREADS = -t 15
-MAP_TYPE = BWA_MEM
+#MAP_TYPE = BWA_MEM
 
 CHRS = chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22 chrX
 
 #CHRS = chr20
 
 
-EXT_DIR = /net/wonderland/home/mktrost/seqshop_old/2014Dec/singleSample/hg38
-EXT = $(EXT_DIR)/ALL.CHR.phase3.combined.sites.unfiltered.vcf.gz $(EXT_DIR)/CHR.filtered.sites.vcf.gz
+#EXT_DIR = /net/wonderland/home/mktrost/seqshop_old/2014Dec/singleSample/hg38
+#EXT = $(EXT_DIR)/ALL.CHR.phase3.combined.sites.unfiltered.vcf.gz $(EXT_DIR)/CHR.filtered.sites.vcf.gz
 
-UNIT_CHUNK = 20000000      # Chunk size of SNP calling : 20Mb
+#UNIT_CHUNK = 20000000      # Chunk size of SNP calling : 20Mb
 
-VCF_EXTRACT = $(EXT_DIR)/snpOnly.vcf.gz
-MODEL_GLFSINGLE = TRUE
-MODEL_SKIP_DISCOVER = FALSE
-MODEL_AF_PRIOR = TRUE
+#VCF_EXTRACT = $(EXT_DIR)/snpOnly.vcf.gz
+#MODEL_GLFSINGLE = TRUE
+#MODEL_SKIP_DISCOVER = FALSE
+#MODEL_AF_PRIOR = TRUE
 
 ONE_BWA = 1
 # Set number of bwa threads per bwa run.
