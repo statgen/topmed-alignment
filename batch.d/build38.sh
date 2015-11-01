@@ -2,19 +2,19 @@
 
 #SBATCH --ignore-pbs
 #SBATCH --nodes=1-1
-#SBATCH --cpus-per-task=12
-#SBATCH --mem-per-cpu=4000
+#SBATCH --cpus-per-task=6
+#SBATCH --mem=15000
 #SBATCH --gres=tmp:sata:200
 #SBATCH --time=28-00:00:00
-#SBATCH --workdir=/net/inpsyght/mapping.logs
-#SBATCH --partition=bipolar
+#SBATCH --workdir=/net/topmed/working/build38/logs
+#SBATCH --partition=nomosix
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=schelcj@umich.edu
 
-#PBS -l nodes=1:ppn=12,walltime=672:00:00,pmem=4gb
+#PBS -l nodes=1:ppn=4,walltime=672:00:00,pmem=4gb
 #PBS -l ddisk=50gb
 #PBS -m a
-#PBS -d /dept/csg/inpsyght/mapping.logs
+#PBS -d /dept/csg/topmed/working/build38/logs
 #PBS -M schelcj@umich.edu
 #PBS -q flux
 #PBS -l qos=flux
@@ -22,30 +22,18 @@
 #PBS -V
 #PBS -j oe
 
-TMP_DIR="/tmp/inpsyght"
-PIPELINE="binBam2fastq"
-BAM_CENTER="inpsyght"
-BAM_HOST=$BAM_CENTER
-
 echo "[$(date)] Starting remapping pipeline"
 
-if [ -z $BAM_FILE ]; then
-  echo "[$(date)] BAM_FILE is not defined!"
-  exit 1
-fi
+export PATH=/usr/cluster/bin:/usr/cluster/sbin:$PATH
 
-if [ -z $SAMPLE_ID ]; then
-  echo "[$(date)] SAMPLE_ID is not defined!"
-  exit 1
-fi
+TMP_DIR="/tmp/build38"
 
 if [ ! -z $SLURM_JOB_ID ]; then
   JOB_ID=$SLURM_JOB_ID
   NODE=$SLURM_JOB_NODELIST
   CLST_ENV="csg"
   PREFIX="/net"
-  ALIGN_THREADS=12
-  OUT_DIR="${PREFIX}/${BAM_HOST}/mapping.results2/${SAMPLE_ID}"
+  ALIGN_THREADS=6
 
   if [ -d $TMP_DIR ]; then
     for id in $(ls -1 $TMP_DIR); do
@@ -62,8 +50,7 @@ elif [ ! -z $PBS_JOBID ]; then
   NODE="$(cat $PBS_NODEFILE)"
   CLST_ENV="flux"
   PREFIX="/dept/csg"
-  ALIGN_THREADS=12
-  OUT_DIR="${PREFIX}/${BAM_HOST}/mapping.results/${SAMPLE_ID}"
+  ALIGN_THREADS=4
 
   if [ -d $TMP_DIR ]; then
     for id in $(ls -1 $TMP_DIR); do
@@ -77,16 +64,81 @@ elif [ ! -z $PBS_JOBID ]; then
 
 else
   echo "[$(date)] Unknown cluster environment"
-  exit 1
+  exit 10
 fi
 
-RUN_DIR="${PREFIX}/inpsyght/mapping.run"
-GOTCLOUD_CONF="${PREFIX}/topmed/working/schelcj/align/gotcloud.conf.${CLST_ENV}"
-REF_DIR="${PREFIX}/topmed/working/mktrost/gotcloud.ref"
+PROJECT_DIR="${PREFIX}/topmed/working/schelcj/align"
+GOTCLOUD_CONF="${PROJECT_DIR}/gotcloud.conf.build38.${CLST_ENV}"
+
+case $CLST_ENV in
+  flux)
+    GOTCLOUD_ROOT=/home/software/rhel6/sph/Modules/modulefiles/gotcloud/master
+    REF_DIR="${PREFIX}/flux/gotcloud/ref/hg38"
+    ;;
+  csg)
+    GOTCLOUD_ROOT="${PROJECT_DIR}/../gotcloud.${CLST_ENV}"
+    REF_DIR="/data/local/ref/gotcloud.ref/hg38/"
+    ;;
+esac
+
+export PERL_CARTON_PATH=${PROJECT_DIR}/local.${CLST_ENV}
+export PERL5LIB=${PERL_CARTON_PATH}/lib/perl5:${PROJECT_DIR}/lib/perl5:$PERL5LIB
+export PATH=${GOTCLOUD_ROOT}:${PROJECT_DIR}/bin:${PATH}
+
+if [ -z $BAM_DB_ID ]; then
+  echo "[$(date)] BAM_DB_ID is not defined!"
+  exit 20
+else
+  echo "[$(date)] Updating database with current job id ($JOB_ID)"
+  # topmed update --bamid $BAM_DB_ID --jobid $JOB_ID
+fi
+
+if [ -z $BAM_CENTER ]; then
+  echo "[$(date)] BAM_CENTER is not defined!"
+  # topmed update --bamid $BAM_DB_ID --state failed
+  exit 30
+fi
+
+if [ -z $BAM_FILE ]; then
+  echo "[$(date)] BAM_FILE is not defined!"
+  # topmed update --bamid $BAM_DB_ID --state failed
+  exit 40
+fi
+
+if [ -z $BAM_PI ]; then
+  echo "[$(date)] BAM_PI is not defined!"
+  # topmed update --bamid $BAM_DB_ID --state failed
+  exit 50
+fi
+
+if [ -z $BAM_HOST ]; then
+  echo "[$(date)] BAM_HOST is not defined!"
+  # topmed update --bamid $BAM_DB_ID --state failed
+  exit 60
+fi
+
+case "$BAM_CENTER" in
+  uw)
+    PIPELINE="cleanUpBam2fastq"
+    ;;
+  broad)
+    PIPELINE="binBam2fastq"
+    ;;
+  nygc)
+    PIPELINE="binBam2fastq"
+    ;;
+  *)
+    PIPELINE="bam2fastq"
+    ;;
+esac
+
 TMP_DIR="${TMP_DIR}/${JOB_ID}"
 FASTQ_LIST="${TMP_DIR}/fastq.list"
+BAM_ID="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\S*' | sort -u | cut -d \: -f 2)"
 BAM_LIST="${TMP_DIR}/bam.list"
+OUT_DIR="${PREFIX}/${BAM_HOST}/working/build38/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}"
 JOB_LOG="${OUT_DIR}/job_log"
+RUN_DIR="${PROJECT_DIR}/../../build38/run"
 
 echo "[$(date)]
 OUT_DIR:    $OUT_DIR
@@ -94,9 +146,11 @@ TMP_DIR:    $TMP_DIR
 REF_DIR:    $REF_DIR
 RUN_DIR:    $RUN_DIR
 BAM:        $BAM_FILE
-SAMPLE_ID:  $SAMPLE_ID
+BAM_ID:     $BAM_ID
 BAM_CENTER: $BAM_CENTER
 BAM_LIST:   $BAM_LIST
+BAM_PI:     $BAM_PI
+BAM_DB_ID:  $BAM_DB_ID
 BAM_HOST:   $BAM_HOST
 FASTQ_LIST: $FASTQ_LIST
 NODE:       $NODE
@@ -104,6 +158,7 @@ JOBID:      $JOB_ID
 GOTCLOUD:   $(which gotcloud)
 PIPELINE:   $PIPELINE
 GC_CONF:    $GOTCLOUD_CONF
+GC_ROOT:    $GOTCLOUD_ROOT
 "
 
 if [ -e $OUT_DIR ]; then
@@ -112,7 +167,7 @@ if [ -e $OUT_DIR ]; then
 
   if [ $? -ne 0 ]; then
     echo "[$(date)] Failed to remove existing OUT_DIR"
-    exit 1
+    exit 70
   fi
 fi
 
@@ -121,7 +176,7 @@ mkdir -p $OUT_DIR $TMP_DIR
 
 if [ $? -ne 0 ]; then
   echo "[$(date)] Failed to create OUT_DIR and or TMP_DIR"
-  exit 1
+  exit 80
 fi
 
 echo "[$(date)] Setting permissions on TMP_DIR"
@@ -129,11 +184,11 @@ chmod 750 $TMP_DIR
 
 if [ $? -ne 0 ]; then
   echo "[$(date)] Failed to set permissions on TMP_DIR"
-  exit 1
+  exit 90
 fi
 
 echo "[$(date)] Creating BAM_LIST"
-echo "$SAMPLE_ID $BAM_FILE" > $BAM_LIST
+echo "$BAM_ID $BAM_FILE" > $BAM_LIST
 
 echo "[$(date)] Recording job info"
 echo "---" >> $JOB_LOG
@@ -145,12 +200,15 @@ echo "ref_dir: $REF_DIR" >> $JOB_LOG
 echo "run_dir: $RUN_DIR" >> $JOB_LOG
 echo "pipeline: $PIPELINE" >> $JOB_LOG
 echo "gc_conf: $GOTCLOUD_CONF" >> $JOB_LOG
+echo "gc_root: $GOTCLOUD_ROOT" >> $JOB_LOG
 echo "gotcloud: $(which gotcloud)" >> $JOB_LOG
 echo "delay: $DELAY" >> $JOB_LOG
 echo "bam: $BAM_FILE" >> $JOB_LOG
-echo "sample_id: $SAMPLE_ID" >> $JOB_LOG
+echo "bam_id: $BAM_ID" >> $JOB_LOG
 echo "bam_center: $BAM_CENTER" >> $JOB_LOG
 echo "bam_list: $BAM_LIST" >> $JOB_LOG
+echo "bam_pi: $BAM_PI" >> $JOB_LOG
+echo "bam_db_id: $BAM_DB_ID" >> $JOB_LOG
 echo "bam_host: $BAM_HOST" >> $JOB_LOG
 echo "fastq_list: $FASTQ_LIST" >> $JOB_LOG
 echo "cluster: $CLST_ENV" >> $JOB_LOG
@@ -158,11 +216,12 @@ echo "node: $NODE" >> $JOB_LOG
 
 if [ ! -z $DELAY ]; then
   echo "[$(date)] Delaying execution for ${DELAY} minutes"
-  sleep ${DELAY}m
+  sleep "${DELAY}m"
 fi
 
 echo "[$(date)] Beginning gotcloud pipeline"
 gotcloud pipe              \
+  --gcroot  $GOTCLOUD_ROOT \
   --name    $PIPELINE      \
   --conf    $GOTCLOUD_CONF \
   --numjobs 1              \
@@ -175,9 +234,11 @@ echo "pipe_rc: $rc" >> $JOB_LOG
 
 if [ "$rc" -ne 0 ]; then
   echo "[$(date)] $PIPELINE failed with exit code $rc" 1>&2
+  # topmed update --bamid $BAM_DB_ID --state failed
 else
   echo "[$(date)] Begining gotcloud alignment"
   gotcloud align                   \
+    --gcroot    $GOTCLOUD_ROOT     \
     --conf      $GOTCLOUD_CONF     \
     --threads   $ALIGN_THREADS     \
     --outdir    $OUT_DIR           \
@@ -190,8 +251,10 @@ else
 
   if [ "$rc" -ne 0 ]; then
     echo "[$(date)] Alignment failed with exit code $rc" 1>&2
+    # topmed update --bamid $BAM_DB_ID --state failed
   else
     echo "[$(date)] Alignment completed"
+    # topmed update --bamid $BAM_DB_ID --state completed
   fi
 fi
 
