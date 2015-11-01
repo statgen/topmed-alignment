@@ -22,7 +22,7 @@ for (read_lines($samples, chomp => 1)) {
     DELAY      => int(rand(120)),
   };
 
-  my @cli = ('sbatch', $script, '-J', $job_name);
+  my @cli = ('sbatch', '-J', $job_name, $script);
   my $cmd = System::Command->new(@cli, $job_env);
   print Dumper $cmd->cmdline();
 
@@ -33,6 +33,5 @@ for (read_lines($samples, chomp => 1)) {
   while (<$stderr>) {print $_;}
 
   $cmd->close();
-  exit;
 }
 

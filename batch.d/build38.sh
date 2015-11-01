@@ -69,7 +69,17 @@ fi
 
 PROJECT_DIR="${PREFIX}/topmed/working/schelcj/align"
 GOTCLOUD_CONF="${PROJECT_DIR}/gotcloud.conf.build38.${CLST_ENV}"
-GOTCLOUD_ROOT="${PROJECT_DIR}/../gotcloud.${CLST_ENV}"
+
+case $CLST_ENV in
+  flux)
+    GOTCLOUD_ROOT=/home/software/rhel6/sph/Modules/modulefiles/gotcloud/master
+    REF_DIR="${PREFIX}/flux/gotcloud/ref/hg38"
+    ;;
+  csg)
+    GOTCLOUD_ROOT="${PROJECT_DIR}/../gotcloud.${CLST_ENV}"
+    REF_DIR="/data/local/ref/gotcloud.ref/hg38/"
+    ;;
+esac
 
 export PERL_CARTON_PATH=${PROJECT_DIR}/local.${CLST_ENV}
 export PERL5LIB=${PERL_CARTON_PATH}/lib/perl5:${PROJECT_DIR}/lib/perl5:$PERL5LIB
@@ -122,7 +132,6 @@ case "$BAM_CENTER" in
     ;;
 esac
 
-REF_DIR="/data/local/ref/gotcloud.ref/hg38/"
 TMP_DIR="${TMP_DIR}/${JOB_ID}"
 FASTQ_LIST="${TMP_DIR}/fastq.list"
 BAM_ID="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\S*' | sort -u | cut -d \: -f 2)"
