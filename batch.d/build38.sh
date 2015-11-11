@@ -11,14 +11,14 @@
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=schelcj@umich.edu
 
-#PBS -l nodes=1:ppn=4,walltime=672:00:00,pmem=4gb
+#PBS -l nodes=1:ppn=8,walltime=672:00:00,pmem=4gb
 #PBS -l ddisk=50gb
 #PBS -m a
 #PBS -d /dept/csg/topmed/working/build38/logs
 #PBS -M schelcj@umich.edu
 #PBS -q flux
 #PBS -l qos=flux
-#PBS -A goncalo_flux
+#PBS -A hmkang_flux
 #PBS -V
 #PBS -j oe
 
@@ -72,7 +72,7 @@ GOTCLOUD_CONF="${PROJECT_DIR}/gotcloud.conf.build38.${CLST_ENV}"
 
 case $CLST_ENV in
   flux)
-    GOTCLOUD_ROOT=/home/software/rhel6/sph/Modules/modulefiles/gotcloud/master
+    GOTCLOUD_ROOT=/home/software/rhel6/sph/gotcloud/master
     REF_DIR="${PREFIX}/flux/gotcloud/ref/hg38"
     ;;
   csg)

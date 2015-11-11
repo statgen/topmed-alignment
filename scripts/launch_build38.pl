@@ -5,12 +5,19 @@ use Modern::Perl;
 use Data::Dumper;
 use File::Slurp::Tiny qw(read_lines);
 use System::Command;
+use Getopt::Long;
+
+GetOptions(
+  'samples=s' => \my $samples,
+) or die;
 
 my $script  = qq{$Bin/../batch.d/build38.sh};
-my $samples = q{/net/topmed/working/hmkang/snps/153/data/topmed-dups-rels-153.index};
 
 for (read_lines($samples, chomp => 1)) {
   my ($sample_id, $bam, $cram, $center, $pi) = split(/\t/);
+
+  $bam =~ s#^/net/topmed/incoming/topmed/broad/2015jul03#/nfs/turbo/topmed/incoming/broad/2015jul03#;
+  $bam =~ s#^/net#/dept/csg#;
 
   my $job_name = qq{build38-$sample_id};
   my $job_env = {
@@ -22,9 +29,8 @@ for (read_lines($samples, chomp => 1)) {
     DELAY      => int(rand(120)),
   };
 
-  my @cli = ('sbatch', '-J', $job_name, $script);
-  my $cmd = System::Command->new(@cli, $job_env);
-  print Dumper $cmd->cmdline();
+  my @cli = ('qsub', '-N', $job_name, $script);
+  my $cmd = System::Command->new(@cli, {env => $job_env});
 
   my $stdout = $cmd->stdout();
   while (<$stdout>) {print $_;}
