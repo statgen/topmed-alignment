@@ -11,7 +11,7 @@
 #PBS -l qos=flux,procs=1,walltime=672:00:00,mem=1gb
 #PBS -m abe
 #PBS -M topmed-alignment@umich.edu
-#PBS -A goncalo_flux
+#PBS -A hmkang_flux
 #PBS -q flux
 #PBS -V
 #PBS -j oe
