@@ -10,7 +10,6 @@
 #SBATCH --partition=nomosix
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=topmed-alignment@umich.edu
-#SBATCH --job-name=align-topmed
 
 #PBS -l nodes=1:ppn=4,walltime=242:00:00,pmem=4gb
 #PBS -l ddisk=50gb
@@ -22,7 +21,6 @@
 #PBS -A hmkang_flux
 #PBS -V
 #PBS -j oe
-#PBS -N align-topmed
 
 echo "[$(date)] Starting remapping pipeline"
 
