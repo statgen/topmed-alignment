@@ -19,7 +19,7 @@
 #PBS -M topmed-alignment@umich.edu
 #PBS -q flux
 #PBS -l qos=flux
-#PBS -A goncalo_flux
+#PBS -A hmkang_flux
 #PBS -V
 #PBS -j oe
 #PBS -N align-topmed
