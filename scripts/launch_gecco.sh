@@ -8,6 +8,6 @@ for bam in $*; do
   if [ $SAMPLE_ID -ne '63305' ]; then
     job_name=gecco-${SAMPLE_ID}
     echo "Submitting BAM: $BAM_FILE for alignment with SAMPLE_ID: $SAMPLE_ID with initial DELAY: $DELAY"
-    sbatch -J $job_name batch.d/gecco.sh
+    sbatch -J "gecco-${SAMPLE_ID}" batch.d/gecco.sh
   fi
 done
