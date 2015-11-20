@@ -23,7 +23,7 @@
 #PBS -j oe
 
 TMP_DIR="/tmp/inpsyght"
-PIPELINE="binBam2fastq"
+PIPELINE="binCleanUpBam2FastQ"
 BAM_CENTER="inpsyght"
 BAM_HOST=$BAM_CENTER
 
@@ -45,7 +45,7 @@ if [ ! -z $SLURM_JOB_ID ]; then
   CLST_ENV="csg"
   PREFIX="/net"
   ALIGN_THREADS=12
-  OUT_DIR="${PREFIX}/${BAM_HOST}/mapping.results2/${SAMPLE_ID}"
+  OUT_DIR="${PREFIX}/${BAM_HOST}/mapping.results3/${SAMPLE_ID}"
 
   if [ -d $TMP_DIR ]; then
     for id in $(ls -1 $TMP_DIR); do
@@ -177,13 +177,14 @@ if [ "$rc" -ne 0 ]; then
   echo "[$(date)] $PIPELINE failed with exit code $rc" 1>&2
 else
   echo "[$(date)] Begining gotcloud alignment"
-  gotcloud align                   \
-    --conf      $GOTCLOUD_CONF     \
-    --threads   $ALIGN_THREADS     \
-    --outdir    $OUT_DIR           \
-    --fastqlist $FASTQ_LIST        \
-    --override  "TMP_DIR=$TMP_DIR" \
-    --ref_dir   $REF_DIR
+  gotcloud align                      \
+    --conf         $GOTCLOUD_CONF     \
+    --threads      $ALIGN_THREADS     \
+    --outdir       $OUT_DIR           \
+    --fastqlist    $FASTQ_LIST        \
+    --override     "TMP_DIR=$TMP_DIR" \
+    --ref_dir      $REF_DIR           \
+    --maxlocaljobs $ALIGN_THREADS
 
   rc=$?
   echo "align_rc: $rc" >> $JOB_LOG
