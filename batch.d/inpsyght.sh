@@ -4,12 +4,13 @@
 #SBATCH --nodes=1-1
 #SBATCH --cpus-per-task=12
 #SBATCH --mem-per-cpu=4000
-#SBATCH --gres=tmp:sata:200
+#SBATCH --gres=tmp:sata:600
 #SBATCH --time=28-00:00:00
 #SBATCH --workdir=/net/inpsyght/mapping.logs
-#SBATCH --partition=bipolar
+#SBATCH --partition=nomosix
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=schelcj@umich.edu
+#SBATCH --reservation=inpsyght
 
 #PBS -l nodes=1:ppn=12,walltime=672:00:00,pmem=4gb
 #PBS -l ddisk=50gb
@@ -23,7 +24,7 @@
 #PBS -j oe
 
 TMP_DIR="/tmp/inpsyght"
-PIPELINE="binCleanUpBam2FastQ"
+PIPELINE="cleanUpBam2fastq"
 BAM_CENTER="inpsyght"
 BAM_HOST=$BAM_CENTER
 

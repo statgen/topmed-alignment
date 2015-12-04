@@ -61,12 +61,13 @@ sub execute {
 
     my $line_ref = undef;
     my $bam      = Topmed::BAM->new(
-      cluster => $opts->{cluster},
-      id      => $bam_rs->bamid,
-      center  => $bam_rs->run->center->centername,
-      rundir  => $bam_rs->run->dirname,
-      name    => $bam_rs->bamname,
-      pi      => $bam_rs->piname,
+      cluster   => $opts->{cluster},
+      id        => $bam_rs->bamid,
+      center    => $bam_rs->run->center->centername,
+      rundir    => $bam_rs->run->dirname,
+      name      => $bam_rs->bamname,
+      pi        => $bam_rs->piname,
+      sample_id => $bam_rs->expt_sampleid,
     );
 
     if ($opts->{incomplete}) {

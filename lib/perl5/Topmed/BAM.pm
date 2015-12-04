@@ -4,15 +4,15 @@ use Topmed::Base;
 use Topmed::Config;
 use Moose;
 
-has 'cluster' => (is => 'ro', isa => 'Str', required => 1);
-has 'id'      => (is => 'ro', isa => 'Int', required => 1);
-has 'center'  => (is => 'ro', isa => 'Str', required => 1);
-has 'rundir'  => (is => 'ro', isa => 'Str', required => 1);
-has 'name'    => (is => 'ro', isa => 'Str', required => 1);
-has 'pi'      => (is => 'ro', isa => 'Str', required => 1);
+has 'cluster'   => (is => 'ro', isa => 'Str', required => 1);
+has 'id'        => (is => 'ro', isa => 'Int', required => 1);
+has 'center'    => (is => 'ro', isa => 'Str', required => 1);
+has 'rundir'    => (is => 'ro', isa => 'Str', required => 1);
+has 'name'      => (is => 'ro', isa => 'Str', required => 1);
+has 'pi'        => (is => 'ro', isa => 'Str', required => 1);
+has 'sample_id' => (is => 'ro', isa => 'Str', required => 1);
 
 has 'host'         => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_host');
-has 'sample_id'    => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_sample_id');
 has 'cram'         => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_cram');
 has 'crai'         => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_crai');
 has 'bam'          => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_bam');
@@ -21,11 +21,6 @@ has 'results_path' => (is => 'ro', isa => 'Str', lazy => 1, builder => '_build_r
 sub _build_bam {
   my ($self) = @_;
   return File::Spec->join($BAM_FILE_PREFIX{$self->cluster}, $self->center, $self->rundir, $self->name);
-}
-
-sub _build_sample_id {
-  chomp(my $sample_id = capture(q{samtools view -H } . shift->bam . q{ | grep '^@RG' | grep -o 'SM:\S*' | sort -u | cut -d \: -f 2}));
-  return $sample_id;
 }
 
 sub _build_host {

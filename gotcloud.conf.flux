@@ -19,7 +19,7 @@ qplot_IN = -.ubam
 GEN_CRAM = | $(SAMTOOLS_EXE) view -C -T $(REF) - > $(basename $@)
 VIEW_CRAM = $(SAMTOOLS_EXE) view -uh -T $(REF) $(basename $<) |
 
-#KEEP_TMP = 1
+KEEP_TMP = 1
 KEEP_LOG = 1
 
 FASTQ_LIST = $(OUT_DIR)/fastq.list

@@ -93,6 +93,9 @@ if [ -z $BAM_FILE ]; then
   echo "[$(date)] BAM_FILE is not defined!"
   topmed update --bamid $BAM_DB_ID --state failed
   exit 40
+elif [ ! -e $BAM_FILE ]; then
+  echo "[$(date)] BAM_FILE does not exist on disk!"
+  exit
 fi
 
 if [ -z $BAM_PI ]; then
@@ -126,6 +129,12 @@ REF_DIR="${PREFIX}/topmed/working/mktrost/gotcloud.ref"
 TMP_DIR="${TMP_DIR}/${JOB_ID}"
 FASTQ_LIST="${TMP_DIR}/fastq.list"
 BAM_ID="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\S*' | sort -u | cut -d \: -f 2)"
+
+if [ $? -ne 0 ]; then
+  echo "[$(date)] Failed to determine sample id"
+  exit
+fi
+
 BAM_LIST="${TMP_DIR}/bam.list"
 #OUT_DIR="${PREFIX}/${BAM_HOST}/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}"
 OUT_DIR="${PREFIX}/topmed2/incoming/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - per tom b. 11/30/2015
