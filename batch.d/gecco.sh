@@ -3,7 +3,7 @@
 #SBATCH --ignore-pbs
 #SBATCH --nodes=1-1
 #SBATCH --cpus-per-task=12
-#SBATCH --mem=32000
+#SBATCH --mem=64000
 #SBATCH --gres=tmp:sata:200
 #SBATCH --time=28-00:00:00
 #SBATCH --workdir=/net/topmed/working/gecco/mapping.logs
