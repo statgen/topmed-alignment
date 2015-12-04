@@ -127,7 +127,8 @@ TMP_DIR="${TMP_DIR}/${JOB_ID}"
 FASTQ_LIST="${TMP_DIR}/fastq.list"
 BAM_ID="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\S*' | sort -u | cut -d \: -f 2)"
 BAM_LIST="${TMP_DIR}/bam.list"
-OUT_DIR="${PREFIX}/${BAM_HOST}/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}"
+#OUT_DIR="${PREFIX}/${BAM_HOST}/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}"
+OUT_DIR="${PREFIX}/topmed2/incoming/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - per tom b. 11/30/2015
 JOB_LOG="${OUT_DIR}/job_log"
 RUN_DIR="${PROJECT_DIR}/../run"
 
