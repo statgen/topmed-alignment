@@ -373,7 +373,7 @@ sub status_line {
     $self->bamname,
     $self->run->center->centername,
     $self->studyname,
-    $self->piname,
+    $self->piname // 'unknown',
     $r_bam_status{$self->status},
     $self->mapping->cluster // 'unknown';
 }
