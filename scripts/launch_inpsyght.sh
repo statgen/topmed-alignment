@@ -9,5 +9,5 @@ for bam in $*; do
 
   echo "Submitting BAM: $BAM_FILE for alignment with SAMPLE_ID: $SAMPLE_ID with initial DELAY: $DELAY"
   # qsub -N $job_name batch.d/inpsyght.sh
-  sbatch -J $job_name batch.d/inpsyght.sh
+  # sbatch -J $job_name batch.d/inpsyght.sh
 done

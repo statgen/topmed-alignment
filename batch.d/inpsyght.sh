@@ -2,20 +2,20 @@
 
 #SBATCH --ignore-pbs
 #SBATCH --nodes=1-1
-#SBATCH --cpus-per-task=12
-#SBATCH --mem-per-cpu=4000
-#SBATCH --gres=tmp:sata:600
-#SBATCH --time=28-00:00:00
-#SBATCH --workdir=/net/inpsyght/mapping.logs
+#SBATCH --cpus-per-task=6
+#SBATCH --mem=15000
+#SBATCH --gres=tmp:sata:200
+#SBATCH --time=12-02:00:00
+#SBATCH --workdir=/net/inpsyght/mapping/logs
 #SBATCH --partition=nomosix
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=schelcj@umich.edu
 #SBATCH --reservation=inpsyght
 
-#PBS -l nodes=1:ppn=12,walltime=672:00:00,pmem=4gb
+#PBS -l nodes=1:ppn=4,walltime=290:00:00,pmem=4gb
 #PBS -l ddisk=50gb
 #PBS -m a
-#PBS -d /dept/csg/inpsyght/mapping.logs
+#PBS -d /dept/csg/inpsyght/mapping/logs
 #PBS -M schelcj@umich.edu
 #PBS -q flux
 #PBS -l qos=flux
@@ -45,8 +45,8 @@ if [ ! -z $SLURM_JOB_ID ]; then
   NODE=$SLURM_JOB_NODELIST
   CLST_ENV="csg"
   PREFIX="/net"
-  ALIGN_THREADS=12
-  OUT_DIR="${PREFIX}/${BAM_HOST}/mapping.results3/${SAMPLE_ID}"
+  ALIGN_THREADS=6
+  OUT_DIR="${PREFIX}/${BAM_HOST}/mapping/results/${SAMPLE_ID}"
 
   if [ -d $TMP_DIR ]; then
     for id in $(ls -1 $TMP_DIR); do
@@ -63,8 +63,8 @@ elif [ ! -z $PBS_JOBID ]; then
   NODE="$(cat $PBS_NODEFILE)"
   CLST_ENV="flux"
   PREFIX="/dept/csg"
-  ALIGN_THREADS=12
-  OUT_DIR="${PREFIX}/${BAM_HOST}/mapping.results/${SAMPLE_ID}"
+  ALIGN_THREADS=4
+  OUT_DIR="${PREFIX}/${BAM_HOST}/mapping/results/${SAMPLE_ID}"
 
   if [ -d $TMP_DIR ]; then
     for id in $(ls -1 $TMP_DIR); do
@@ -81,7 +81,7 @@ else
   exit 1
 fi
 
-RUN_DIR="${PREFIX}/inpsyght/mapping.run"
+RUN_DIR="${PREFIX}/inpsyght/mapping/run"
 GOTCLOUD_CONF="${PREFIX}/topmed/working/schelcj/align/gotcloud.conf.${CLST_ENV}"
 REF_DIR="${PREFIX}/topmed/working/mktrost/gotcloud.ref"
 TMP_DIR="${TMP_DIR}/${JOB_ID}"
