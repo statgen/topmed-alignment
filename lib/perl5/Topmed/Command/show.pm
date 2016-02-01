@@ -49,7 +49,12 @@ sub execute {
   if ($opts->{state}) {
     for my $bam ($db->resultset('Bamfile')->all()) {
       if ($bam->status == $BAM_STATUS{$opts->{state}}) {
-        say $bam->status_line;
+        if ($opts->{state} eq 'submitted') {
+          say $bam->status_line . 'JobId: ' . $bam->mapping->job_id;
+        } else {
+          say $bam->status_line;
+        }
+
         print Dumper $bam if $self->app->global_options->{'debug'};
       }
     }
@@ -73,7 +78,12 @@ sub execute {
 
   if ($opts->{bamid}) {
     my $bam = $db->resultset('Bamfile')->find($opts->{bamid});
-    say $bam->status_line;
+    my $line = $bam->status_line;
+
+    if ($bam->mapping->job_id) {
+      $line .= q{ JobId: } . $bam->mapping->job_id;
+    }
+    say $line;
   }
 
   if ($opts->{jobid}) {
