@@ -73,7 +73,7 @@ Readonly::Scalar my $DB_CONNECTION_INFO => $ENV{TOPMED_DB_CONNECTION_INFO} // qq
 
 Readonly::Scalar our $BATCH_SCRIPT        => qq{$Bin/../align.sh};
 Readonly::Scalar our $BAM_HOST_PRIMARY    => 'topmed';
-Readonly::Scalar our $BAM_STATUS_LINE_FMT => q{ID: %-8s %-30s center: %-10s study: %-10s PI: %-15s Status: %-10s Cluster: %-5s};
+Readonly::Scalar our $BAM_STATUS_LINE_FMT => q{ID: %-8s %-30s center: %-10s study: %-10s run: %-15s PI: %-15s Status: %-10s Cluster: %-5s};
 Readonly::Scalar our $BAM_RESULTS_DIR     => q{working/schelcj/results};
 Readonly::Scalar our $FLUX_KIBANA_URL_FMT => q{https://kibana.arc-ts.umich.edu/logstash-joblogs-%d.*/pbsacctlog/_search};
 

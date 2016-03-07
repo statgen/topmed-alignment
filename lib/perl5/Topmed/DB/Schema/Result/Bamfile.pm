@@ -373,9 +373,10 @@ sub status_line {
     $self->bamname,
     $self->run->center->centername,
     $self->studyname,
+    $self->run->dirname,
     $self->piname // 'unknown',
     $r_bam_status{$self->status},
-    $self->mapping->cluster // 'unknown';
+    ($self->mapping) ? $self->mapping->cluster // 'unknown' : 'not_submitted';
 }
 
 1;
