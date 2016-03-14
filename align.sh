@@ -4,21 +4,21 @@
 #SBATCH --nodes=1-1
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=15000
-#SBATCH --gres=tmp:sata:200
+#SBATCH --gres=tmp:250
 #SBATCH --time=10-02:00:00
 #SBATCH --workdir=/net/topmed/working/schelcj/logs/align
 #SBATCH --partition=nomosix
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=topmed-alignment@umich.edu
 
-#PBS -l nodes=1:ppn=4,walltime=242:00:00,pmem=4gb
+#PBS -l nodes=1:ppn=6,walltime=242:00:00,pmem=4gb
 #PBS -l ddisk=50gb
 #PBS -m a
 #PBS -d /dept/csg/topmed/working/schelcj/logs/align
 #PBS -M topmed-alignment@umich.edu
 #PBS -q flux
 #PBS -l qos=flux
-#PBS -A hmkang_flux
+#PBS -A goncalo_flux
 #PBS -V
 #PBS -j oe
 
@@ -137,7 +137,8 @@ fi
 
 BAM_LIST="${TMP_DIR}/bam.list"
 #OUT_DIR="${PREFIX}/${BAM_HOST}/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}"
-OUT_DIR="${PREFIX}/topmed2/incoming/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - per tom b. 11/30/2015
+#OUT_DIR="${PREFIX}/topmed2/incoming/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - per tom b. 11/30/2015
+OUT_DIR="${PREFIX}/topmed3/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - per tom b. 01/14/2016
 JOB_LOG="${OUT_DIR}/job_log"
 RUN_DIR="${PROJECT_DIR}/../run"
 
@@ -237,6 +238,18 @@ if [ "$rc" -ne 0 ]; then
   echo "[$(date)] $PIPELINE failed with exit code $rc" 1>&2
   topmed update --bamid $BAM_DB_ID --state failed
 else
+
+  if [ "$PIPELINE" == "cleanUpBam2fastq" ]; then
+    echo "[$(date)] Puring temporary fastq files from $PIPELINE"
+    rm -rf ${TMP_DIR}/fastqs/tmp.cleanUpBam
+
+    if [ "$?" -ne 0 ]; then
+      echo "[$(date)] Failed to delete temporary fastq files from $PIPELINE"
+      topmed update --bamid $BAM_DB_ID --state failed
+      exit 1
+    fi
+  fi
+
   echo "[$(date)] Begining gotcloud alignment"
   gotcloud align                   \
     --gcroot    $GOTCLOUD_ROOT     \

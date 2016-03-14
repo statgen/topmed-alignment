@@ -2,12 +2,12 @@
 
 #SBATCH --ignore-pbs
 #SBATCH --nodes=1-1
-#SBATCH --cpus-per-task=12
-#SBATCH --mem=64000
-#SBATCH --gres=tmp:sata:200
+#SBATCH --cpus-per-task=6
+#SBATCH --mem=24000
+#SBATCH --gres=tmp:250
 #SBATCH --time=28-00:00:00
 #SBATCH --workdir=/net/topmed/working/gecco/mapping.logs
-#SBATCH --partition=nomosix
+#SBATCH --partition=topmed-working
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=schelcj@umich.edu
 
@@ -175,6 +175,17 @@ echo "pipe_rc: $rc" >> $JOB_LOG
 if [ "$rc" -ne 0 ]; then
   echo "[$(date)] $PIPELINE failed with exit code $rc" 1>&2
 else
+
+  if [ "$PIPELINE" == "cleanUpBam2fastq" ]; then
+    echo "[$(date)] Puring temporary fastq files from $PIPELINE"
+    rm -rf ${TMP_DIR}/fastqs/tmp.cleanUpBam
+
+    if [ "$?" -ne 0 ]; then
+      echo "[$(date)] Failed to delete temporary fastq files from $PIPELINE"
+      exit 1
+    fi
+  fi
+
   echo "[$(date)] Begining gotcloud alignment"
   gotcloud align                   \
     --conf      $GOTCLOUD_CONF     \
