@@ -3,11 +3,11 @@
 #SBATCH --ignore-pbs
 #SBATCH --nodes=1-1
 #SBATCH --cpus-per-task=6
-#SBATCH --mem=15000
+#SBATCH --mem=48000
 #SBATCH --gres=tmp:250
-#SBATCH --time=10-02:00:00
+#SBATCH --time=28-0
 #SBATCH --workdir=/net/topmed/working/schelcj/logs/align
-#SBATCH --partition=nomosix
+#SBATCH --partition=topmed-working
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=topmed-alignment@umich.edu
 
@@ -115,10 +115,14 @@ case "$BAM_CENTER" in
     PIPELINE="cleanUpBam2fastq"
     ;;
   broad)
-    PIPELINE="binBam2fastq"
+    #PIPELINE="binBam2fastq"
+    PIPELINE="cleanUpBam2fastq" # XXX - changed to fix some year1 samples
     ;;
   nygc)
     PIPELINE="binBam2fastq"
+    ;;
+  illumina)
+    PIPELINE="cleanUpBam2fastq" # XXX - changed to fix some year1 samples
     ;;
   *)
     PIPELINE="bam2fastq"
@@ -138,7 +142,8 @@ fi
 BAM_LIST="${TMP_DIR}/bam.list"
 #OUT_DIR="${PREFIX}/${BAM_HOST}/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}"
 #OUT_DIR="${PREFIX}/topmed2/incoming/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - per tom b. 11/30/2015
-OUT_DIR="${PREFIX}/topmed3/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - per tom b. 01/14/2016
+#OUT_DIR="${PREFIX}/topmed3/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - per tom b. 01/14/2016
+OUT_DIR="${PREFIX}/topmed4/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - per chris s. 03/25/2016
 JOB_LOG="${OUT_DIR}/job_log"
 RUN_DIR="${PROJECT_DIR}/../run"
 
