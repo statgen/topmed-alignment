@@ -3,11 +3,11 @@
 #SBATCH --ignore-pbs
 #SBATCH --nodes=1-1
 #SBATCH --cpus-per-task=6
-#SBATCH --mem=15000
+#SBATCH --mem=24000
 #SBATCH --gres=tmp:250
 #SBATCH --time=10-02:00:00
 #SBATCH --workdir=/net/topmed/working/schelcj/logs/align
-#SBATCH --partition=nomosix
+#SBATCH --partition=topmed-working
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=topmed-alignment@umich.edu
 
@@ -95,7 +95,8 @@ if [ -z $BAM_FILE ]; then
   exit 40
 elif [ ! -e $BAM_FILE ]; then
   echo "[$(date)] BAM_FILE does not exist on disk!"
-  exit
+  topmed update --bamid $BAM_DB_ID --state failed
+  exit 40
 fi
 
 if [ -z $BAM_PI ]; then
