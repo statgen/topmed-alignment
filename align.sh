@@ -95,7 +95,8 @@ if [ -z $BAM_FILE ]; then
   exit 40
 elif [ ! -e $BAM_FILE ]; then
   echo "[$(date)] BAM_FILE does not exist on disk!"
-  exit
+  topmed update --bamid $BAM_DB_ID --state failed
+  exit 40
 fi
 
 if [ -z $BAM_PI ]; then

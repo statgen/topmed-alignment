@@ -80,7 +80,7 @@ sub execute {
     my $bam = $db->resultset('Bamfile')->find($opts->{bamid});
     my $line = $bam->status_line;
 
-    if ($bam->mapping->job_id) {
+    if ($bam->mapping) {
       $line .= q{ JobId: } . $bam->mapping->job_id;
     }
     say $line;
