@@ -140,6 +140,11 @@ if [ $? -ne 0 ]; then
   exit
 fi
 
+if [ -z $BAM_ID ]; then
+  echo "[$(date)] No sample id found"
+  exit
+fi
+
 BAM_LIST="${TMP_DIR}/bam.list"
 #OUT_DIR="${PREFIX}/${BAM_HOST}/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}"
 #OUT_DIR="${PREFIX}/topmed2/incoming/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - per tom b. 11/30/2015
