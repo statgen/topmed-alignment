@@ -7,7 +7,7 @@
 #SBATCH --gres=tmp:250
 #SBATCH --time=28-0
 #SBATCH --workdir=/net/topmed/working/schelcj/logs/align
-#SBATCH --partition=topmed-working
+#SBATCH --partition=topmed
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=topmed-alignment@umich.edu
 
@@ -144,7 +144,9 @@ BAM_LIST="${TMP_DIR}/bam.list"
 #OUT_DIR="${PREFIX}/${BAM_HOST}/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}"
 #OUT_DIR="${PREFIX}/topmed2/incoming/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - per tom b. 11/30/2015
 #OUT_DIR="${PREFIX}/topmed3/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - per tom b. 01/14/2016
-OUT_DIR="${PREFIX}/topmed4/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - per chris s. 03/25/2016
+#OUT_DIR="${PREFIX}/topmed4/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - per chris s. 03/25/2016
+#OUT_DIR="${PREFIX}/topmed4/working/schelcj/test/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - debugging some failed samples - cjs 5/25/2016
+OUT_DIR="${PREFIX}/topmed5/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - rerunning samples with incorrect reads - cjs 7/13/2016
 JOB_LOG="${OUT_DIR}/job_log"
 RUN_DIR="${PROJECT_DIR}/../run"
 

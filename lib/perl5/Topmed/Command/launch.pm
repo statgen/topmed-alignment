@@ -101,16 +101,13 @@ sub execute {
     next unless $bam->has_arrived();
     last if $opts->{limit} and ++$jobs > $opts->{limit};
 
-    my $clst        = $opts->{cluster};
-    my $host        = $BAM_HOST_PRIMARY;
-    my $center_path = File::Spec->join($BAM_FILE_PREFIX{$clst}, $bam->run->center->centername);
-    my $path        = File::Spec->join($center_path, $bam->run->dirname, $bam->bamname);
+    my $clst = $opts->{cluster};
+    my $host = $BAM_HOST_PRIMARY;
+    my $path = abs_path(File::Spec->join($BAM_FILE_PREFIX{$clst}, $bam->run->center->centername, $bam->run->dirname, $bam->bamname));
 
-    if (-l $center_path) {
-      my $file       = Path::Class->file(readlink($center_path));
-      my @components = $file->components();
-      $host = $components[4];
-    }
+    my $abs_path = Path::Class->file($path);
+    my @comps    = $abs_path->components();
+    $host        = $comps[3]; # FIXME - not correct for flux but we shouldn't be using flux anymore for b37
 
     say "Sumitting remapping job for " . $bam->bamname if $self->app->global_options->{verbose};
 
