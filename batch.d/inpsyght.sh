@@ -7,7 +7,7 @@
 #SBATCH --gres=tmp:250
 #SBATCH --time=28-0
 #SBATCH --workdir=/net/inpsyght/mapping/logs
-#SBATCH --partition=topmed-working
+#SBATCH --partition=nomosix
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=schelcj@umich.edu
 
