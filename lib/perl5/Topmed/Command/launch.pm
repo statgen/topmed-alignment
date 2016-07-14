@@ -14,6 +14,7 @@ sub opt_spec {
     ['center=s',    'Only map BAMs from a specific center'],
     ['pi=s',        'Only map BAMs from a specific PI'],
     ['bamid|b=i',   'Remap a specific BAM based on the db id (override studies, centers, and pis)'],
+    ['delay=i',     'Delay the start of the job by n seconds'],
   );
 }
 
@@ -116,7 +117,7 @@ sub execute {
 
     say "Sumitting remapping job for " . $bam->bamname if $self->app->global_options->{verbose};
 
-    my $delay   = int(rand(120));
+    my $delay   = $opts->{delay} // int(rand(120));
     my $job_env = {
       env => {
         BAM_CENTER => $bam->run->center->centername,
