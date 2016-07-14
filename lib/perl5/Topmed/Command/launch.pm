@@ -105,7 +105,7 @@ sub execute {
     my $host = $BAM_HOST_PRIMARY;
     my $path = abs_path(File::Spec->join($BAM_FILE_PREFIX{$clst}, $bam->run->center->centername, $bam->run->dirname, $bam->bamname));
 
-    unless (-e $path) {
+    if (not defined $path or not -e $path) {
       my $backup_dir = File::Spec->join($CLUSTER_PREFIX{$clst}, 'topmed', 'working', 'backups', 'incoming', 'topmed');
       $path = abs_path(File::Spec->join($backup_dir, $bam->run->center->centername, $bam->run->dirname, $bam->expt_sampleid . '.src.cram'));
     }
