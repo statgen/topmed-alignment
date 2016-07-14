@@ -241,7 +241,8 @@ gotcloud pipe              \
   --conf    $GOTCLOUD_CONF \
   --numjobs 1              \
   --ref_dir $REF_DIR       \
-  --outdir  $TMP_DIR
+  --outdir  $TMP_DIR       \
+  --verbose 1
 
 rc=$?
 
@@ -271,7 +272,8 @@ else
     --outdir    $OUT_DIR           \
     --fastqlist $FASTQ_LIST        \
     --override  "TMP_DIR=$TMP_DIR" \
-    --ref_dir   $REF_DIR
+    --ref_dir   $REF_DIR           \
+    --verbose   1
 
   rc=$?
   echo "align_rc: $rc" >> $JOB_LOG
