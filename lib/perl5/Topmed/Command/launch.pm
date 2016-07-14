@@ -105,6 +105,11 @@ sub execute {
     my $host = $BAM_HOST_PRIMARY;
     my $path = abs_path(File::Spec->join($BAM_FILE_PREFIX{$clst}, $bam->run->center->centername, $bam->run->dirname, $bam->bamname));
 
+    unless (-e $path) {
+      my $backup_dir = File::Spec->join($CLUSTER_PREFIX{$clst}, 'topmed', 'working', 'backups', 'incoming', 'topmed');
+      $path = abs_path(File::Spec->join($backup_dir, $bam->run->center->centername, $bam->run->dirname, $bam->expt_sampleid . '.src.cram'));
+    }
+
     my $abs_path = Path::Class->file($path);
     my @comps    = $abs_path->components();
     $host        = $comps[3]; # FIXME - not correct for flux but we shouldn't be using flux anymore for b37
