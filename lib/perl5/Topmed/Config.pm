@@ -98,7 +98,7 @@ Readonly::Hash our %BAM_STATUS => (
 
 Readonly::Hash our %JOB_CMDS => (
   csg  => '/usr/cluster/bin/sbatch',
-  flux => '/usr/local/torque/bin/qsub',
+  flux => '/usr/local/bin/qsub',
 );
 
 Readonly::Hash our %JOB_OUTPUT_REGEXP => (
