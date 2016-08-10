@@ -34,7 +34,13 @@ recab_USER_PARAMS = --maxBaseQual 44
 BAM_LIST = $(OUT_DIR)/bam.list
 
 [cleanUpBam]
-CMD = $(CRAM_VIEW) ?(BAM) |  $(BAM_EXE) squeeze --in -.ubam --keepDups --rmTags AS:i,BD:Z,BI:Z,XS:i,MC:Z,MD:Z,NM:i,MQ:i --out - | $(SAMTOOLS_EXE) view -S -b -F 0x800 - | $(SAMTOOLS_SORT_EXE) sort -n -o - $(DIR)/?(BAM).temp | $(SAMTOOLS_EXE) fixmate - $(OUTPUT) 2> $(OUTPUT)2fastq.log
+CMD = $(CRAM_VIEW) ?(BAM) |  $(BAM_EXE) squeeze --in -.ubam --keepDups --rmTags AS:i,BD:Z,BI:Z,XS:i,MC:Z,MD:Z,NM:i,MQ:i --out - | $(SAMTOOLS_EXE) view -S -b -F 0x800 - | $(SAMTOOLS_SORT_EXE) sort -n -T $(DIR)/?(BAM).temp - | $(SAMTOOLS_EXE) fixmate - $(OUTPUT) 2> $(OUTPUT)2fastq.log
 
 [bam2fastqStep]
 CMD = $(CRAM_VIEW) ?(BAM) | $(PIPE) $(BAM_EXE) bam2fastq --in -.ubam --outBase $(OUTPUT) --splitRG --gzip 2> $(OUTPUT)2fastq.log
+
+[bam2fastqStepFromClean]
+DEPEND = cleanUpBam
+DIR = $(OUT_DIR)/fastqs
+OUTPUT = $(DIR)/?(BAM)
+CMD = $(CRAM_VIEW) ?(BAM) | $(BAM_EXE) bam2fastq --in -.ubam --outBase $(OUTPUT) --splitRG --readname --gzip 2> $(OUTPUT)2fastq.log

@@ -11,7 +11,7 @@
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=topmed-alignment@umich.edu
 
-#PBS -l nodes=1:ppn=6,walltime=242:00:00,pmem=4gb
+#PBS -l nodes=1:ppn=4,walltime=242:00:00,pmem=4gb
 #PBS -l ddisk=50gb
 #PBS -m a
 #PBS -d /dept/csg/topmed/working/schelcj/logs/align
@@ -151,7 +151,8 @@ BAM_LIST="${TMP_DIR}/bam.list"
 #OUT_DIR="${PREFIX}/topmed3/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - per tom b. 01/14/2016
 #OUT_DIR="${PREFIX}/topmed4/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - per chris s. 03/25/2016
 #OUT_DIR="${PREFIX}/topmed4/working/schelcj/test/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - debugging some failed samples - cjs 5/25/2016
-OUT_DIR="${PREFIX}/topmed5/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - rerunning samples with incorrect reads - cjs 7/13/2016
+#OUT_DIR="${PREFIX}/topmed5/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - rerunning samples with incorrect reads - cjs 7/13/2016
+OUT_DIR="${PREFIX}/topmed6/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - late in arriving year1 samples - cjs 8/10/2016
 JOB_LOG="${OUT_DIR}/job_log"
 RUN_DIR="${PROJECT_DIR}/../run"
 
@@ -200,6 +201,12 @@ chmod 750 $TMP_DIR
 if [ $? -ne 0 ]; then
   echo "[$(date)] Failed to set permissions on TMP_DIR"
   exit 90
+fi
+
+READS_ORIG=$($GOTCLOUD_ROOT/bin/samtools flagstat $BAM_FILE | grep 'paired in sequencing' | awk {'print $1'})
+if [ $? -ne 0 ]; then
+  echo "[$(date)] Failed to get reads from flagstat"
+  exit 1
 fi
 
 echo "[$(date)] Creating BAM_LIST"
@@ -284,6 +291,23 @@ else
   else
     echo "[$(date)] Alignment completed"
     topmed update --bamid $BAM_DB_ID --state completed
+
+    CRAM_FILE="${OUT_DIR}/bams/${BAM_ID}.recal.cram"
+    READS_MAPPED=$($GOTCLOUD_ROOT/bin/samtools flagstat $CRAM_FILE | grep 'paired in sequencing' | awk {'print $1'})
+    flagstat_rc=$?
+    if [ $flagstat_rc -ne 0 ]; then
+      echo "[$(date)] failed to get reads from flagstat"
+      topmed update --bamid $BAM_DB_ID --state failed
+      rc=$flagstat_rc
+    else
+      if [ $READS_ORIG -eq $READS_MAPPED ]; then
+        echo "[$(date)] original and remapped samples have the same number of reads"
+      else
+        echo "[$(date)] Reads for original, $READS_ORIG, do not match the remapped sample, $READS_MAPPED."
+        topmed update --bamid $BAM_DB_ID --state failed
+        rc=1
+      fi
+    fi
   fi
 fi
 
