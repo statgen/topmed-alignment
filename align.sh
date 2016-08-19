@@ -133,7 +133,7 @@ esac
 REF_DIR="${PREFIX}/topmed/working/mktrost/gotcloud.ref"
 TMP_DIR="${TMP_DIR}/${JOB_ID}"
 FASTQ_LIST="${TMP_DIR}/fastq.list"
-BAM_ID="$(samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\S*' | sort -u | cut -d \: -f 2)"
+BAM_ID="$($GOTCLOUD_ROOT/bin/samtools view -H $BAM_FILE | grep '^@RG' | grep -o 'SM:\S*' | sort -u | cut -d \: -f 2)"
 
 if [ $? -ne 0 ]; then
   echo "[$(date)] Failed to determine sample id"
