@@ -113,7 +113,11 @@ sub execute {
 
     my $abs_path = Path::Class->file($path);
     my @comps    = $abs_path->components();
-    $host        = $comps[3]; # FIXME - not correct for flux but we shouldn't be using flux anymore for b37
+    $host        = $comps[3];
+
+    if ($clst eq 'flux') {
+      $host = $comps[4];
+    }
 
     say "Sumitting remapping job for " . $bam->bamname if $self->app->global_options->{verbose};
 
