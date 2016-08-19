@@ -13,7 +13,7 @@
 
 #PBS -l nodes=1:ppn=4,walltime=242:00:00,pmem=4gb
 #PBS -l ddisk=50gb
-#PBS -m a
+#PBS -m ae
 #PBS -d /dept/csg/topmed/working/schelcj/logs/align
 #PBS -M topmed-alignment@umich.edu
 #PBS -q flux
