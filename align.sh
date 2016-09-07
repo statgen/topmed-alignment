@@ -10,6 +10,7 @@
 #SBATCH --partition=topmed
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=topmed-alignment@umich.edu
+#SBATCH --exclude=topmed,topmed[2-4]
 
 #PBS -l nodes=1:ppn=4,walltime=242:00:00,pmem=4gb
 #PBS -l ddisk=50gb
@@ -154,7 +155,7 @@ BAM_LIST="${TMP_DIR}/bam.list"
 #OUT_DIR="${PREFIX}/topmed5/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - rerunning samples with incorrect reads - cjs 7/13/2016
 OUT_DIR="${PREFIX}/topmed6/working/schelcj/results/${BAM_CENTER}/${BAM_PI}/${BAM_ID}" # XXX - late in arriving year1 samples - cjs 8/10/2016
 JOB_LOG="${OUT_DIR}/job_log"
-RUN_DIR="${PROJECT_DIR}/../run"
+RUN_DIR="${PROJECT_DIR}/../run.$CLST_ENV"
 
 echo "[$(date)]
 OUT_DIR:    $OUT_DIR
